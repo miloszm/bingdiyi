@@ -1,10 +1,18 @@
 #include <iostream>
 #include <bitcoin/bitcoin.hpp>
-//#include <bitcoin/client/obelisk_client.hpp>
 #include <bitcoin/client.hpp>
 
 
 using namespace bc;
+
+
+
+// $ g++ -std=c++11 -o height HelloBlockChain.cpp $(pkg-config --cflags libbitcoin --libs libbitcoin libbitcoin-client)
+
+
+void encode_transaction() {
+
+}
 
 
 int main() {
@@ -12,14 +20,14 @@ int main() {
     client::connection_type connection = {};
     connection.retries = 3;
     connection.timeout_seconds = 8;
-    connection.server = config::endpoint("tcp://mainnet.libbitcoin.net:9091");
+    //connection.server = config::endpoint("tcp://mainnet.libbitcoin.net:9091");
+    //connection.server = config::endpoint("tcp://mainnet2.libbitcoin.net:9091");
+    connection.server = config::endpoint("tcp://testnet1.libbitcoin.net:19091");
 
 
     static constexpr uint8_t num_retries = 0;
     static constexpr uint16_t timeout_seconds = 8;
 
-    //static auto address = std::string("tcp://libbitcoin1.openbazaar.org:9091");
-//    static auto address = std::string("tcp://mainnet.libbitcoin.net:9091");
 
     static const auto on_error = [](const code& ec)
     {
@@ -31,21 +39,18 @@ int main() {
         std::cout << "Height: " << blockHeight << std::endl;
     };
 
-    client::obelisk_client client2(connection);
+    client::obelisk_client client(connection);
 
-//    libbitcoin::client::obelisk_client client {timeout_seconds, num_retries};
-
-//    client.connect(address);
-    if(!client2.connect(connection))
+    if(!client.connect(connection))
     {
         std::cout << "Fail" << std::endl;
     } else {
         std::cout << "Connection Succeeded" << std::endl;
     }
 
-    client2.blockchain_fetch_last_height(on_error, on_reply);
-    client2.wait();
+    client.blockchain_fetch_last_height(on_error, on_reply);
+    client.wait();
 
-	std::cout << "Hello bing\n";
+	std::cout << "Hello bing (testnet) 4\n";
 
 }
