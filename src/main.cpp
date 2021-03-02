@@ -10,10 +10,6 @@ using namespace bc;
 // $ g++ -std=c++11 -o height HelloBlockChain.cpp $(pkg-config --cflags libbitcoin --libs libbitcoin libbitcoin-client)
 
 
-void encode_transaction() {
-
-}
-
 
 int main() {
 
