@@ -1,0 +1,124 @@
+===== transaction via command line ========================================================================================
+(testnet)
+
+procedure below transfered successfully 80000 sat (testnet) from address mtj9vxnzy9rP9A2fUJ3bZBpdYFWn6w1QQC to
+the address n2JZCSr8MeGuGtvRVjZTqgNNw9pyYW98Pm - fee given was 9220
+transaction can be seen at:
+https://live.blockcypher.com/btc-testnet/tx/ff1340557b325471f87873b8ec4a0cc84786b1496485b674145732e5d1b405e5/
+it was created exclusively via command-line bx commands as per description below:
+
+
+private key for miJNzPfaB6buRjTzr1RDaR2uNjbHhfneX4
+is
+cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
+p2pkh:cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
+(as provided by Electrum)
+
+
+
+bx fetch-utxo 80000 mtj9vxnzy9rP9A2fUJ3bZBpdYFWn6w1QQC
+points
+{
+    point
+    {
+        hash dd91b944e8b743b1cdb8d106161e8d1f1a666597cc16a6291f7fd4baca891508
+        index 1
+        value 89220
+    }
+}
+
+bx tx-encode -i dd91b944e8b743b1cdb8d106161e8d1f1a666597cc16a6291f7fd4baca891508:1 -o n2JZCSr8MeGuGtvRVjZTqgNNw9pyYW98Pm:80000
+returns:
+0100000001081589cabad47f1f29a616cc9765661a1f8d1e1606d1b8cdb143b7e844b991dd0100000000ffffffff0180380100000000001976a914e4025ea9ce17ea3eef834ba7cc9e1e1d12d6f9c588ac00000000
+
+
+
+
+bx fetch-tx dd91b944e8b743b1cdb8d106161e8d1f1a666597cc16a6291f7fd4baca891508
+gives:
+transaction
+{
+    hash dd91b944e8b743b1cdb8d106161e8d1f1a666597cc16a6291f7fd4baca891508
+    inputs
+    {
+        input
+        {
+            address_hash 1e8795a7df27c51fd9be5d4dfc958a511612213a
+            previous_output
+            {
+                hash 8b3040709ffce96a86d23cbb2ab085770dc0fc207c50e2f654a594425ddbf50c
+                index 0
+            }
+            script "[3044022076c4af7177aecf15f63c94f1a28a36178bf641283b64ffc544af3e55f7e398c4022076657d3d0368834dcd6819e39ae5d2163606142f3c48fdcbad22be7e4b8baacf01] [02d1d74650cda6e96a6d3e257ae17267ed32dfcede749b15a1a422c654a199a112]"
+            sequence 4294967293
+        }
+    }
+    lock_time 1897703
+    outputs
+    {
+        output
+        {
+            script "zero [dd169ca2596495e23193e973f26cbf98b097887d]"
+            value 5550
+        }
+        output
+        {
+            address_hash 90e8571c1e4d5f37e736474ca076b67b11ff7787
+            script "dup hash160 [90e8571c1e4d5f37e736474ca076b67b11ff7787] equalverify checksig"
+            value 89220
+        }
+    }
+    version 2
+}
+
+we take the script from the second output and use it in the input-sign
+cN9XS1bFNhMmmvXTNudnwZd7zyuRwCk4HmEVy4xbSxtPArC4KcoE is the private key
+
+
+bx wif-to-ec cN9XS1bFNhMmmvXTNudnwZd7zyuRwCk4HmEVy4xbSxtPArC4KcoE
+10e2c5ef31c546a67bc1d98429956881e249915230399ceac7c4ff92f4a66f39
+the above is our private key in HEX
+wif-to-ec is good for converting private key that Electrum gives you to the EC format as understood by bx
+
+bx input-sign 10e2c5ef31c546a67bc1d98429956881e249915230399ceac7c4ff92f4a66f39 "dup hash160 [90e8571c1e4d5f37e736474ca076b67b11ff7787] equalverify checksig" 0100000001081589cabad47f1f29a616cc9765661a1f8d1e1606d1b8cdb143b7e844b991dd0100000000ffffffff0180380100000000001976a914e4025ea9ce17ea3eef834ba7cc9e1e1d12d6f9c588ac00000000
+produced our endorsement script:
+3044022009f1cdf2fe813ec15840a5d8c4bf3d74fdca89f68ac0cb8fec278afe66928e8202204175b145a5a4f0e81f67483ce87f28dcc9b686056731d88a35ca7542b3ff1ad501
+
+
+
+bx ec-to-public 10e2c5ef31c546a67bc1d98429956881e249915230399ceac7c4ff92f4a66f39
+0364eabda399f7bfee4bcc685e7f9a3ccdd4f6b540962901ee831690d497f64292
+this produced our public key from our private key
+
+
+
+here we use
+1) endorsement script
+2) public key
+3) encoded vanilla transaction
+bx input-set "[3044022009f1cdf2fe813ec15840a5d8c4bf3d74fdca89f68ac0cb8fec278afe66928e8202204175b145a5a4f0e81f67483ce87f28dcc9b686056731d88a35ca7542b3ff1ad501] [0364eabda399f7bfee4bcc685e7f9a3ccdd4f6b540962901ee831690d497f64292]" 0100000001081589cabad47f1f29a616cc9765661a1f8d1e1606d1b8cdb143b7e844b991dd0100000000ffffffff0180380100000000001976a914e4025ea9ce17ea3eef834ba7cc9e1e1d12d6f9c588ac00000000
+
+produced our final transaction:
+0100000001081589cabad47f1f29a616cc9765661a1f8d1e1606d1b8cdb143b7e844b991dd010000006a473044022009f1cdf2fe813ec15840a5d8c4bf3d74fdca89f68ac0cb8fec278afe66928e8202204175b145a5a4f0e81f67483ce87f28dcc9b686056731d88a35ca7542b3ff1ad501210364eabda399f7bfee4bcc685e7f9a3ccdd4f6b540962901ee831690d497f64292ffffffff0180380100000000001976a914e4025ea9ce17ea3eef834ba7cc9e1e1d12d6f9c588ac00000000
+
+now you can:
+bx validate-tx
+bx tx-decode
+
+and finally:
+
+bx send-tx 0100000001081589cabad47f1f29a616cc9765661a1f8d1e1606d1b8cdb143b7e844b991dd010000006a473044022009f1cdf2fe813ec15840a5d8c4bf3d74fdca89f68ac0cb8fec278afe66928e8202204175b145a5a4f0e81f67483ce87f28dcc9b686056731d88a35ca7542b3ff1ad501210364eabda399f7bfee4bcc685e7f9a3ccdd4f6b540962901ee831690d497f64292ffffffff0180380100000000001976a914e4025ea9ce17ea3eef834ba7cc9e1e1d12d6f9c588ac00000000
+
+==== the above has worked (2 Mar 2021) ====
+
+
+to sum up, we needed:
+1) obtain private key WIFPRIVK in WIF format for the source address, from Electrum
+2) convert the WIFPRIVK private key to HEX (PRIVK), and to public key HEX (PUBK)
+3) use bx fetch-utxo to find out which unspent tx output will be used as our input, let's call this info as FUNDINGTX:INDEX
+4) use bx tx-encode to create vanilla tx, say, VANILLATX
+5) use bx fetch-tx to find out the locking script for FUNDINGTX:INDEX, let's name it LOCKSCRIPT
+6) use bx input-sign with PRIVK, LOCKSCRIPT, VANILLATX, this will produce ENDORSEMENT
+7) use bx input-set with ENDORSEMENT, PUBK, VANILLATX, this will produce FINALTX
+8) use bx send-tx with FINALTX to broadcast the transaction
+
