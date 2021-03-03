@@ -1,0 +1,54 @@
+
+
+1) find address in your wallet which has some balance
+   say:
+   miJNzPfaB6buRjTzr1RDaR2uNjbHhfneX4
+   has 0.00099 BTC which is 99000 satoshis
+
+2) find the WIF private key for this address
+   say:
+   cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
+
+3) find out funding TX ID and output index, by doing
+   bx fetch-utxo <amount-you-want-to-transfer> <address-as-found-in-point-1>
+   say:
+   bx fetch-utxo 90000 miJNzPfaB6buRjTzr1RDaR2uNjbHhfneX4
+   which outputs:
+   points
+   {
+       point
+       {
+           hash eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
+           index 1
+           value 91000
+       }
+   }
+   our funding tx id is: eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
+   funding tx output index is: 1
+
+4) find target address where you want transfer the funds to:
+   say:
+   mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
+
+5) decide how much you want to transfer and how much will be "lost" as a fee
+   NOTE that in this scenario we have only one output and we don't receive change money back
+   say:
+   81000 satoshis, which implies 10000 satoshis fee
+
+5) so we have:
+   private key WIF: cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
+   funding tx id: eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
+   funding index: 1
+   target address: mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
+   amount: 81000
+   enter the above values in the source code raw_transaction_produce.cpp
+
+6) run make & ./bing
+
+7) copy the raw transaction from the screen
+
+8) broadcast the tx using bx send-tx
+   say:
+   bx send-tx 000000000111454032a2a481d16788da73449a112aa246d427b078f554125cdc3781fceeee010000006a4730440220321f8f73853fa48d82d93dd1aeb5df32481b724394517f3605059a1d6846439102206403aa2abee9865a5124fac6142da95435508d0ffff31290b45202190109c736012102d1d74650cda6e96a6d3e257ae17267ed32dfcede749b15a1a422c654a199a112ffffffff01683c0100000000001976a91422d7a450712773509a8c3168f826c152cf07418488ac00000000
+
+
