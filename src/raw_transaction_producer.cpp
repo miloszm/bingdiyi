@@ -1,9 +1,10 @@
-
-#include <bitcoin/explorer/config/ec_private.hpp>
+#include <bitcoin/bitcoin.hpp>
 
 
 using namespace std;
 using namespace bc;
+using namespace bc::chain;
+using namespace bc::wallet;
 
 int main() {
     // private key for source_addr
@@ -19,16 +20,33 @@ int main() {
     // source address
     const string srcAddr {""};
     // source transaction id (as found out via bx fetch-tx)
-    const string srcTxId {""};
+    const string srcTxId {"dd91b944e8b743b1cdb8d106161e8d1f1a666597cc16a6291f7fd4baca891508"};
     // source transaction's output index (as found out via bx fetch-tx)
-    const int srcTxOutputIndex {0};
+    const int srcTxOutputIndex {1};
     // main target address
-    const string targetAddr {""};
+    const string targetAddr {"n2JZCSr8MeGuGtvRVjZTqgNNw9pyYW98Pm"};
     // target address for a change
-    const string targetRemainderAddr {""};
+    // const string targetRemainderAddr {""};
 
 
     cout << "priv WIF: " << privKeyEC << endl;
     cout << "public hex: " << pubKey << endl;
     cout << "private hex: " << privKey << endl;
+
+    // make output
+    script outputScript = script().to_pay_key_hash_pattern(payment_address(targetAddr).hash());
+    output output1(satoshisToTransfer, outputScript);
+
+    // utxo
+    string hashString = srcTxId;
+    hash_digest utxoHash;
+    decode_hash(utxoHash, hashString);
+    output_point utxo(utxoHash, srcTxOutputIndex);
+
+    // previous locking script
+    data_chunk pubKeyChunk;
+    pubKey.to_data(pubKeyChunk);
+    script lockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
+    std::cout << "\nPrevious Locking Script: " << lockingScript.to_string(0xffffffff) << std::endl;
+
 }
