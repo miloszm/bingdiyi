@@ -1,6 +1,4 @@
 #include <bitcoin/bitcoin.hpp>
-#include <bitcoin/client.hpp>
-
 
 using namespace std;
 using namespace bc;
@@ -8,31 +6,16 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
-
-
-//private key WIF: cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
-//        funding tx id: eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
-//        funding index: 1
-//target address: mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
-//        amount: 81000
-
-
-int main() {
-    // private key for source_addr
-    const string privKeyWIF {"cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX"};
-    // source transaction id (as found out via bx fetch-tx)
-    const string srcTxId {"eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511"};
-    // source transaction's output index (as found out via bx fetch-tx)
-    const int srcTxOutputIndex {1};
-    // main target address
-    const string targetAddr {"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
-    // amount to transfer in Satoshis
-    const uint64_t satoshisToTransfer {81000};
-
+void construct_raw_transaction(
+        const string privKeyWIF,
+        const string srcTxId,
+        const int srcTxOutputIndex,
+        const string targetAddr,
+        const uint64_t satoshisToTransfer
+        ){
     const wallet::ec_private privKeyEC(privKeyWIF);
     const wallet::ec_public pubKey = privKeyEC.to_public();
     const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
-
 
     cout << "priv WIF: " << privKeyEC << endl;
     cout << "public hex: " << pubKey << endl;
@@ -84,5 +67,28 @@ int main() {
     std::cout << "Raw Transaction: " << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
 
+}
 
+//private key WIF: cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
+//        funding tx id: eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
+//        funding index: 1
+//target address: mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
+//        amount: 81000
+
+int main() {
+    /**
+     *
+     * 1. private key for source_addr
+     * 2. source transaction id (as found out via bx fetch-tx)
+     * 3. source transaction's output index (as found out via bx fetch-tx)
+     * 4. main target address
+     * 5. amount to transfer in Satoshis
+     */
+    const string privKeyWIF {"cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX"};
+    const string srcTxId {"eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511"};
+    const int srcTxOutputIndex {1};
+    const string targetAddr {"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
+    const uint64_t satoshisToTransfer {81000};
+
+    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, targetAddr, satoshisToTransfer);
 }
