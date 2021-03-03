@@ -6,6 +6,7 @@ using namespace std;
 using namespace bc;
 using namespace bc::chain;
 using namespace bc::wallet;
+using namespace bc::machine;
 
 int main() {
     // private key for source_addr
@@ -62,11 +63,23 @@ int main() {
 
     //Endorse TX
     endorsement sig;
-    if(lockingScript.create_endorsement(sig, privKeyEC.secret(), lockingScript, tx, 0u, machine::sighash_algorithm::all))
+    if(lockingScript.create_endorsement(sig, privKeyEC.secret(), lockingScript, tx, 0u, all))
     {
         std::cout << "Signature: " << std::endl;
         std::cout << encode_base16(sig) << "\n" << std::endl;
     }
+
+    //make Sig Script
+    operation::list sigScript;
+    sigScript.push_back(operation(sig));
+    sigScript.push_back(operation(pubKeyChunk));
+    script unlockingScript(sigScript);
+    std::cout << "\nUnlocking Script: " << unlockingScript.to_string(0xffffffff) << std::endl;
+
+    //Make Signed TX
+    tx.inputs()[0].set_script(unlockingScript);
+    std::cout << "Raw Transaction: " << std::endl;
+    std::cout << encode_base16(tx.to_data()) << std::endl;
 
 
 }
