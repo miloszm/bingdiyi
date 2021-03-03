@@ -1,4 +1,5 @@
 #include <bitcoin/bitcoin.hpp>
+#include <bitcoin/client.hpp>
 
 
 using namespace std;
@@ -48,5 +49,24 @@ int main() {
     pubKey.to_data(pubKeyChunk);
     script lockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
     std::cout << "\nPrevious Locking Script: " << lockingScript.to_string(0xffffffff) << std::endl;
+
+    //make Input
+    input input1 = input();
+    input1.set_previous_output(utxo);
+    input1.set_sequence(0xffffffff);
+
+    //build TX
+    transaction tx = transaction();
+    tx.inputs().push_back(input1);
+    tx.outputs().push_back(output1);
+
+    //Endorse TX
+    endorsement sig;
+    if(lockingScript.create_endorsement(sig, privKeyEC.secret(), lockingScript, tx, 0u, machine::sighash_algorithm::all))
+    {
+        std::cout << "Signature: " << std::endl;
+        std::cout << encode_base16(sig) << "\n" << std::endl;
+    }
+
 
 }
