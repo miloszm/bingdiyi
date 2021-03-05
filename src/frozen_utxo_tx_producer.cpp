@@ -145,11 +145,11 @@ int main() {
      * 5. amount to transfer in Satoshis
      * 6. lock until epoch time (in seconds)
      */
-    const string privKeyWIF {"cQYfWB6C4u6bNB9yozuqnk3Q8S7xWYLLJdxrTUKMVjT6YzFrZAxH"};
-    const string srcTxId {"3e1adee5318c33b793f30b947f1474ceece6b0276cadcbfc5e301ec2c50ab285"}; // bx fetch-utxo 77000 mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
-    const int srcTxOutputIndex {0};
-    const string targetAddr {"mhM6yUngQwzfvqRZYFpDnkfHhLtBGieUxn"};
-    const uint64_t satoshisToTransfer {74000};
+    const string privKeyWIF {"cSwx1yRAgjak6dBVcenZnHcfzNEXoeMBoRmq2PY79A4ABhjBPupd"}; // SA = mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
+    const string srcTxId {"44d54ed113aafb2ab793f2c86d692e244c69689760a1ef5af62899ac102355d7"}; // bx fetch-utxo 77000 mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
+    const int srcTxOutputIndex {1};
+    const string targetAddr {"n4SdAqMKRPk48fHP9coCcBN9dxbcVmw2S3"};
+    const uint64_t satoshisToTransfer {86000};
     const uint32_t lockUntil = 1615006800;
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, targetAddr, satoshisToTransfer, lockUntil);
