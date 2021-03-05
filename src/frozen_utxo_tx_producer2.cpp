@@ -14,6 +14,7 @@ operation::list to_pay_key_hash_pattern_with_delay(const short_hash& hash, const
 
     return operation::list
             {
+                    { opcode::push_size_4 },
                     { lockUntilArray },
                     { opcode::checklocktimeverify },
                     { opcode::drop },
@@ -146,11 +147,11 @@ int main() {
      * 6. lock until epoch time (in seconds)
      */
     const string privKeyWIF {"cSwx1yRAgjak6dBVcenZnHcfzNEXoeMBoRmq2PY79A4ABhjBPupd"}; // SA = mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
-    const string srcTxId {"44d54ed113aafb2ab793f2c86d692e244c69689760a1ef5af62899ac102355d7"}; // bx fetch-utxo 77000 mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
-    const int srcTxOutputIndex {1};
-    const string targetAddr {"n4SdAqMKRPk48fHP9coCcBN9dxbcVmw2S3"};
-    const uint64_t satoshisToTransfer {86000};
-    const uint32_t lockUntil = 1615006800;
+    const string srcTxId {"83fd6c2dbc1dad77384bfb1007550998f48a2d20419d5e3ad0239e944f65f21c"}; // bx fetch-utxo 77000 mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
+    const int srcTxOutputIndex {0};
+    const string targetAddr {"mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR"};
+    const uint64_t satoshisToTransfer {86500};
+    const uint32_t lockUntil = 1614984000;
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, targetAddr, satoshisToTransfer, lockUntil);
 }
