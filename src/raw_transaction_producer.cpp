@@ -26,13 +26,13 @@ void construct_raw_transaction(
      * payment_address decodes base58 address and calculates hash for it
      * to_pay_key_hash_pattern then creates the script, filling out the address
      */
-    script outputScript = script().to_pay_key_hash_pattern(payment_address(targetAddr).hash());
-    output output1(satoshisToTransfer, outputScript);
+    script currentLockingScript = script().to_pay_key_hash_pattern(payment_address(targetAddr).hash());
+    output output1(satoshisToTransfer, currentLockingScript);
 
     /**
      * make utxo
      * funding transaction id is decoded from hex string into bytes and reversed
-     * hash_digest is simply an array of 32 bytes
+     * (hash_digest is a plain array of 32 bytes)
      */
     string hashString = srcTxId;
     hash_digest utxoHash;
@@ -42,12 +42,14 @@ void construct_raw_transaction(
     /**
      * previous locking script
      * convert public key to chunk data, and then calculate sha 256 and ripemd160 on it
-     * then it is being placed in a locking script created from scratch
+     * then place it in a locking script created from scratch
+     * previous locking script is not read, but rather recreated from scratch here
+     * it is needed only for signing, otherwise it is not used
      */
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
-    script lockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
-    std::cout << "\nPrevious Locking Script: " << lockingScript.to_string(0xffffffff) << std::endl;
+    script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
+    std::cout << "\nPrevious Locking Script: " << previousLockingScript.to_string(0xffffffff) << std::endl;
 
     /**
      * make input
@@ -69,13 +71,12 @@ void construct_raw_transaction(
     /**
      * build endorsement
      * endorsement is created out of the private key, locking script, transaction, input index
-     * endorsement is really a hashed signature of data given in
+     * endorsement is a hashed signature of provided data
      */
     endorsement sig;
-    if(lockingScript.create_endorsement(sig, privKeyEC.secret(), lockingScript, tx, 0u, all))
+    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), previousLockingScript, tx, 0u, all))
     {
-        std::cout << "Signature: " << std::endl;
-        std::cout << encode_base16(sig) << "\n" << std::endl;
+        std::cout << "Signature: " << encode_base16(sig) << std::endl;
     }
 
     /**
@@ -85,38 +86,31 @@ void construct_raw_transaction(
     operation::list sigScript;
     sigScript.push_back(operation(sig));
     sigScript.push_back(operation(pubKeyChunk));
-    script unlockingScript(sigScript);
-    std::cout << "\nUnlocking Script: " << unlockingScript.to_string(0xffffffff) << std::endl;
+    script scriptUnlockingPreviousLockingScript(sigScript);
+    std::cout << "\nUnlocking Script: " << scriptUnlockingPreviousLockingScript.to_string(0xffffffff) << std::endl;
 
     /**
      * make Signed TX
      * fill out input with unlocking script which was missing until this point
      */
-    tx.inputs()[0].set_script(unlockingScript);
+    tx.inputs()[0].set_script(scriptUnlockingPreviousLockingScript);
     std::cout << "Raw Transaction: " << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 
-//private key WIF: cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
-//        funding tx id: eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
-//        funding index: 1
-//target address: mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
-//        amount: 81000
-
 int main() {
     /**
-     *
-     * 1. private key for source_addr
-     * 2. source transaction id (as found out via bx fetch-utxo)
-     * 3. source transaction's output index (as found out via bx fetch-utxo)
+     * 1. private key for source_addr (note source address as SA)
+     * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
+     * 3. source transaction's output index (as found out via bx fetch-utxo <satoshis> SA)
      * 4. main target address
      * 5. amount to transfer in Satoshis
      */
-    const string privKeyWIF {"cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX"};
-    const string srcTxId {"eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511"};
-    const int srcTxOutputIndex {1};
-    const string targetAddr {"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
-    const uint64_t satoshisToTransfer {81000};
+    const string privKeyWIF {"cSv9QafnL7UxFDdbRe7G9JtzWn3RoV1GCW9FfFzjDgLUNZgsBwsA"}; // SA = n2JZCSr8MeGuGtvRVjZTqgNNw9pyYW98Pm
+    const string srcTxId {"ff1340557b325471f87873b8ec4a0cc84786b1496485b674145732e5d1b405e5"};
+    const int srcTxOutputIndex {0};
+    const string targetAddr {"mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz"};
+    const uint64_t satoshisToTransfer {75000};
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, targetAddr, satoshisToTransfer);
 }
