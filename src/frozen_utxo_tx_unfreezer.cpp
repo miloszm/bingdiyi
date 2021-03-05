@@ -70,6 +70,7 @@ void construct_raw_transaction(
     pubKey.to_data(pubKeyChunk);
     script redeemScript = to_pay_key_hash_pattern_with_delay(bitcoin_short_hash(pubKeyChunk), srcLockUntil);
     std::cout << "\nRedeem Script: " << redeemScript.to_string(0xffffffff) << std::endl;
+    script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
 
     /**
      * make input
@@ -94,7 +95,7 @@ void construct_raw_transaction(
      * endorsement is a hashed signature of provided data
      */
     endorsement sig;
-    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), bitcoin_short_hash(redeemScript(srcLockUntil).to_data(0)), tx, 0u, all))
+    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), script().to_pay_script_hash_pattern(bitcoin_short_hash(redeemScript.to_data(0))), tx, 0u, all))
     {
         std::cout << "Signature: " << encode_base16(sig) << std::endl;
     }
@@ -106,7 +107,7 @@ void construct_raw_transaction(
     operation::list sigScript;
     sigScript.push_back(operation(sig));
     sigScript.push_back(operation(pubKeyChunk));
-    sigScript.push_back(redeemScript.to_data(0))
+    sigScript.push_back(redeemScript.to_data(0));
     script scriptUnlockingPreviousLockingScript(sigScript);
     std::cout << "\nUnlocking Script: " << scriptUnlockingPreviousLockingScript.to_string(0xffffffff) << std::endl;
 
