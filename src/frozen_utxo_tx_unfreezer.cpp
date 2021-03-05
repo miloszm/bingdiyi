@@ -46,7 +46,7 @@ void construct_raw_transaction(
      * payment_address decodes base58 address and calculates hash for it
      * to_pay_key_hash_pattern then creates the script, filling out the address
      */
-    script outputScript = to_pay_key_hash_pattern_with_delay(payment_address(targetAddr).hash(), srcLockUntil);
+    script outputScript = script().to_pay_key_hash_pattern(payment_address(targetAddr).hash());
     output output1(satoshisToTransfer, outputScript);
 
     /**
@@ -66,7 +66,7 @@ void construct_raw_transaction(
      */
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
-    script lockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
+    script lockingScript = to_pay_key_hash_pattern_with_delay(bitcoin_short_hash(pubKeyChunk), srcLockUntil);
     std::cout << "\nPrevious Locking Script: " << lockingScript.to_string(0xffffffff) << std::endl;
 
     /**
