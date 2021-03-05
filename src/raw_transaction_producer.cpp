@@ -44,7 +44,7 @@ void construct_raw_transaction(
      * convert public key to chunk data, and then calculate sha 256 and ripemd160 on it
      * then place it in a locking script created from scratch
      * previous locking script is not read, but rather recreated from scratch here
-     * it is needed only for signing, otherwise it is not used
+     * it is needed for signing only, otherwise it is not used
      */
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
