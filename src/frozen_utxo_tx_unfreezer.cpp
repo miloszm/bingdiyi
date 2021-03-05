@@ -6,13 +6,33 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
+
+operation::list to_pay_key_hash_pattern_with_delay(const short_hash& hash, const uint32_t lockUntil)
+{
+    vector<uint8_t> lockUntilArray(4);
+    serializer<vector<uint8_t>::iterator>(lockUntilArray.begin()).write_4_bytes_little_endian(lockUntil);
+
+    return operation::list
+            {
+                    { lockUntilArray },
+                    { opcode::checklocktimeverify },
+                    { opcode::drop },
+                    { opcode::dup },
+                    { opcode::hash160 },
+                    { to_chunk(hash) },
+                    { opcode::equalverify },
+                    { opcode::checksig }
+            };
+}
+
 void construct_raw_transaction(
         const string privKeyWIF,
         const string srcTxId,
         const int srcTxOutputIndex,
+        const uint32_t srcLockUntil,
         const string targetAddr,
         const uint64_t satoshisToTransfer
-        ){
+){
     const wallet::ec_private privKeyEC(privKeyWIF);
     const wallet::ec_public pubKey = privKeyEC.to_public();
     const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
@@ -26,7 +46,7 @@ void construct_raw_transaction(
      * payment_address decodes base58 address and calculates hash for it
      * to_pay_key_hash_pattern then creates the script, filling out the address
      */
-    script outputScript = script().to_pay_key_hash_pattern(payment_address(targetAddr).hash());
+    script outputScript = to_pay_key_hash_pattern_with_delay(payment_address(targetAddr).hash(), srcLockUntil);
     output output1(satoshisToTransfer, outputScript);
 
     /**
@@ -97,26 +117,22 @@ void construct_raw_transaction(
     std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 
-//private key WIF: cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX
-//        funding tx id: eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511
-//        funding index: 1
-//target address: mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX
-//        amount: 81000
-
 int main() {
     /**
      *
      * 1. private key for source_addr
      * 2. source transaction id (as found out via bx fetch-utxo)
      * 3. source transaction's output index (as found out via bx fetch-utxo)
-     * 4. main target address
-     * 5. amount to transfer in Satoshis
+     * 4. source lock time in epoch (to be able to correctly recreate locking script and sign it)
+     * 5. main target address
+     * 6. amount to transfer in Satoshis
      */
-    const string privKeyWIF {"cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX"};
-    const string srcTxId {"eeeefc8137dc5c1254f578b027d446a22a119a4473da8867d181a4a232404511"};
-    const int srcTxOutputIndex {1};
-    const string targetAddr {"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
-    const uint64_t satoshisToTransfer {81000};
+    const string privKeyWIF {"cQjiP56Zt8hiv6oMUyGdcgQiGYmHAf5gMJdsHXJfyu82xX3ijkDN"}; // mhM6yUngQwzfvqRZYFpDnkfHhLtBGieUxn
+    const string srcTxId {"4cd690b02c32cdcfbe20e7f9014a6a95a46c9ea98cc10e5bb4a21068f5bb6cb2"};
+    const int srcTxOutputIndex {0};
+    const uint32_t srcLockUntil {1614898838};
+    const string targetAddr {"n4SdAqMKRPk48fHP9coCcBN9dxbcVmw2S3"};
+    const uint64_t satoshisToTransfer {65000};
 
-    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, targetAddr, satoshisToTransfer);
+    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
 }
