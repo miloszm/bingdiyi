@@ -135,7 +135,7 @@ int main() {
     const int srcTxOutputIndex {0};
     const uint32_t srcLockUntil {1615006800};
     const string targetAddr {"n4eaAFB3GPmrJR4ummYpQmYTx2VaNftuPe"};
-    const uint64_t satoshisToTransfer {85000};
+    const uint64_t satoshisToTransfer {81000};
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
 }
