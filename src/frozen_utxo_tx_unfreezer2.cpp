@@ -32,7 +32,8 @@ void construct_raw_transaction(
         const int srcTxOutputIndex,
         const uint32_t srcLockUntil,
         const string targetAddr,
-        const uint64_t satoshisToTransfer
+        const uint64_t satoshisToTransfer,
+        const string srcAddress
 ){
     const wallet::ec_private privKeyEC(privKeyWIF);
     const wallet::ec_public pubKey = privKeyEC.to_public();
@@ -69,9 +70,19 @@ void construct_raw_transaction(
      */
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
-    script redeemScript = to_pay_key_hash_pattern_with_delay(bitcoin_short_hash(pubKeyChunk), srcLockUntil);
+    //script redeemScript = to_pay_key_hash_pattern_with_delay(bitcoin_short_hash(pubKeyChunk), srcLockUntil);
+    script redeemScript = to_pay_key_hash_pattern_with_delay(payment_address(srcAddress).hash(), srcLockUntil);
+    if(redeemScript.is_valid())
+    {
+        std::cout << "CLTV Script is Valid!" << std::endl;
+    }else{
+        std::cout << "CLTV Script Invalid!" << std::endl;
+    }
+
     std::cout << "\nRedeem Script: " << redeemScript.to_string(0xffffffff) << std::endl;
-    script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyChunk));
+    short_hash scriptHash = bitcoin_short_hash(redeemScript.to_data(0));
+    std::cout << "\nRedeem Script Hash: " << libbitcoin::config::base16(scriptHash) << std::endl;
+    script previousLockingScript = script(redeemScript.to_pay_script_hash_pattern(scriptHash));
 
     /**
      * make input
@@ -79,7 +90,7 @@ void construct_raw_transaction(
      */
     input input1 = input();
     input1.set_previous_output(utxo);
-    input1.set_sequence(0xffffffff);
+    input1.set_sequence(0xfffffffe);
 
     /**
      * build TX
@@ -89,6 +100,7 @@ void construct_raw_transaction(
     transaction tx = transaction();
     tx.inputs().push_back(input1);
     tx.outputs().push_back(output1);
+    tx.set_locktime(1939095);
 
     /**
      * build endorsement
@@ -96,7 +108,7 @@ void construct_raw_transaction(
      * endorsement is a hashed signature of provided data
      */
     endorsement sig;
-    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), script().to_pay_script_hash_pattern(bitcoin_short_hash(redeemScript.to_data(0))), tx, 0u, all))
+    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), previousLockingScript, tx, 0u, all))
     {
         std::cout << "Signature: " << encode_base16(sig) << std::endl;
     }
@@ -132,11 +144,12 @@ int main() {
      * 6. amount to transfer in Satoshis
      */
     const string privKeyWIF {"cTeSvege7Hn4Y9TMsmojgNtSfKCK87AyvEkvP6dsfxs5Ja4wJLEo"}; // mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR
-    const string srcTxId {"449c19d28394188f7ea3bc7100d168ce7e049774617b03c2f3242b19c8a487f4"};
+    const string srcTxId {"3752ff3ddcac54918cf735362a092ae1f4eb0e9cded8643e28a6b0f7a102ec35"};
     const int srcTxOutputIndex {0};
-    const uint32_t srcLockUntil {1614984000};
+    const uint32_t srcLockUntil {1614987000};
     const string targetAddr {"n4eaAFB3GPmrJR4ummYpQmYTx2VaNftuPe"};
-    const uint64_t satoshisToTransfer {81500};
+    const uint64_t satoshisToTransfer {64000};
+    const string srcAddress = "mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR";
 
-    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
+    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer, srcAddress);
 }

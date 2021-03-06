@@ -62,6 +62,7 @@ void construct_raw_transaction(
     std::cout << encode_base16(cltvScript.to_data(0)) <<std::endl;
 
     short_hash scriptHash = bitcoin_short_hash(cltvScript.to_data(0));
+    std::cout << "Redeem Script Hash: " << libbitcoin::config::base16(scriptHash) << std::endl;
     script pay2ScriptHash = script(cltvScript.to_pay_script_hash_pattern(scriptHash));
     std::cout << "Locking Script: " << std::endl;
     std::cout << pay2ScriptHash.to_string(0xffffffff) << std::endl;
@@ -96,7 +97,7 @@ void construct_raw_transaction(
      */
     input input1 = input();
     input1.set_previous_output(utxo);
-    input1.set_sequence(0xffffffff);
+    input1.set_sequence(0xfffffffe);
 
     /**
      * build TX
@@ -147,11 +148,11 @@ int main() {
      * 6. lock until epoch time (in seconds)
      */
     const string privKeyWIF {"cSwx1yRAgjak6dBVcenZnHcfzNEXoeMBoRmq2PY79A4ABhjBPupd"}; // SA = mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
-    const string srcTxId {"83fd6c2dbc1dad77384bfb1007550998f48a2d20419d5e3ad0239e944f65f21c"}; // bx fetch-utxo 77000 mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
+    const string srcTxId {"2319d0ff042a9a2b379239bce2ab9f713345c498c5505324757695c851a3bf74"}; // bx fetch-utxo 77000 mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz
     const int srcTxOutputIndex {0};
     const string targetAddr {"mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR"};
-    const uint64_t satoshisToTransfer {86500};
-    const uint32_t lockUntil = 1614984000;
+    const uint64_t satoshisToTransfer {69000};
+    const uint32_t lockUntil = 1614987000;
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, targetAddr, satoshisToTransfer, lockUntil);
 }
