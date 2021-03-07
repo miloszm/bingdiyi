@@ -7,21 +7,17 @@ using namespace bc::wallet;
 using namespace bc::machine;
 
 
-operation::list to_pay_key_hash_pattern_with_delay(const short_hash& hash, const uint32_t lockUntil)
+operation::list to_pay_key_hash_pattern_with_delay(const data_chunk& publicKey, const uint32_t lockUntil)
 {
     vector<uint8_t> lockUntilArray(4);
     serializer<vector<uint8_t>::iterator>(lockUntilArray.begin()).write_4_bytes_little_endian(lockUntil);
 
     return operation::list
             {
-                    { opcode::push_size_4},
                     { lockUntilArray },
                     { opcode::checklocktimeverify },
                     { opcode::drop },
-                    { opcode::dup },
-                    { opcode::hash160 },
-                    { to_chunk(hash) },
-                    { opcode::equalverify },
+                    { publicKey },
                     { opcode::checksig }
             };
 }
@@ -32,8 +28,7 @@ void construct_raw_transaction(
         const int srcTxOutputIndex,
         const uint32_t srcLockUntil,
         const string targetAddr,
-        const uint64_t satoshisToTransfer,
-        const string srcAddress
+        const uint64_t satoshisToTransfer
 ){
     const wallet::ec_private privKeyEC(privKeyWIF);
     const wallet::ec_public pubKey = privKeyEC.to_public();
@@ -70,8 +65,7 @@ void construct_raw_transaction(
      */
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
-    //script redeemScript = to_pay_key_hash_pattern_with_delay(bitcoin_short_hash(pubKeyChunk), srcLockUntil);
-    script redeemScript = to_pay_key_hash_pattern_with_delay(payment_address(srcAddress).hash(), srcLockUntil);
+    script redeemScript = to_pay_key_hash_pattern_with_delay(pubKeyChunk, srcLockUntil);
     if(redeemScript.is_valid())
     {
         std::cout << "CLTV Script is Valid!" << std::endl;
@@ -115,7 +109,7 @@ void construct_raw_transaction(
     /**
      * should not be included in signature
      */
-    tx.set_locktime(1939095);
+    tx.set_locktime(srcLockUntil);
 
     /**
      * make Sig Script
@@ -123,7 +117,6 @@ void construct_raw_transaction(
      */
     operation::list sigScript;
     sigScript.push_back(operation(sig));
-    sigScript.push_back(operation(pubKeyChunk));
     sigScript.push_back(redeemScript.to_data(0));
     script scriptUnlockingPreviousLockingScript(sigScript);
     std::cout << "\nUnlocking Script: " << scriptUnlockingPreviousLockingScript.to_string(0xffffffff) << std::endl;
@@ -138,22 +131,12 @@ void construct_raw_transaction(
 }
 
 int main() {
-    /**
-     *
-     * 1. private key for source_addr (not source address as SA)
-     * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
-     * 3. source transaction's output index (as found out via bx fetch-utxo <satoshis> SA)
-     * 4. source lock time in epoch
-     * 5. main target address
-     * 6. amount to transfer in Satoshis
-     */
-    const string privKeyWIF {"cTeSvege7Hn4Y9TMsmojgNtSfKCK87AyvEkvP6dsfxs5Ja4wJLEo"}; // mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR
-    const string srcTxId {"3752ff3ddcac54918cf735362a092ae1f4eb0e9cded8643e28a6b0f7a102ec35"};
+    const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"}; // SA = movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52
+    const string srcTxId {"e2536088af090b14a27d3a44ff8df6380f01b36ee4752bef1467298b8a1e0712"}; // bx fetch-utxo 76000 movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52
     const int srcTxOutputIndex {0};
-    const uint32_t srcLockUntil {1614987000};
+    const uint64_t satoshisToTransfer {900000};
+    const uint32_t srcLockUntil = 1615134600;
     const string targetAddr {"n4eaAFB3GPmrJR4ummYpQmYTx2VaNftuPe"};
-    const uint64_t satoshisToTransfer {64000};
-    const string srcAddress = "mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR";
 
-    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer, srcAddress);
+    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
 }
