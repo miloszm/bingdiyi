@@ -61,6 +61,9 @@ void construct_raw_transaction(
     script pay2ScriptHashLockingScript = script(cltvScript.to_pay_script_hash_pattern(scriptHash));
     std::cout << "Locking Script: " << std::endl;
     std::cout << pay2ScriptHashLockingScript.to_string(0xffffffff) << std::endl;
+    std::cout << "Locking Script hex: " << std::endl;
+    std::cout << encode_base16(pay2ScriptHashLockingScript.to_data(0)) << std::endl;
+    std::cout << "Should be: a9142c135b63577126ac7164804aa40eb148ce93417387" << std::endl;
 
     output output1(satoshisToTransfer, pay2ScriptHashLockingScript);
 
@@ -140,11 +143,11 @@ int main() {
      * 5. amount to transfer in Satoshis
      * 6. lock until epoch time (in seconds)
      */
-    const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"}; // SA = movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52
-    const string srcTxId {"828c0aeb4c8ad51b9ce6bba4ff79fc088365e522f904ddabdbc51c6caf0ad125"}; // bx fetch-utxo 76000 movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52
+    const string privKeyWIF {"cNJLkBWo6pe4qEuYuTvU6DcNnyDBeZ7qET8vwc4HZM4RYawmw9xk"}; // SA = mmhixqxrCnb69iMZLwDaQZmTY7g7JQMkoh
+    const string srcTxId {"5a6c2627f80c4aad2f383c2245aadd5bf267313648691b063a95bf91becc4c0b"}; // bx fetch-utxo 900000 mmhixqxrCnb69iMZLwDaQZmTY7g7JQMkoh
     const int srcTxOutputIndex {1};
     const uint64_t satoshisToTransfer {900000};
-    const uint32_t lockUntil = 1615134600;
+    const uint32_t lockUntil = 1615161540;
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
 }

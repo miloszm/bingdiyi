@@ -77,6 +77,9 @@ void construct_raw_transaction(
     short_hash scriptHash = bitcoin_short_hash(redeemScript.to_data(0));
     std::cout << "\nRedeem Script Hash: " << libbitcoin::config::base16(scriptHash) << std::endl;
     script previousLockingScript = script(redeemScript.to_pay_script_hash_pattern(scriptHash));
+    std::cout << "Previous Locking Script hex: " << std::endl;
+    std::cout << encode_base16(previousLockingScript.to_data(0)) << std::endl;
+    std::cout << "Should be: a9142c135b63577126ac7164804aa40eb148ce93417387" << std::endl;
 
     /**
      * make input
@@ -84,7 +87,7 @@ void construct_raw_transaction(
      */
     input input1 = input();
     input1.set_previous_output(utxo);
-    input1.set_sequence(0xfffffffe);
+    input1.set_sequence(0);
 
     /**
      * build TX
@@ -101,7 +104,7 @@ void construct_raw_transaction(
      * endorsement is a hashed signature of provided data
      */
     endorsement sig;
-    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), previousLockingScript, tx, 0u, all))
+    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), redeemScript, tx, 0u, all))
     {
         std::cout << "Signature: " << encode_base16(sig) << std::endl;
     }
@@ -131,11 +134,11 @@ void construct_raw_transaction(
 }
 
 int main() {
-    const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"}; // SA = movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52
-    const string srcTxId {"e2536088af090b14a27d3a44ff8df6380f01b36ee4752bef1467298b8a1e0712"}; // bx fetch-utxo 76000 movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52
+    const string privKeyWIF {"cNJLkBWo6pe4qEuYuTvU6DcNnyDBeZ7qET8vwc4HZM4RYawmw9xk"}; // SA = 2MwGGufthfjcGKA8KB4vSXoAHHVBJsezJy8
+    const string srcTxId {"2a0990b736e79e1d65ce3e9e25427e36855235829d58c1f2a9eac18142c926a6"}; // bx fetch-utxo 900000 2MwGGufthfjcGKA8KB4vSXoAHHVBJsezJy8
     const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {900000};
-    const uint32_t srcLockUntil = 1615134600;
+    const uint64_t satoshisToTransfer {800000};
+    const uint32_t srcLockUntil = 1615161540;
     const string targetAddr {"n4eaAFB3GPmrJR4ummYpQmYTx2VaNftuPe"};
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
