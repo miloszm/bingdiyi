@@ -94,11 +94,11 @@ int main() {
      * 5. amount to transfer in Satoshis
      * 6. lock until epoch time (in seconds)
      */
-    const string privKeyWIF {"cW4s2jFq7LZAJ8sz3Mwadq79j9ATabyeA6uLyhe8wjVisGDnxXRB"}; // SA = mndQntS3DBqJ9xWMLKBjL1MGaP9yygoXQi
-    const string srcTxId {"b6bfc867c93117674ed83c60306bb1c498dd0f1becc9358d7c2db7fc6ad8e0a5"}; // bx fetch-utxo 400000 mndQntS3DBqJ9xWMLKBjL1MGaP9yygoXQi
+    const string privKeyWIF {"cRXL8g5z8mNNYEDECGgG6bXBgjLgc9QR5HBeEjyWa2Ar4xYQAFJ3"}; // SA = mhTtguTNuGUr5T6nkWNopQwhbkG5yoiyEv
+    const string srcTxId {"4b416fb71f5d7ed37537ed6263ac99231413d78edce8c4a0d32ed7b7af86fedb"}; // bx fetch-utxo 950000 mhTtguTNuGUr5T6nkWNopQwhbkG5yoiyEv
     const int srcTxOutputIndex {1};
-    const uint64_t satoshisToTransfer {350000};
-    const uint32_t lockUntil = 1615294800;
+    const uint64_t satoshisToTransfer {950000};
+    const uint32_t lockUntil = 1615302600;
 
     construct_p2sh_time_locking_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
 }

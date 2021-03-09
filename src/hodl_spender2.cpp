@@ -91,12 +91,12 @@ void construct_raw_transaction(
 }
 
 int main() {
-    const string privKeyWIF {"cW4s2jFq7LZAJ8sz3Mwadq79j9ATabyeA6uLyhe8wjVisGDnxXRB"};  // mndQntS3DBqJ9xWMLKBjL1MGaP9yygoXQi
-    const string srcTxId {"a8491ce93f80959cff648930f32de759c451ad4b116f29b058bf7ee54129eb55"};
+    const string privKeyWIF {"cRXL8g5z8mNNYEDECGgG6bXBgjLgc9QR5HBeEjyWa2Ar4xYQAFJ3"};
+    const string srcTxId {"41581d4cab0697635b136c3e9349244b972ccc61bd693dc9195a155255fed23e"};
     const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {300000};
-    const uint32_t srcLockUntil = 1615294800;
-    const string targetAddr {"mroQ8Hpydtv5p4mpF7Tbtjqkwi7wHXYZuR"};
+    const uint64_t satoshisToTransfer {900000};
+    const uint32_t srcLockUntil = 1615302600;
+    const string targetAddr {"msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq"};
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
 }
