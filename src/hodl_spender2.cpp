@@ -57,9 +57,13 @@ void construct_raw_transaction(
     tx.inputs().push_back(input1);
     tx.outputs().push_back(output1);
     tx.set_locktime(srcLockUntil);
+    tx.set_version(1);
 
 
-    // bx input-sign 156bc5c6f50244b6745e7280671697e8eb703a81a7daf1180ec65d957bff429e "[c4684560] checklocktimeverify drop [0314488ebfec9889c4253fe2d1a21715b932864d2892193e4ca60e0acbd1d9fd1d] checksig" 0100000001a626c94281c1eaa9f2c1589d82355285367e42259e3ece651d9ee736b790092a0000000000000000000100350c00000000001976a914fdbbbe6062fef2fca812e404e3dcb43dcdb4108888acc4684560
+    //bx input-sign fd2fc82cc442f35b3b577dc8f300d80007cc53c8d3f922265ccdc84e5c2729d5 "[50714760] checklocktimeverify drop [0375253f2f96889d04eda186cfd2f0f161f4888e538066acb39adb1729ed374e4e] checksig" 010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760
+
+    cout << "input to sig tx " << encode_base16(tx.to_data()) << "\n";
+    cout << "should          " << "010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760" << "\n";
 
     script redeemScript = to_pay_key_hash_pattern_with_delay(pubKeyChunk, srcLockUntil);
     if(redeemScript.is_valid())
@@ -87,7 +91,7 @@ void construct_raw_transaction(
 }
 
 int main() {
-    const string privKeyWIF {"cW4s2jFq7LZAJ8sz3Mwadq79j9ATabyeA6uLyhe8wjVisGDnxXRB"};
+    const string privKeyWIF {"cW4s2jFq7LZAJ8sz3Mwadq79j9ATabyeA6uLyhe8wjVisGDnxXRB"};  // mndQntS3DBqJ9xWMLKBjL1MGaP9yygoXQi
     const string srcTxId {"a8491ce93f80959cff648930f32de759c451ad4b116f29b058bf7ee54129eb55"};
     const int srcTxOutputIndex {0};
     const uint64_t satoshisToTransfer {300000};
