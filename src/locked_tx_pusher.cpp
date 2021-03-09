@@ -86,6 +86,9 @@ void construct_p2sh_time_locking_transaction(
 }
 
 int main() {
+    const string version {"0.001"};
+    cout << "locked_tx_pusher" << "\n";
+    cout << "version:" << version << "\n";
     /**
      * 1. private key for source_addr (note source address as SA)
      * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
@@ -94,11 +97,11 @@ int main() {
      * 5. amount to transfer in Satoshis
      * 6. lock until epoch time (in seconds)
      */
-    const string privKeyWIF {"cRXL8g5z8mNNYEDECGgG6bXBgjLgc9QR5HBeEjyWa2Ar4xYQAFJ3"}; // SA = mhTtguTNuGUr5T6nkWNopQwhbkG5yoiyEv
-    const string srcTxId {"4b416fb71f5d7ed37537ed6263ac99231413d78edce8c4a0d32ed7b7af86fedb"}; // bx fetch-utxo 950000 mhTtguTNuGUr5T6nkWNopQwhbkG5yoiyEv
+    const string privKeyWIF {"cPMQ45cg5irwpPdhUEJ565mRwQTYN2TRczwffoALBohvyM84Jmgu"}; // SA = mxBcb6aCmwcPHfjyd4ePf3UWyDXqJGw3Ki
+    const string srcTxId {"a0043c3e6080ff7867e609ecfe9349c36e37618b47441750a9aa1093d9d059ec"}; // bx fetch-utxo 950000 mxBcb6aCmwcPHfjyd4ePf3UWyDXqJGw3Ki
     const int srcTxOutputIndex {1};
     const uint64_t satoshisToTransfer {950000};
-    const uint32_t lockUntil = 1615302600;
+    const uint32_t lockUntil = 1615323600;
 
     construct_p2sh_time_locking_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
 }
