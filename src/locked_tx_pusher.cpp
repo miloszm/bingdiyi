@@ -64,6 +64,7 @@ void construct_p2sh_time_locking_transaction(
     transaction tx = transaction();
     tx.inputs().push_back(input1);
     tx.outputs().push_back(output1);
+    tx.set_version(1);
 
     // sig
     script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyDataChunk));
@@ -97,11 +98,11 @@ int main() {
      * 5. amount to transfer in Satoshis
      * 6. lock until epoch time (in seconds)
      */
-    const string privKeyWIF {"cPMQ45cg5irwpPdhUEJ565mRwQTYN2TRczwffoALBohvyM84Jmgu"}; // SA = mxBcb6aCmwcPHfjyd4ePf3UWyDXqJGw3Ki
-    const string srcTxId {"a0043c3e6080ff7867e609ecfe9349c36e37618b47441750a9aa1093d9d059ec"}; // bx fetch-utxo 950000 mxBcb6aCmwcPHfjyd4ePf3UWyDXqJGw3Ki
-    const int srcTxOutputIndex {1};
-    const uint64_t satoshisToTransfer {950000};
-    const uint32_t lockUntil = 1615323600;
+    const string privKeyWIF {"L4uNXb2MvLmAtbVMbYg7XsSjgemmyPCnVFaqB4ZX39g8GGNQGqFR"}; // SA = 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
+    const string srcTxId {"22667c482f0f69daefabdf0969be53b8d539e1d2abbfc1c7a193ae38ec0d3e31"}; // bx fetch-utxo 80000 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
+    const int srcTxOutputIndex {0};
+    const uint64_t satoshisToTransfer {51000};
+    const uint32_t lockUntil = 1615381200;
 
     construct_p2sh_time_locking_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
 }
