@@ -27,9 +27,8 @@ operation::list to_pay_key_hash_pattern_with_delay(const data_chunk& publicKey, 
 void construct_p2sh_time_locking_transaction(
         const string srcAddr,
         const string privKeyWIF,
-        const string srcTxId,
-        const int srcTxOutputIndex,
         const uint64_t satoshisToTransfer,
+        const uint64_t satoshisFee,
         const uint32_t lockUntil
 ){
     BingClient bingClient;
@@ -40,14 +39,34 @@ void construct_p2sh_time_locking_transaction(
     const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
     data_chunk pubKeyDataChunk;
     pubKey.to_data(pubKeyDataChunk);
-    hash_digest srcTxIdDataReversed;
-    decode_hash(srcTxIdDataReversed, srcTxId);
+//    hash_digest srcTxIdDataReversed;
+//    decode_hash(srcTxIdDataReversed, srcTxId);
 
     cout << "priv WIF: " << privKeyEC << endl;
     cout << "public hex: " << pubKey << endl;
     cout << "private hex: " << privKey << endl;
 
     cout << "fetch height: " << bingClient.fetchHeight() << "\n";
+
+    auto p = bingClient.fetchUtxo(payment_address(srcAddr), satoshisToTransfer, wallet::select_outputs::algorithm::greedy);
+    if (p.points.empty()){
+        cout << "Insufficient funds, funding tx not found for " << satoshisToTransfer << " Satoshis" << "\n";
+        return;
+    }
+    auto point {p.points.at(0)};
+    auto satoshisAvailable = point.value();
+    auto srcTxIdDataReversed = point.hash();
+    auto srcTxOutputIndex = point.index();
+    if ((satoshisToTransfer + satoshisFee) > satoshisAvailable){
+        cout << "Insufficient funds, required " << (satoshisToTransfer + satoshisFee) << ", available " << satoshisAvailable << "\n";
+        return;
+    }
+    auto satoshisRefund = satoshisAvailable - (satoshisToTransfer + satoshisFee);
+    cout << "available funds: " << satoshisAvailable << "\n";
+    cout << "requested funds: " << satoshisToTransfer << "\n";
+    cout << "fee: " << satoshisFee << "\n";
+    cout << "refund: " << satoshisRefund << "\n";
+
 
     // output 0
     script cltvScript = to_pay_key_hash_pattern_with_delay(pubKeyDataChunk, lockUntil);
@@ -61,10 +80,6 @@ void construct_p2sh_time_locking_transaction(
     script pay2ScriptHashLockingScript = script(cltvScript.to_pay_script_hash_pattern(scriptHash));
     output output0(satoshisToTransfer, pay2ScriptHashLockingScript);
 
-    // output1
-    script currentLockingScript = script().to_pay_key_hash_pattern(payment_address(srcAddr).hash());
-    output output1(satoshisToTransfer, currentLockingScript);
-
     // input
     output_point utxo(srcTxIdDataReversed, srcTxOutputIndex);
     input input1 = input();
@@ -75,6 +90,10 @@ void construct_p2sh_time_locking_transaction(
     transaction tx = transaction();
     tx.inputs().push_back(input1);
     tx.outputs().push_back(output0);
+    if (satoshisRefund > 0){
+        output output1(satoshisRefund, script().to_pay_key_hash_pattern(payment_address(srcAddr).hash()));
+        tx.outputs().push_back(output1);
+    }
     tx.set_version(1);
 
     // sig
@@ -102,13 +121,11 @@ int main() {
     cout << "locked_tx_pusher" << "\n";
     cout << "version:" << version << "\n";
 
-    const string srcAddr {"12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4"};
-    const string privKeyWIF {"L4uNXb2MvLmAtbVMbYg7XsSjgemmyPCnVFaqB4ZX39g8GGNQGqFR"}; // SA = 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const string srcTxId {"22667c482f0f69daefabdf0969be53b8d539e1d2abbfc1c7a193ae38ec0d3e31"}; // bx fetch-utxo 80000 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {51000};
-    const uint64_t fee {29000};
-    const uint32_t lockUntil = 1615381200;
+    const string srcAddr {"movGNTkBEUtQuovGhdbwj2UBHrNEmBcZ52"};
+    const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"};
+    const uint64_t satoshisToTransfer {5000};
+    const uint64_t satoshisFee {1000};
+    const uint32_t lockUntil = 1615491020;
 
-    construct_p2sh_time_locking_transaction(srcAddr, privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
+    construct_p2sh_time_locking_transaction(srcAddr, privKeyWIF, satoshisToTransfer, satoshisFee, lockUntil);
 }

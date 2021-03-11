@@ -42,4 +42,28 @@ size_t BingClient::fetchHeight(){
     return height;
 }
 
+chain::points_value BingClient::fetchUtxo(const wallet::payment_address address, uint64_t satoshis, wallet::select_outputs::algorithm algorithm){
+
+    client::obelisk_client client(connection);
+    doConnect(client);
+
+    chain::points_value pointsValue;
+
+    const auto on_error = [](const code& ec)
+    {
+        std::cout << "Error Code: " << ec.message() << std::endl;
+    };
+
+    auto on_reply = [&pointsValue](const chain::points_value& pv)
+    {
+        pointsValue = pv;
+    };
+
+    client.blockchain_fetch_unspent_outputs(on_error, on_reply, address, satoshis, algorithm);
+    client.wait();
+
+    return pointsValue;
+
+};
+
 #endif
