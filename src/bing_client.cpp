@@ -1,6 +1,3 @@
-#ifndef BING_CLIENT_HPP
-#define BING_CLIENT_HPP
-
 #include "bing_client.hpp"
 
 
@@ -65,5 +62,3 @@ chain::points_value BingClient::fetchUtxo(const wallet::payment_address address,
     return pointsValue;
 
 };
-
-#endif

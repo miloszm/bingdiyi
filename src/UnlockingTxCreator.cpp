@@ -1,28 +1,29 @@
-#include <bitcoin/bitcoin.hpp>
+#include "UnlockingTxCreator.hpp"
 
-using namespace std;
 using namespace bc;
 using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
 
-operation::list to_pay_key_hash_pattern_with_delay(const data_chunk& publicKey, const uint32_t lockUntil)
+operation::list to_pay_key_hash_pattern_with_lock(const data_chunk& publicKey, const uint32_t lockUntil)
 {
     vector<uint8_t> lockUntilArray(4);
     serializer<vector<uint8_t>::iterator>(lockUntilArray.begin()).write_4_bytes_little_endian(lockUntil);
 
     return operation::list
-            {
-                    { lockUntilArray },
-                    { opcode::checklocktimeverify },
-                    { opcode::drop },
-                    { publicKey },
-                    { opcode::checksig }
-            };
+        {
+            { lockUntilArray },
+            { opcode::checklocktimeverify },
+            { opcode::drop },
+            { publicKey },
+            { opcode::checksig }
+        };
 }
 
-void construct_raw_transaction(
+
+
+string UnlockingTxCreator::create(
         const string privKeyWIF,
         const string srcTxId,
         const int srcTxOutputIndex,
@@ -65,7 +66,7 @@ void construct_raw_transaction(
     cout << "input to sig tx " << encode_base16(tx.to_data()) << "\n";
     cout << "should          " << "010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760" << "\n";
 
-    script redeemScript = to_pay_key_hash_pattern_with_delay(pubKeyChunk, srcLockUntil);
+    script redeemScript = to_pay_key_hash_pattern_with_lock(pubKeyChunk, srcLockUntil);
     if(redeemScript.is_valid())
     {
         std::cout << "CLTV Script is Valid!" << std::endl;
@@ -88,19 +89,5 @@ void construct_raw_transaction(
 
     std::cout << "Raw Transaction: " << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
-}
-
-int main() {
-    const string version {"0.001"};
-    cout << "locked_tx_spender" << "\n";
-    cout << "version:" << version << "\n";
-
-    const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"};
-    const string srcTxId {"56099acd47ca8032384c91e45d5752071bf1ca521c1d4e6eaf2611da264ae2fd"};
-    const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {3000};
-    const uint32_t srcLockUntil = 1615491020;
-    const string targetAddr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
-
-    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
+    return encode_base16(tx.to_data());
 }

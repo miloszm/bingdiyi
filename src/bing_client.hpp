@@ -1,3 +1,7 @@
+#ifndef BING_CLIENT_HPP
+#define BING_CLIENT_HPP
+
+
 #include <bitcoin/bitcoin.hpp>
 #include <bitcoin/client.hpp>
 
@@ -12,3 +16,5 @@ private:
     client::connection_type connection;
     void doConnect(client::obelisk_client& client);
 };
+
+#endif

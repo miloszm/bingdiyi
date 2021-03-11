@@ -15,7 +15,11 @@ anything else, you just need to broadcast the transaction when the
 unlocking time comes (you can keep the transaction in a text file, 
 note that transaction is safe, if it is stolen, it will still transfer
 funds to your address, so if you have private key to the target address,
-it does not matter if you broadcast the transaction or a thief)
+it does not matter if you broadcast the transaction or a thief, 
+caveat is that if you keep the entire transaction only, you lose the
+ability to change the fee should it turned out to be insufficient
+after the hodling time, hence, it is safer to keep necessary
+ingredients just in case you need to recreate transaction from scratch)
 
 ***
 locked_tx_spender - 100% offline tool
