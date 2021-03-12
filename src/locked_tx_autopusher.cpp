@@ -1,27 +1,12 @@
 #include <bitcoin/bitcoin.hpp>
 #include "bing_client.hpp"
+#include "redeem_script.hpp"
 
 using namespace std;
 using namespace bc;
 using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
-
-
-operation::list to_pay_key_hash_pattern_with_delay(const data_chunk& publicKey, const uint32_t lockUntil)
-{
-    vector<uint8_t> lockUntilArray(4);
-    serializer<vector<uint8_t>::iterator>(lockUntilArray.begin()).write_4_bytes_little_endian(lockUntil);
-
-    return operation::list
-            {
-                    { lockUntilArray },
-                    { opcode::checklocktimeverify },
-                    { opcode::drop },
-                    { publicKey },
-                    { opcode::checksig }
-            };
-}
 
 
 void construct_p2sh_time_locking_transaction(
@@ -69,7 +54,7 @@ void construct_p2sh_time_locking_transaction(
 
 
     // output 0
-    script cltvScript = to_pay_key_hash_pattern_with_delay(pubKeyDataChunk, lockUntil);
+    script cltvScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyDataChunk, lockUntil);
     if(cltvScript.is_valid())
     {
         std::cout << "CLTV Script is Valid!" << std::endl;

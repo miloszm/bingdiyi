@@ -1,4 +1,5 @@
 #include <bitcoin/bitcoin.hpp>
+#include "redeem_script.hpp"
 
 using namespace std;
 using namespace bc;
@@ -6,21 +7,6 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
-
-operation::list to_pay_key_hash_pattern_with_delay(const data_chunk& publicKey, const uint32_t lockUntil)
-{
-    vector<uint8_t> lockUntilArray(4);
-    serializer<vector<uint8_t>::iterator>(lockUntilArray.begin()).write_4_bytes_little_endian(lockUntil);
-
-    return operation::list
-            {
-                    { lockUntilArray },
-                    { opcode::checklocktimeverify },
-                    { opcode::drop },
-                    { publicKey },
-                    { opcode::checksig }
-            };
-}
 
 void construct_raw_transaction(
         const string privKeyWIF,
@@ -65,7 +51,7 @@ void construct_raw_transaction(
     cout << "input to sig tx " << encode_base16(tx.to_data()) << "\n";
     cout << "should          " << "010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760" << "\n";
 
-    script redeemScript = to_pay_key_hash_pattern_with_delay(pubKeyChunk, srcLockUntil);
+    script redeemScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyChunk, srcLockUntil);
     if(redeemScript.is_valid())
     {
         std::cout << "CLTV Script is Valid!" << std::endl;
