@@ -82,10 +82,10 @@ int main() {
     cout << "version:" << version << "\n";
 
     const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"};
-    const string srcTxId {"56099acd47ca8032384c91e45d5752071bf1ca521c1d4e6eaf2611da264ae2fd"};
+    const string srcTxId {"471a1fe1e09fe1ba5fdc0ea9476607a3b5871146e34c0b5650f8a618cbb60aa4"};
     const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {3000};
-    const uint32_t srcLockUntil = 1615491020;
+    const uint64_t satoshisToTransfer {1950000};
+    const uint32_t srcLockUntil = 1615591800;
     const string targetAddr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
