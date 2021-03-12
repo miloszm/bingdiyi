@@ -100,23 +100,23 @@ void construct_p2sh_time_locking_transaction(
     }
     tx.set_version(1);
 
-    // sig
-    script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyDataChunk));
-    endorsement sig;
-    if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), previousLockingScript, tx, 0u, all))
-    {
-        std::cout << "Signature: " << encode_base16(sig) << std::endl;
-    }
-
-    // unlocking previous
-    operation::list sigScript;
-    sigScript.push_back(operation(sig));
-    sigScript.push_back(operation(pubKeyDataChunk));
-    script scriptUnlockingPreviousLockingScript(sigScript);
-
     // set unlocking script in inputs
-    for (int i = 0; i < utxos.size(); ++i)
+    for (unsigned int i = 0; i < utxos.size(); ++i) {
+        // sig
+        script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyDataChunk));
+        endorsement sig;
+        if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), previousLockingScript, tx, i, all))
+        {
+            std::cout << "Signature: " << encode_base16(sig) << std::endl;
+        }
+        // unlocking previous
+        operation::list sigScript;
+        sigScript.push_back(operation(sig));
+        sigScript.push_back(operation(pubKeyDataChunk));
+        script scriptUnlockingPreviousLockingScript(sigScript);
+
         tx.inputs()[i].set_script(scriptUnlockingPreviousLockingScript);
+    }
     std::cout << "Raw Transaction with frozen output until " << lockUntil << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
 }
@@ -130,7 +130,7 @@ int main() {
     const string privKeyWIF {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
     const uint64_t satoshisToTransfer {2000000};
     const uint64_t satoshisFee {10000};
-    const uint32_t lockUntil = 1615500000;
+    const uint32_t lockUntil = 1615591800;
 
     construct_p2sh_time_locking_transaction(srcAddr, privKeyWIF, satoshisToTransfer, satoshisFee, lockUntil);
 }
