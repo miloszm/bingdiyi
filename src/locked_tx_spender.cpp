@@ -81,7 +81,7 @@ int main() {
     cout << "locked_tx_spender" << "\n";
     cout << "version:" << version << "\n";
 
-    const string privKeyWIF {"cTApB8cM9qNFg4ePA6Dt8CL3nSNPJhExbk3xyGpqz3J62vVxmZqQ"};
+    const string privKeyWIF {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
     const string srcTxId {"471a1fe1e09fe1ba5fdc0ea9476607a3b5871146e34c0b5650f8a618cbb60aa4"};
     const int srcTxOutputIndex {0};
     const uint64_t satoshisToTransfer {1950000};
