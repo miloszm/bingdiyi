@@ -11,4 +11,6 @@ compile
 install-sh
 Makefile.in
 depcomp
-./*.o
+*.o
+doc/~*
+bing
