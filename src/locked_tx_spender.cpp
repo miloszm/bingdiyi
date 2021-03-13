@@ -7,6 +7,13 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
+/**
+ * spender
+ *
+ * spends (unlocks) funds locked via p2sh script containing OP_CLTV
+ *
+ */
+
 
 void construct_raw_transaction(
         const string privKeyWIF,

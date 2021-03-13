@@ -6,6 +6,12 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
+
+/**
+ * produces p2pkh transaction
+ * no locking, no p2sh, just plan and simple p2pkh
+ */
+
 void construct_raw_transaction(
         const string privKeyWIF,
         const string srcTxId,

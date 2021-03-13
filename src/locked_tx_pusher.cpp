@@ -9,6 +9,13 @@ using namespace bc::wallet;
 using namespace bc::machine;
 
 
+/**
+ * pusher
+ * supports single input built from a given funding transaction
+ * does not give the rest, funds in excess are treated as fee
+ */
+
+
 void construct_p2sh_time_locking_transaction(
         const string privKeyWIF,
         const string srcTxId,

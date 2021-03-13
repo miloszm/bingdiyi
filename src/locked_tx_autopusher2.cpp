@@ -10,6 +10,18 @@ using namespace bc::machine;
 
 
 /**
+ * autopusher2
+ *
+ * has the ability to extract funding transactions for a given address
+ * support multiple inputs if needed
+ * finds in excess to "satoshisToTransfer" and "fee" are given back as rest
+ * so 2 outputs are supported if rest (refund) is needed
+ *
+ */
+
+
+
+/**
  * Creates list of utxos to provide funds needed
  * @param satoshisNeeded
  * @param points

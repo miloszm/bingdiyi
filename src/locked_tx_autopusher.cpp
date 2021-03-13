@@ -9,6 +9,18 @@ using namespace bc::wallet;
 using namespace bc::machine;
 
 
+/**
+ * autopusher
+ *
+ * has the ability to extract a single funding transaction for a given address
+ * supports only one input so first funding transaction has to have multiple funds
+ * this is a transient version - superceeded by autopusher2
+ * finds in excess to "satoshisToTransfer" and "fee" are given back as rest
+ * so 2 outputs are supported if rest (refund) is needed
+ *
+ */
+
+
 void construct_p2sh_time_locking_transaction(
         const string srcAddr,
         const string privKeyWIF,

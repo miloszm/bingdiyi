@@ -7,6 +7,11 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
+
+/**
+ * locks funds until "lockUntil" number of seconds since Jan 1st 1970
+ */
+
 operation::list RedeemScript::to_pay_key_hash_pattern_with_lock(const data_chunk& publicKey, const uint32_t lockUntil)
 {
     vector<uint8_t> lockUntilArray(4);
