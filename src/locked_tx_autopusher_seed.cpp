@@ -3,6 +3,7 @@
 #include "redeem_script.hpp"
 #include "FundsFinder.hpp"
 
+
 using namespace std;
 using namespace bc;
 using namespace bc::chain;

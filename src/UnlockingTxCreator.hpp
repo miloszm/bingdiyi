@@ -4,16 +4,14 @@
 #include <bitcoin/bitcoin.hpp>
 #include <string>
 
-using namespace std;
-
 class UnlockingTxCreator {
 public:
-    string create(
-            const string privKeyWIF,
-            const string srcTxId,
+    std::string create(
+            const std::string privKeyWIF,
+            const std::string srcTxId,
             const int srcTxOutputIndex,
             const uint32_t srcLockUntil,
-            const string targetAddr,
+            const std::string targetAddr,
             const uint64_t satoshisToTransfer
             );
 };

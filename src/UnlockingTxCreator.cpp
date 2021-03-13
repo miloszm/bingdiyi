@@ -1,6 +1,7 @@
 #include "UnlockingTxCreator.hpp"
 #include "redeem_script.hpp"
 
+using namespace std;
 using namespace bc;
 using namespace bc::chain;
 using namespace bc::wallet;
