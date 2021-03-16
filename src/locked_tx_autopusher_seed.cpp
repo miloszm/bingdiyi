@@ -6,8 +6,10 @@
 
 using namespace std;
 using namespace bc;
+using namespace bc::system;
 using namespace bc::system::chain;
 using namespace bc::system::wallet;
+using namespace bc::system::wallet::electrum;
 using namespace bc::system::machine;
 
 
@@ -33,9 +35,9 @@ void construct_p2sh_time_locking_transaction(
     BingClient bingClient;
     bingClient.init();
 
-    const wallet::ec_private privKeyEC(privKeyWIF);
-    const wallet::ec_public pubKey = privKeyEC.to_public();
-    const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
+    const ec_private privKeyEC(privKeyWIF);
+    const ec_public pubKey = privKeyEC.to_public();
+    const config::base16 privKey = config::base16(privKeyEC.secret());
     data_chunk pubKeyDataChunk;
     pubKey.to_data(pubKeyDataChunk);
 
@@ -129,57 +131,10 @@ inline uint8_t bip39_shift2(size_t bit)
     return (1 << (byte_bits - (bit % byte_bits) - 1));
 }
 
-
-bool validate_mnemonic2(const word_list& words, const dictionary& lexicon)
-{
-    static constexpr size_t bits_per_word = 11;
-    static constexpr size_t entropy_bit_divisor = 32;
-    static constexpr size_t hmac_iterations = 2048;
-
-    const auto word_count = words.size();
-    if ((word_count % mnemonic_word_multiple) != 0)
-        return false;
-
-    const auto total_bits = bits_per_word * word_count;
-    const auto check_bits = total_bits / (entropy_bit_divisor + 1);
-    const auto entropy_bits = total_bits - check_bits;
-
-    BITCOIN_ASSERT((entropy_bits % byte_bits) == 0);
-
-    size_t bit = 0;
-    data_chunk data((total_bits + byte_bits - 1) / byte_bits, 0);
-
-    for (const auto& word: words)
-    {
-        const auto position = find_position(lexicon, word);
-        if (position == -1)
-            return false;
-
-        for (size_t loop = 0; loop < bits_per_word; loop++, bit++)
-        {
-            if (position & (1 << (bits_per_word - loop - 1)))
-            {
-                const auto byte = bit / byte_bits;
-                data[byte] |= bip39_shift2(bit);
-            }
-        }
-    }
-
-    data.resize(entropy_bits / byte_bits);
-    const auto mnemonic = create_mnemonic(data, lexicon);
-    cout << "mnemonic created = " << "\n";
-    for (auto w: mnemonic)
-        cout << w << " ";
-    cout << "\n";
-    return std::equal(mnemonic.begin(), mnemonic.end(), words.begin());
-}
-
-
-
 int main() {
-    const string seed {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
+    const string seedPhrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
 
-    const word_list mnemonic = libbitcoin::split(seed, " ");
+    const word_list mnemonic = split(seedPhrase, " ");
     for (string w : mnemonic) {
         auto pos = find_position(language::en, w);
         cout << w << " pos=" << pos << " \n";
@@ -196,7 +151,17 @@ int main() {
     long_hash longHash = electrum::decode_mnemonic(mnemonic);
 
     cout << "seed=" << "\n";
-    cout << libbitcoin::config::base16(longHash) << "\n";
+    cout << config::base16(longHash) << "\n";
+
+    data_chunk seed;
+    for (auto e : longHash){
+        seed.push_back(e);
+    }
+
+    const hd_private m(seed, hd_private::testnet);
+    const hd_public m_pub = m;
+
+    cout << m_pub.encoded() << "\n";
 
     return 0;
 }

@@ -58,8 +58,9 @@ system::chain::points_value BingClient::fetchUtxo(const wallet::payment_address 
         pointsValue = pv;
     };
 
-    client.blockchain_fetch_unspent_outputs(on_reply, address, satoshis, algorithm);
-    client.wait();
+//    TODO !!!!!! make it run again!!
+//    client.blockchain_fetch_unspent_outputs(on_reply, address, satoshis, algorithm);
+//    client.wait();
 
     return pointsValue;
 
