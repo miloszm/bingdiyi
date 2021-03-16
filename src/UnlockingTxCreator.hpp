@@ -1,7 +1,7 @@
 #ifndef UNLOCKING_TX_CREATOR_HPP
 #define UNLOCKING_TX_CREATOR_HPP
 
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <string>
 
 class UnlockingTxCreator {

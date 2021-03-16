@@ -12,6 +12,6 @@ AC_SUBST([bitcoin_client_CPPFLAGS], [${bitcoin_client_CFLAGS}])
 AC_MSG_NOTICE([bitcoin_client_CPPFLAGS : ${bitcoin_client_CPPFLAGS}])
 AC_MSG_NOTICE([bitcoin_client_LIBS : ${bitcoin_client_LIBS}])
 
-CXXFLAGS="-ggdb -I../include/ $CXXFLAGS -std=c++14 $bitcoin_client_CPPFLAGS $DEBUG"
+CXXFLAGS="-ggdb -I../include/ $CXXFLAGS -std=c++11 $bitcoin_client_CPPFLAGS $DEBUG -DWITH_ICU"
 
 AC_OUTPUT

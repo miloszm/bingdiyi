@@ -1,12 +1,12 @@
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include "bing_client.hpp"
 #include "redeem_script.hpp"
 
 using namespace std;
 using namespace bc;
-using namespace bc::chain;
-using namespace bc::wallet;
-using namespace bc::machine;
+using namespace bc::system::chain;
+using namespace bc::system::wallet;
+using namespace bc::system::machine;
 
 
 /**

@@ -3,9 +3,10 @@
 
 using namespace std;
 using namespace bc;
-using namespace bc::chain;
-using namespace bc::wallet;
-using namespace bc::machine;
+using namespace bc::system;
+using namespace bc::system::chain;
+using namespace bc::system::wallet;
+using namespace bc::system::machine;
 
 
 
@@ -17,9 +18,9 @@ string UnlockingTxCreator::create(
         const string targetAddr,
         const uint64_t satoshisToTransfer
 ){
-    const wallet::ec_private privKeyEC(privKeyWIF);
-    const wallet::ec_public pubKey = privKeyEC.to_public();
-    const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
+    const ec_private privKeyEC(privKeyWIF);
+    const ec_public pubKey = privKeyEC.to_public();
+    const config::base16 privKey = config::base16(privKeyEC.secret());
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
 
