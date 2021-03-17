@@ -128,12 +128,6 @@ int main() {
     const string seedPhrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
 
     const word_list mnemonic = split(seedPhrase, " ");
-    for (string w : mnemonic) {
-        auto pos = find_position(language::en, w);
-        cout << w << " pos=" << pos << " \n";
-    }
-    cout << "xx " << std::hex << find_position(language::en, string("quick")) << "\n";
-    cout << "xx " << std::hex << find_position(language::en, string("purity")) << "\n";
 
     if (electrum::validate_mnemonic(mnemonic, language::en)){
         cout << "mnemonic validated OK" << "\n";
@@ -141,17 +135,14 @@ int main() {
         cout << "mnemonic BAD" << "\n";
     }
 
-    long_hash longHash = electrum::decode_mnemonic(mnemonic);
+    long_hash seed = electrum::decode_mnemonic(mnemonic);
 
     cout << "seed=" << "\n";
-    cout << config::base16(longHash) << "\n";
+    cout << config::base16(seed) << "\n";
 
-    data_chunk seed;
-    for (auto e : longHash){
-        seed.push_back(e);
-    }
+    data_chunk seedAsChunk(seed.begin(), seed.end());
 
-    const hd_private m(seed, hd_private::testnet);
+    const hd_private m(seedAsChunk, hd_private::testnet);
     const hd_public m_pub = m;
 
     cout << m_pub.encoded() << "\n";
