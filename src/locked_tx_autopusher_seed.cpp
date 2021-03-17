@@ -109,7 +109,7 @@ void construct_p2sh_time_locking_transaction(
     std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 
-int main() {
+int main2() {
     const string version {"0.001"};
     cout << "locked_tx_pusher" << "\n";
     cout << "version:" << version << "\n";
@@ -121,4 +121,40 @@ int main() {
     const uint32_t lockUntil = 1615591800;
 
     construct_p2sh_time_locking_transaction(srcAddr, privKeyWIF, satoshisToTransfer, satoshisFee, lockUntil);
+}
+
+
+int main() {
+    const string seedPhrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
+
+    const word_list mnemonic = split(seedPhrase, " ");
+    for (string w : mnemonic) {
+        auto pos = find_position(language::en, w);
+        cout << w << " pos=" << pos << " \n";
+    }
+    cout << "xx " << std::hex << find_position(language::en, string("quick")) << "\n";
+    cout << "xx " << std::hex << find_position(language::en, string("purity")) << "\n";
+
+    if (electrum::validate_mnemonic(mnemonic, language::en)){
+        cout << "mnemonic validated OK" << "\n";
+    } else {
+        cout << "mnemonic BAD" << "\n";
+    }
+
+    long_hash longHash = electrum::decode_mnemonic(mnemonic);
+
+    cout << "seed=" << "\n";
+    cout << config::base16(longHash) << "\n";
+
+    data_chunk seed;
+    for (auto e : longHash){
+        seed.push_back(e);
+    }
+
+    const hd_private m(seed, hd_private::testnet);
+    const hd_public m_pub = m;
+
+    cout << m_pub.encoded() << "\n";
+
+    return 0;
 }
