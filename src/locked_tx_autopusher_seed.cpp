@@ -145,7 +145,21 @@ int main() {
     const hd_private m(seedAsChunk, hd_private::testnet);
     const hd_public m_pub = m;
 
-    cout << m_pub.encoded() << "\n";
+    auto m0_pub = m.derive_public(0);
+    auto m1_pub = m.derive_public(1);
 
+    cout << m_pub.encoded() << "\n";
+    cout << m0_pub.encoded() << "\n";
+    cout << m1_pub.encoded() << "\n";
+
+    hd_private m0 = m.derive_private(0);
+
+    // from m/0/0 to m/0/29
+    cout << "from m/0/0 to m/0/29: " << "\n";
+    for (int i = 0; i < 30; ++i){
+        hd_private hdPrivate = m0.derive_private(i);
+        const payment_address address({ hdPrivate.secret(), payment_address::testnet_p2kh });
+        cout << "m/0/" << i <<" address: " << address.encoded() << "\n";
+    }
     return 0;
 }
