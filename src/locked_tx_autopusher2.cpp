@@ -23,54 +23,54 @@ using namespace bc::machine;
 
 
 void construct_p2sh_time_locking_transaction(
-        const string srcAddr,
-        const string privKeyWIF,
-        const uint64_t satoshisToTransfer,
-        const uint64_t satoshisFee,
-        const uint32_t lockUntil
+        const string src_addr,
+        const string priv_key_wif,
+        const uint64_t satoshis_to_transfer,
+        const uint64_t satoshis_fee,
+        const uint32_t lock_until
 ){
-    BingClient bingClient;
-    bingClient.init();
+    BingClient bing_client;
+    bing_client.init();
 
-    const wallet::ec_private privKeyEC(privKeyWIF);
-    const wallet::ec_public pubKey = privKeyEC.to_public();
-    const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
-    data_chunk pubKeyDataChunk;
-    pubKey.to_data(pubKeyDataChunk);
+    const wallet::ec_private priv_key_ec(priv_key_wif);
+    const wallet::ec_public pub_key = priv_key_ec.to_public();
+    const libbitcoin::config::base16 priv_key = libbitcoin::config::base16(priv_key_ec.secret());
+    data_chunk pub_key_data_chunk;
+    pub_key.to_data(pub_key_data_chunk);
 
-    cout << "priv WIF: " << privKeyEC << endl;
-    cout << "public hex: " << pubKey << endl;
-    cout << "private hex: " << privKey << endl;
+    cout << "priv WIF: " << priv_key_ec << endl;
+    cout << "public hex: " << pub_key << endl;
+    cout << "private hex: " << priv_key << endl;
 
-    cout << "fetch height: " << bingClient.fetchHeight() << "\n";
+    cout << "fetch height: " << bing_client.fetchHeight() << "\n";
 
-    auto pointsValue = bingClient.fetchUtxo(payment_address(srcAddr), 1, wallet::select_outputs::algorithm::individual);
-    auto satoshisNeeded = satoshisToTransfer + satoshisFee;
-    auto utxosFunds = FundsFinder::find_funds(satoshisNeeded, pointsValue);
-    auto utxos = utxosFunds.first;
-    auto availableFunds = utxosFunds.second;
-    if (utxosFunds.first.empty()){
-        cout << "Insufficient funds, required " << satoshisNeeded << ", available " << availableFunds << "\n";
+    auto points_value = bing_client.fetch_utxo(payment_address(src_addr), 1, wallet::select_outputs::algorithm::individual);
+    auto satoshis_needed = satoshis_to_transfer + satoshis_fee;
+    auto utxos_funds = FundsFinder::find_funds(satoshis_needed, points_value);
+    auto utxos = utxos_funds.first;
+    auto available_funds = utxos_funds.second;
+    if (utxos_funds.first.empty()){
+        cout << "Insufficient funds, required " << satoshis_needed << ", available " << available_funds << "\n";
         return;
     }
-    auto refund = availableFunds - satoshisNeeded;
-    cout << "available funds: " << availableFunds << "\n";
-    cout << "requested funds: " << satoshisToTransfer << "\n";
-    cout << "fee: " << satoshisFee << "\n";
+    auto refund = available_funds - satoshis_needed;
+    cout << "available funds: " << available_funds << "\n";
+    cout << "requested funds: " << satoshis_to_transfer << "\n";
+    cout << "fee: " << satoshis_fee << "\n";
     cout << "refund: " << refund << "\n";
 
 
     // output 0
-    script cltvScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyDataChunk, lockUntil);
+    script cltvScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pub_key_data_chunk, lock_until);
     if(cltvScript.is_valid())
     {
         std::cout << "CLTV Script is Valid!" << std::endl;
     }else{
         std::cout << "CLTV Script Invalid!" << std::endl;
     }
-    short_hash scriptHash = bitcoin_short_hash(cltvScript.to_data(0));
-    script pay2ScriptHashLockingScript = script(cltvScript.to_pay_script_hash_pattern(scriptHash));
-    output output0(satoshisToTransfer, pay2ScriptHashLockingScript);
+    short_hash script_hash = bitcoin_short_hash(cltvScript.to_data(0));
+    script pay2ScriptHashLockingScript = script(cltvScript.to_pay_script_hash_pattern(script_hash));
+    output output0(satoshis_to_transfer, pay2ScriptHashLockingScript);
 
     // tx
     transaction tx = transaction();
@@ -82,7 +82,7 @@ void construct_p2sh_time_locking_transaction(
     }
     tx.outputs().push_back(output0);
     if (refund > 0){
-        output output1(refund, script().to_pay_key_hash_pattern(payment_address(srcAddr).hash()));
+        output output1(refund, script().to_pay_key_hash_pattern(payment_address(src_addr).hash()));
         tx.outputs().push_back(output1);
     }
     tx.set_version(1);
@@ -90,21 +90,21 @@ void construct_p2sh_time_locking_transaction(
     // set unlocking script in inputs
     for (unsigned int i = 0; i < utxos.size(); ++i) {
         // sig
-        script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pubKeyDataChunk));
+        script previousLockingScript = script().to_pay_key_hash_pattern(bitcoin_short_hash(pub_key_data_chunk));
         endorsement sig;
-        if(previousLockingScript.create_endorsement(sig, privKeyEC.secret(), previousLockingScript, tx, i, all))
+        if(previousLockingScript.create_endorsement(sig, priv_key_ec.secret(), previousLockingScript, tx, i, all))
         {
             std::cout << "Signature: " << encode_base16(sig) << std::endl;
         }
         // unlocking previous
         operation::list sigScript;
         sigScript.push_back(operation(sig));
-        sigScript.push_back(operation(pubKeyDataChunk));
+        sigScript.push_back(operation(pub_key_data_chunk));
         script scriptUnlockingPreviousLockingScript(sigScript);
 
         tx.inputs()[i].set_script(scriptUnlockingPreviousLockingScript);
     }
-    std::cout << "Raw Transaction with frozen output until " << lockUntil << ":" << std::endl;
+    std::cout << "Raw Transaction with frozen output until " << lock_until << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 

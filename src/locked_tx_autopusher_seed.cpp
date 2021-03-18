@@ -43,9 +43,9 @@ void construct_p2sh_time_locking_transaction(
     cout << "public hex: " << pubKey << endl;
     cout << "private hex: " << privKey << endl;
 
-    cout << "fetch height: " << bingClient.fetchHeight() << "\n";
+    cout << "fetch height: " << bingClient.fetch_height() << "\n";
 
-    auto pointsValue = bingClient.fetchUtxo(payment_address(srcAddr), 1, wallet::select_outputs::algorithm::individual);
+    auto pointsValue = bingClient.fetch_utxo(payment_address(srcAddr), 1, wallet::select_outputs::algorithm::individual);
     auto satoshisNeeded = satoshisToTransfer + satoshisFee;
     auto utxosFunds = FundsFinder::find_funds(satoshisNeeded, pointsValue);
     auto utxos = utxosFunds.first;
