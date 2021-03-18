@@ -24,9 +24,17 @@ using namespace bc::machine;
 
 
 
-void construct_p2sh_time_locking_transaction(
+/**
+ * @param src_addr
+ * @param priv_key_ec
+ * @param satoshis_to_transfer
+ * @param satoshis_fee
+ * @param lock_until
+ * @return transaction id of the created transaction
+ */
+string construct_p2sh_time_locking_transaction2(
         const string src_addr,
-        const string priv_key_wif,
+        const ec_private priv_key_ec,
         const uint64_t satoshis_to_transfer,
         const uint64_t satoshis_fee,
         const uint32_t lock_until
@@ -34,7 +42,6 @@ void construct_p2sh_time_locking_transaction(
     BingClient bing_client;
     bing_client.init();
 
-    const wallet::ec_private priv_key_ec(priv_key_wif);
     const wallet::ec_public pub_key = priv_key_ec.to_public();
     const libbitcoin::config::base16 priv_key = libbitcoin::config::base16(priv_key_ec.secret());
     data_chunk pub_key_data_chunk;
@@ -53,7 +60,7 @@ void construct_p2sh_time_locking_transaction(
     auto available_funds = utxos_funds.second;
     if (utxos_funds.first.empty()){
         cout << "Insufficient funds, required " << satoshis_needed << ", available " << available_funds << "\n";
-        return;
+        return "";
     }
     auto refund = available_funds - satoshis_needed;
     cout << "available funds: " << available_funds << "\n";
@@ -108,28 +115,19 @@ void construct_p2sh_time_locking_transaction(
     }
     std::cout << "Raw Transaction with frozen output until " << lock_until << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
+    return encode_hash(tx.hash());
 }
-
-int main2() {
-    const string version {"0.001"};
-    cout << "locked_tx_pusher" << "\n";
-    cout << "version:" << version << "\n";
-
-    const string srcAddr {"mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh"};
-    const string privKeyWIF {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
-    const uint64_t satoshisToTransfer {2000000};
-    const uint64_t satoshisFee {10000};
-    const uint32_t lockUntil = 1615591800;
-
-    construct_p2sh_time_locking_transaction(srcAddr, privKeyWIF, satoshisToTransfer, satoshisFee, lockUntil);
-}
-
 
 int main() {
+    const uint64_t satoshis_to_transfer {4000};
+    const uint64_t satoshis_fee {3000};
+    const uint32_t lock_until = 1616108400;
+    const string seedPhrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
+
+
+    uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
     BingClient bing_client;
     bing_client.init();
-
-    const string seedPhrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
 
     const word_list mnemonic = split(seedPhrase, " ");
 
@@ -159,25 +157,40 @@ int main() {
     hd_private m0 = m.derive_private(0);
 
     vector<string> addresses;
+    map<string, ec_private> addresses_to_ec_private;
 
-    // from m/0/0 to m/0/29
-    cout << "from m/0/0 to m/0/29: " << "\n";
-    for (int i = 0; i < 30; ++i){
+    // from m/0/0 to m/0/99
+    cout << "from m/0/0 to m/0/99: " << "\n";
+    for (int i = 0; i < 100; ++i){
         hd_private hdPrivate = m0.derive_private(i);
         const payment_address address({ hdPrivate.secret(), payment_address::testnet_p2kh });
         cout << "m/0/" << i <<" address: " << address.encoded() << "\n";
         addresses.push_back(address.encoded());
+        addresses_to_ec_private[address.encoded()] = ec_private(hdPrivate.secret(), payment_address::testnet_p2kh);
     }
 
-    std::reverse(addresses.begin(), addresses.end());
-
-    AddressFunds funds = PurseAccessor::look_for_funds(bing_client, 1957000, addresses);
+    cout << "required funds: " << required_funds << "\n";
+    AddressFunds funds = PurseAccessor::look_for_funds(bing_client, required_funds, addresses);
 
     cout << "funds found:" << "\n";
     cout << "address = " << funds.address << "\n";
     cout << "requested funds = " << funds.requested_funds << "\n";
     cout << "actual funds = " << funds.actual_funds << "\n";
     cout << "number of inputs = " << funds.points.size() << "\n";
+
+    string source_address = funds.address;
+    ec_private private_key = addresses_to_ec_private[funds.address];
+
+    string tx_hash = construct_p2sh_time_locking_transaction2(source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
+
+    cout << "===== data to unlock: ====" << "\n";
+    cout << "lock time: " << lock_until << "\n";
+    cout << "private key of address: " << source_address << "\n";
+    cout << "available amount: " << satoshis_to_transfer << "\n";
+    cout << "from ^^ please subtract fee" << "\n";
+    cout << "funding transaction id: " << tx_hash << "\n";
+    cout << "desired target address where the unlocked funds will be transferred" << "\n";
+    cout << "==========================" << "\n";
 
     return 0;
 }

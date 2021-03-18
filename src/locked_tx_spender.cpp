@@ -88,11 +88,11 @@ int main() {
     cout << "locked_tx_spender" << "\n";
     cout << "version:" << version << "\n";
 
-    const string privKeyWIF {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
-    const string srcTxId {"471a1fe1e09fe1ba5fdc0ea9476607a3b5871146e34c0b5650f8a618cbb60aa4"};
+    const string privKeyWIF {"cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX"};
+    const string srcTxId {"afd42261ec834f38841a7232cda5b9bc3b0be74680af5d66f099476319ca2798"};
     const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {1950000};
-    const uint32_t srcLockUntil = 1615591800;
+    const uint64_t satoshisToTransfer {1000};
+    const uint32_t srcLockUntil = 1616108400;
     const string targetAddr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
 
     construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
