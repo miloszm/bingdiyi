@@ -12,6 +12,7 @@ struct AddressFunds {
 };
 
 class PurseAccessor {
+public:
   static AddressFunds obtain_funds(BingClient &bing_client,
                                    uint64_t requested_funds,
                                    std::string address);

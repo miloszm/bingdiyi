@@ -2,6 +2,7 @@
 #include "bing_client.hpp"
 #include "redeem_script.hpp"
 #include "funds_finder.hpp"
+#include "purse_accessor.hpp"
 
 
 using namespace std;
@@ -125,6 +126,9 @@ int main2() {
 
 
 int main() {
+    BingClient bing_client;
+    bing_client.init();
+
     const string seedPhrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
 
     const word_list mnemonic = split(seedPhrase, " ");
@@ -154,12 +158,26 @@ int main() {
 
     hd_private m0 = m.derive_private(0);
 
+    vector<string> addresses;
+
     // from m/0/0 to m/0/29
     cout << "from m/0/0 to m/0/29: " << "\n";
     for (int i = 0; i < 30; ++i){
         hd_private hdPrivate = m0.derive_private(i);
         const payment_address address({ hdPrivate.secret(), payment_address::testnet_p2kh });
         cout << "m/0/" << i <<" address: " << address.encoded() << "\n";
+        addresses.push_back(address.encoded());
     }
+
+    std::reverse(addresses.begin(), addresses.end());
+
+    AddressFunds funds = PurseAccessor::look_for_funds(bing_client, 1957000, addresses);
+
+    cout << "funds found:" << "\n";
+    cout << "address = " << funds.address << "\n";
+    cout << "requested funds = " << funds.requested_funds << "\n";
+    cout << "actual funds = " << funds.actual_funds << "\n";
+    cout << "number of inputs = " << funds.points.size() << "\n";
+
     return 0;
 }
