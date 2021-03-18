@@ -5,8 +5,9 @@
 
 class RedeemScript {
 public:
-    static libbitcoin::machine::operation::list to_pay_key_hash_pattern_with_lock(const libbitcoin::data_chunk& publicKey, const uint32_t lockUntil);
+  static libbitcoin::machine::operation::list
+  to_pay_key_hash_pattern_with_lock(const libbitcoin::data_chunk &public_key,
+                                    const uint32_t lock_until);
 };
-
 
 #endif
