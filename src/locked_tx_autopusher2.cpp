@@ -1,7 +1,7 @@
 #include <bitcoin/bitcoin.hpp>
 #include "bing_client.hpp"
 #include "redeem_script.hpp"
-#include "FundsFinder.hpp"
+#include "funds_finder.hpp"
 
 using namespace std;
 using namespace bc;
