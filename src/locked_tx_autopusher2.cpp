@@ -113,11 +113,11 @@ int main() {
     cout << "locked_tx_pusher" << "\n";
     cout << "version:" << version << "\n";
 
-    const string srcAddr {"mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh"};
-    const string privKeyWIF {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
-    const uint64_t satoshisToTransfer {2000000};
-    const uint64_t satoshisFee {10000};
-    const uint32_t lockUntil = 1615591800;
+    const string src_addr {"mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh"};
+    const string priv_key_wif {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
+    const uint64_t satoshis_to_transfer {2000000};
+    const uint64_t satoshis_fee {10000};
+    const uint32_t lock_until = 1615591800;
 
-    construct_p2sh_time_locking_transaction(srcAddr, privKeyWIF, satoshisToTransfer, satoshisFee, lockUntil);
+    construct_p2sh_time_locking_transaction(src_addr, priv_key_wif, satoshis_to_transfer, satoshis_fee, lock_until);
 }
