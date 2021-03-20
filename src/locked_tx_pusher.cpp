@@ -106,42 +106,30 @@ int main(int argc, char* argv[]) {
         string priv_key_wif;
         string src_txid;
         int src_vout;
-        uint64_t satoshis_to_transfer;
+        uint64_t amount_to_transfer;
         uint32_t lock_until;
         options_description desc("Required options");
         desc.add_options()
             ("help,h", "print usage message")
-            ("priv_key,pk", boost::program_options::value<string>(&priv_key_wif), "(pk) private key in the WIF format")
-            ("src_txid,st", boost::program_options::value<string>(&src_txid), "(st) source tx id")
-            ("src_vout,si", boost::program_options::value<int>(&src_vout), "(si) source tx output index (vout)")
+            ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key to unlock the funding transaction (in WIF format)")
+            ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+            ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
+            ("amount,a", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
+            ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
         ;
 
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
-        notify(vm);
 
-        if (vm.count("help")) {
+        if (vm.count("help")){
             cout << desc << "\n";
             return 1;
         }
 
-        if (vm.count("src_vout")) {
-            cout << "src_vout was set to " << src_vout << ".\n";
-        } else {
-            cout << "src_vout was was not set.\n";
-        }
+        // note: myst be after help option check
+        notify(vm);
 
-        if (vm.count("src_txid")) {
-            cout << "src_txid was set to " << src_txid << ".\n";
-        } else {
-            cout << "src_txid was was not set.\n";
-        }
-
-        if (vm.count("priv_key")) {
-            cout << "priv_key was set to " << priv_key_wif << ".\n";
-        } else {
-            cout << "priv_key was was not set.\n";
-        }
+        return 0;
     }
     catch(exception& e) {
         cerr << e.what() << "\n";
