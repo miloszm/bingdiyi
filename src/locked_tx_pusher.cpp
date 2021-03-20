@@ -1,7 +1,8 @@
 #include <bitcoin/bitcoin.hpp>
 #include "redeem_script.hpp"
+#include <boost/program_options.hpp>
 
-
+using namespace boost::program_options;
 using namespace std;
 using namespace bc;
 using namespace bc::chain;
@@ -79,7 +80,7 @@ void construct_p2sh_time_locking_transaction(
     std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 
-int main() {
+int main2() {
     const string version {"0.001"};
     cout << "locked_tx_pusher" << "\n";
     cout << "version:" << version << "\n";
@@ -98,4 +99,51 @@ int main() {
     const uint32_t lockUntil = 1615381200;
 
     construct_p2sh_time_locking_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
+}
+
+int main(int argc, char* argv[]) {
+    try {
+        string priv_key_wif;
+        string src_txid;
+        int src_vout;
+        uint64_t satoshis_to_transfer;
+        uint32_t lock_until;
+        options_description desc("Required options");
+        desc.add_options()
+            ("help,h", "print usage message")
+            ("priv_key,pk", boost::program_options::value<string>(&priv_key_wif), "(pk) private key in the WIF format")
+            ("src_txid,st", boost::program_options::value<string>(&src_txid), "(st) source tx id")
+            ("src_vout,si", boost::program_options::value<int>(&src_vout), "(si) source tx output index (vout)")
+        ;
+
+        variables_map vm;
+        store(parse_command_line(argc, argv, desc), vm);
+        notify(vm);
+
+        if (vm.count("help")) {
+            cout << desc << "\n";
+            return 1;
+        }
+
+        if (vm.count("src_vout")) {
+            cout << "src_vout was set to " << src_vout << ".\n";
+        } else {
+            cout << "src_vout was was not set.\n";
+        }
+
+        if (vm.count("src_txid")) {
+            cout << "src_txid was set to " << src_txid << ".\n";
+        } else {
+            cout << "src_txid was was not set.\n";
+        }
+
+        if (vm.count("priv_key")) {
+            cout << "priv_key was set to " << priv_key_wif << ".\n";
+        } else {
+            cout << "priv_key was was not set.\n";
+        }
+    }
+    catch(exception& e) {
+        cerr << e.what() << "\n";
+    }
 }
