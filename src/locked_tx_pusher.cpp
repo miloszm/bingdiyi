@@ -18,38 +18,33 @@ using namespace bc::machine;
 
 
 void construct_p2sh_time_locking_transaction(
-        const string privKeyWIF,
-        const string srcTxId,
-        const int srcTxOutputIndex,
-        const uint64_t satoshisToTransfer,
-        const uint32_t lockUntil
+        const string src_addr,
+        const string priv_key_wif,
+        const string src_txid,
+        const int src_vout,
+        const uint64_t amount_to_transfer,
+        const uint32_t lock_until
 ){
-    const wallet::ec_private privKeyEC(privKeyWIF);
+    const wallet::ec_private privKeyEC(priv_key_wif);
     const wallet::ec_public pubKey = privKeyEC.to_public();
     const libbitcoin::config::base16 privKey = libbitcoin::config::base16(privKeyEC.secret());
     data_chunk pubKeyDataChunk;
     pubKey.to_data(pubKeyDataChunk);
     hash_digest srcTxIdDataReversed;
-    decode_hash(srcTxIdDataReversed, srcTxId);
-
-    cout << "priv WIF: " << privKeyEC << endl;
-    cout << "public hex: " << pubKey << endl;
-    cout << "private hex: " << privKey << endl;
+    decode_hash(srcTxIdDataReversed, src_txid);
 
     // output
-    script cltvScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyDataChunk, lockUntil);
-    if(cltvScript.is_valid())
-    {
-        std::cout << "CLTV Script is Valid!" << std::endl;
-    }else{
+    script cltvScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyDataChunk, lock_until);
+    if(!cltvScript.is_valid()){
         std::cout << "CLTV Script Invalid!" << std::endl;
+        return;
     }
     short_hash scriptHash = bitcoin_short_hash(cltvScript.to_data(0));
     script pay2ScriptHashLockingScript = script(cltvScript.to_pay_script_hash_pattern(scriptHash));
-    output output1(satoshisToTransfer, pay2ScriptHashLockingScript);
+    output output1(amount_to_transfer, pay2ScriptHashLockingScript);
 
     // input
-    output_point utxo(srcTxIdDataReversed, srcTxOutputIndex);
+    output_point utxo(srcTxIdDataReversed, src_vout);
     input input1 = input();
     input1.set_previous_output(utxo);
     input1.set_sequence(0xfffffffe);
@@ -76,8 +71,27 @@ void construct_p2sh_time_locking_transaction(
 
     // set unlocking script in input
     tx.inputs()[0].set_script(scriptUnlockingPreviousLockingScript);
-    std::cout << "Raw Transaction with frozen output until " << lockUntil << ":" << std::endl;
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+    std::cout << "Raw Transaction with frozen output until " << lock_until << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+
+    string tx_to_unlock = encode_hash(tx.hash());
+
+    cout << "===== data to unlock: ====" << "\n";
+    cout << "lock time: " << lock_until << "\n";
+    cout << "private key of address: " << src_addr << "\n";
+    cout << "available amount: " << amount_to_transfer << "\n";
+    cout << "from ^^ please subtract fee" << "\n";
+    cout << "funding transaction id to unlock: " << tx_to_unlock << "\n";
+    cout << "desired target address where the unlocked funds will be transferred" << "\n";
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+
 }
 
 int main2() {
@@ -85,24 +99,26 @@ int main2() {
     cout << "locked_tx_pusher" << "\n";
     cout << "version:" << version << "\n";
     /**
-     * 1. private key for source_addr (note source address as SA)
-     * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
-     * 3. source transaction's output index (as found out via bx fetch-utxo <satoshis> SA)
-     * 4. main target address
+     * 1. source address (for reference only)
+     * 2. private key for source_addr (note source address as SA)
+     * 3. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
+     * 4. source transaction's output index (as found out via bx fetch-utxo <satoshis> SA)
      * 5. amount to transfer in Satoshis
      * 6. lock until epoch time (in seconds)
      */
-    const string privKeyWIF {"L4uNXb2MvLmAtbVMbYg7XsSjgemmyPCnVFaqB4ZX39g8GGNQGqFR"}; // SA = 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const string srcTxId {"22667c482f0f69daefabdf0969be53b8d539e1d2abbfc1c7a193ae38ec0d3e31"}; // bx fetch-utxo 80000 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {51000};
-    const uint32_t lockUntil = 1615381200;
+    const string src_addr = "12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4";
+    const string priv_key_wif {"L4uNXb2MvLmAtbVMbYg7XsSjgemmyPCnVFaqB4ZX39g8GGNQGqFR"}; // SA = 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
+    const string src_txid {"22667c482f0f69daefabdf0969be53b8d539e1d2abbfc1c7a193ae38ec0d3e31"}; // bx fetch-utxo 80000 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
+    const int src_vout {0};
+    const uint64_t amount_to_transfer {51000};
+    const uint32_t lock_until = 1615381200;
 
-    construct_p2sh_time_locking_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, satoshisToTransfer, lockUntil);
+    construct_p2sh_time_locking_transaction(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
 }
 
 int main(int argc, char* argv[]) {
     try {
+        string src_addr;
         string priv_key_wif;
         string src_txid;
         int src_vout;
@@ -111,10 +127,11 @@ int main(int argc, char* argv[]) {
         options_description desc("Required options");
         desc.add_options()
             ("help,h", "print usage message")
+            ("addr", value<string>(&src_addr)->required(), "funding address")
             ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key to unlock the funding transaction (in WIF format)")
             ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
             ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
-            ("amount,a", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
+            ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
             ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
         ;
 
@@ -123,11 +140,15 @@ int main(int argc, char* argv[]) {
 
         if (vm.count("help")){
             cout << desc << "\n";
+            cout << "example:" << "\n";
+            cout << "./bing --t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --l=1616255893 --p=<your private key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
             return 1;
         }
 
-        // note: myst be after help option check
+        // note: must be after help option check
         notify(vm);
+
+        construct_p2sh_time_locking_transaction(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
 
         return 0;
     }
