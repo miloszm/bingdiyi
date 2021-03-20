@@ -1,6 +1,8 @@
 #include <bitcoin/bitcoin.hpp>
 #include "redeem_script.hpp"
+#include <boost/program_options.hpp>
 
+using namespace boost::program_options;
 using namespace std;
 using namespace bc;
 using namespace bc::chain;
@@ -29,12 +31,6 @@ void construct_raw_transaction(
     data_chunk pubKeyChunk;
     pubKey.to_data(pubKeyChunk);
 
-    cout << "priv WIF: " << privKeyEC << endl;
-    cout << "public hex: " << pubKey << endl;
-    cout << "private hex: " << privKey << endl;
-
-    // bx tx-encode -i 2a0990b736e79e1d65ce3e9e25427e36855235829d58c1f2a9eac18142c926a6:0:0 -o n4eaAFB3GPmrJR4ummYpQmYTx2VaNftuPe:800000 -l 1615161540
-
     string hashString = srcTxId;
     hash_digest utxoHash;
     decode_hash(utxoHash, hashString);
@@ -59,10 +55,8 @@ void construct_raw_transaction(
     cout << "should          " << "010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760" << "\n";
 
     script redeemScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyChunk, srcLockUntil);
-    if(redeemScript.is_valid())
+    if(!redeemScript.is_valid())
     {
-        std::cout << "CLTV Script is Valid!" << std::endl;
-    }else{
         std::cout << "CLTV Script Invalid!" << std::endl;
     }
     endorsement sig;
@@ -79,21 +73,67 @@ void construct_raw_transaction(
     script scriptUnlockingPreviousLockingScript(sigScript);
     tx.inputs()[0].set_script(scriptUnlockingPreviousLockingScript);
 
-    std::cout << "Raw Transaction: " << std::endl;
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+    std::cout << "Transaction to be send to unlock the funds: " << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
+    cout << "==========================" << "\n";
 }
 
-int main() {
+int main2() {
     const string version {"0.001"};
     cout << "locked_tx_spender" << "\n";
     cout << "version:" << version << "\n";
 
-    const string privKeyWIF {"cT6gppgsgc84CFxL7mtZHNncHjysHvFrsNoCXa2PHFqfECX2xAeX"};
-    const string srcTxId {"afd42261ec834f38841a7232cda5b9bc3b0be74680af5d66f099476319ca2798"};
-    const int srcTxOutputIndex {0};
-    const uint64_t satoshisToTransfer {1000};
-    const uint32_t srcLockUntil = 1616108400;
-    const string targetAddr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
+    const string priv_key_wif {"cPtUaUxmB7kd2r2HNJDr5UuhRFCnu1RV7dUX95Rg6av3RrJkumZn"};
+    const string src_txid {"29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba"};
+    const int src_vout {0};
+    const uint64_t amount_to_transfer {880000};
+    const uint32_t lock_until = 1616255893;
+    const string target_addr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
 
-    construct_raw_transaction(privKeyWIF, srcTxId, srcTxOutputIndex, srcLockUntil, targetAddr, satoshisToTransfer);
+    construct_raw_transaction(priv_key_wif, src_txid, src_vout, lock_until, target_addr, amount_to_transfer);
+}
+
+int main(int argc, char* argv[]) {
+    try {
+        string priv_key_wif;
+        string src_txid;
+        int src_vout {0};
+        uint64_t amount_to_transfer;
+        uint32_t lock_until;
+        string target_addr;
+        options_description desc("Required options");
+        desc.add_options()
+                ("help,h", "print usage message")
+                ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key to unlock the funding transaction (in WIF format)")
+                ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+                ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
+                ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
+                ("addr", value<string>(&target_addr)->required(), "target address")
+                ;
+
+        variables_map vm;
+        store(parse_command_line(argc, argv, desc), vm);
+
+        if (vm.count("help")){
+            cout << desc << "\n";
+            cout << "example:" << "\n";
+            cout << "./bing --p=<your private key> --t=29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba --am=88000 --l=1616255893 --addr=n4XMrFeDdEg2vtDYQzDcaK7jcthh5xG4MX" << "\n";
+            return 1;
+        }
+
+        // note: must be after help option check
+        notify(vm);
+
+        construct_raw_transaction(priv_key_wif, src_txid, src_vout, lock_until, target_addr, amount_to_transfer);
+
+        return 0;
+    }
+    catch(exception& e) {
+        cerr << e.what() << "\n";
+    }
 }
