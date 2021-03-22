@@ -73,10 +73,8 @@ void construct_p2sh_time_locking_transaction(
     tx.inputs()[0].set_script(scriptUnlockingPreviousLockingScript);
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-    cout << "==========================" << "\n";
     std::cout << "Raw Transaction with frozen output until " << lock_until << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
-    cout << "==========================" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
 
@@ -118,6 +116,28 @@ int main2() {
 
 int main(int argc, char* argv[]) {
     try {
+        string help_text = "\nyou can find funding transaction by: \n" \
+                " 1) bx fetch-balance <funding_address>\n" \
+                " 2) if the balance is sufficient, do:\n" \
+                "    bx fetch-utxo <desired-amount-in-satoshis> <funding-address>\n" \
+                " 3) choose one utxo and capture 'hash' as funding transaction id\n" \
+                "    and 'index' as funding transaction output index (vout)\n" \
+                "Note that the amount to transfer must be smaller than the available amount in utxo\n" \
+                "so that the remainder can be used as a fee.\n" \
+                "This program does not give change, you need to use up the entire amount\n" \
+                "from the UTXO (divided to funds being locked and to a fee).\n" \
+                "For 'lock until' time, use any available online epoch time converter, \n" \
+                "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n" \
+                "unlocking time will be delayed be around 7 blocks.\n" \
+                "Private key can be found in your wallet, in Electrum, go to tab 'Addresses',\n" \
+                "highlight the desired address, right click and choose `private key'.\n" \
+                "Ignore script type part of the key, like 'p2pkh', copy only the key part.\n\n" \
+                "This is an offline program, it produces transaction in a hex format that can be broadcast\n" \
+                "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
+                "broadcast drop-off place.\n\n" \
+                "Remember that you need to store unlocking data as printed out by this program,\n" \
+                "otherwise your funds will be lost forever.\n";
+
         string src_addr;
         string priv_key_wif;
         string src_txid;
@@ -138,10 +158,11 @@ int main(int argc, char* argv[]) {
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
 
-        if (vm.count("help")){
-            cout << desc << "\n";
+        if (vm.count("help") || argc <= 1){
+            cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "./bing --t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --l=1616255893 --p=<your private key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << help_text << "\n";
             return 1;
         }
 
