@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         uint64_t amount_to_transfer;
         uint64_t fee;
         uint32_t lock_until;
-        options_description desc("Required options");
+        options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("addr", value<string>(&src_addr)->required(), "funding address")

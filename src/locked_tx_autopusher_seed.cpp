@@ -94,7 +94,7 @@ int main(int argc, char* argv[]){
         uint32_t lock_until;
         string seed_phrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
 
-        options_description desc("Required options");
+        options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")

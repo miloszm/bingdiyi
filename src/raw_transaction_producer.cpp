@@ -1,5 +1,7 @@
 #include <bitcoin/bitcoin.hpp>
+#include <boost/program_options.hpp>
 
+using namespace boost::program_options;
 using namespace std;
 using namespace bc;
 using namespace bc::chain;
@@ -106,7 +108,7 @@ void construct_raw_transaction(const string priv_key_wif,
   std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 
-int main() {
+int main2() {
   /**
    * 1. private key for source_addr (note source address as SA)
    * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
@@ -125,4 +127,62 @@ int main() {
 
   construct_raw_transaction(priv_key_wif, src_tx_id, src_tx_output_index,
                             target_addr, satoshis_to_transfer);
+  return 0;
+}
+
+int main(int argc, char* argv[]) {
+    try {
+        string help_text = "\nYou can find funding transaction by: \n" \
+                " 1) bx fetch-balance <funding_address>\n" \
+                " 2) if the balance is sufficient, do:\n" \
+                "    bx fetch-utxo <desired-amount-in-satoshis> <funding-address>\n" \
+                " 3) choose one utxo and capture 'hash' as funding transaction id\n" \
+                "    and 'index' as funding transaction output index (vout)\n\n" \
+                "Note that the amount to transfer must be smaller than the available amount in utxo\n" \
+                "so that the remainder can be used as a fee.\n" \
+                "This program does not give change, you need to use up the entire amount\n" \
+                "from the UTXO.\n" \
+                "Private key can be found in your wallet, in Electrum, go to tab 'Addresses',\n" \
+                "highlight the desired address, right click and choose `private key'.\n" \
+                "Ignore script type part of the key, like 'p2pkh', copy only the key part.\n\n" \
+                "This is an offline program, it produces transaction in a hex format that can be broadcast\n" \
+                "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
+                "broadcast drop-off place.\n\n";
+
+        string priv_key_wif;
+        string src_txid;
+        int src_vout;
+        uint64_t amount_to_transfer;
+        string target_addr;
+        options_description desc("Creates transaction to transfer funds via p2pkh\n\nRequired options");
+        desc.add_options()
+                ("help,h", "print usage message")
+                ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key (in WIF format)")
+                ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+                ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
+                ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
+                ("addr", value<string>(&target_addr)->required(), "target address")
+                ;
+
+        variables_map vm;
+        store(parse_command_line(argc, argv, desc), vm);
+
+        if (vm.count("help") || argc <= 1){
+            cout << "\n\n" << desc << "\n";
+            cout << "example:" << "\n";
+            cout << "--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << help_text << "\n";
+            return 1;
+        }
+
+        // note: must be after help option check
+        notify(vm);
+
+        construct_raw_transaction(priv_key_wif, src_txid, src_vout, target_addr, amount_to_transfer);
+
+        return 0;
+    }
+    catch(exception& e) {
+        cerr << e.what() << "\n";
+    }
 }
