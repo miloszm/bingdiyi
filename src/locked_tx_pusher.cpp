@@ -74,7 +74,7 @@ void construct_p2sh_time_locking_transaction_from_tx(
     tx.inputs()[0].set_script(scriptUnlockingPreviousLockingScript);
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-    std::cout << "Raw Transaction with frozen output until " << lock_until << ":" << std::endl;
+    std::cout << "Transaction with frozen output until " << lock_until << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
@@ -117,7 +117,7 @@ int main2() {
 
 int main(int argc, char* argv[]) {
     try {
-        string help_text = "\nyou can find funding transaction by: \n" \
+        string help_text = "\nYou can find funding transaction by: \n" \
                 " 1) bx fetch-balance <funding_address>\n" \
                 " 2) if the balance is sufficient, do:\n" \
                 "    bx fetch-utxo <desired-amount-in-satoshis> <funding-address>\n" \

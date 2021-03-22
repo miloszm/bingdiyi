@@ -52,9 +52,6 @@ void construct_raw_transaction(
 
     //bx input-sign fd2fc82cc442f35b3b577dc8f300d80007cc53c8d3f922265ccdc84e5c2729d5 "[50714760] checklocktimeverify drop [0375253f2f96889d04eda186cfd2f0f161f4888e538066acb39adb1729ed374e4e] checksig" 010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760
 
-    cout << "input to sig tx " << encode_base16(tx.to_data()) << "\n";
-    cout << "should          " << "010000000155eb2941e57ebf58b0296f114bad51c459e72df3308964ff9c95803fe91c49a80000000000000000000130570500000000001976a9147bc59a29fdd04f10d03ae5f3668a36163ffc580688ac50714760" << "\n";
-
     script redeemScript = RedeemScript::to_pay_key_hash_pattern_with_lock(pubKeyChunk, srcLockUntil);
     if(!redeemScript.is_valid())
     {
@@ -77,7 +74,7 @@ void construct_raw_transaction(
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-    std::cout << "Transaction to be send to unlock the funds: " << std::endl;
+    std::cout << "Transaction to be sent to unlock the funds: " << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
@@ -102,6 +99,25 @@ int main2() {
 
 int main(int argc, char* argv[]) {
     try {
+        string help_text = "\nYou need to have the following items of information available\n" \
+                "(as advised and provided by the locking program):\n" \
+                " 1) lock time\n" \
+                " 2) private key of the source address (from where the funds originated before locking)\n" \
+                " 3) available amount (from which the fee needs to be subtracted)\n" \
+                " 4) funding (locking) transaction id to unlock\n" \
+                "You will also need the target address where the funds should be transferred to.\n\n" \
+                "An example unlocking information looks as follows:\n" \
+                "===== data to unlock: ====\n" \
+                "lock time: 1616418000\n" \
+                "private key of address: mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh\n" \
+                "available amount: 210000\n" \
+                "from ^^ please subtract fee\n" \
+                "funding transaction id to unlock: 085f3e80771036a68ee4116fdb208eb44ffadce70fcd9d77cf935537535d0b27\n" \
+                "desired target address where the unlocked funds will be transferred\n" \
+                "==========================\n\n" \
+                "This program produces transaction in a hex format that can be broadcast\n" \
+                "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
+                "broadcast drop-off place.\n\n";
         string priv_key_wif;
         string src_txid;
         int src_vout {0};
@@ -121,10 +137,11 @@ int main(int argc, char* argv[]) {
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
 
-        if (vm.count("help")){
-            cout << desc << "\n";
+        if (vm.count("help") || argc <= 1){
+            cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "./bing --p=<your private key> --t=29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba --am=88000 --l=1616255893 --addr=n4XMrFeDdEg2vtDYQzDcaK7jcthh5xG4MX" << "\n";
+            cout << "./bing --p=<private-key> --t=29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba --am=88000 --l=1616255893 --addr=n4XMrFeDdEg2vtDYQzDcaK7jcthh5xG4MX" << "\n";
+            cout << help_text << "\n";
             return 1;
         }
 

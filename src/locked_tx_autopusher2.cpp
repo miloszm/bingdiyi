@@ -103,7 +103,7 @@ void construct_p2sh_time_locking_transaction_from_address(
 
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-    std::cout << "Raw Transaction with frozen output until " << lock_until << ":" << std::endl;
+    std::cout << "Transaction with frozen output until " << lock_until << ":" << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
