@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
                 "from the UTXO (divided to funds being locked and to a fee).\n" \
                 "For 'lock until' time, use any available online epoch time converter, \n" \
                 "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n" \
-                "unlocking time will be delayed be around 7 blocks.\n" \
+                "unlocking time will be delayed by around 7 blocks.\n\n" \
                 "Private key can be found in your wallet, in Electrum, go to tab 'Addresses',\n" \
                 "highlight the desired address, right click and choose `private key'.\n" \
                 "Ignore script type part of the key, like 'p2pkh', copy only the key part.\n\n" \

@@ -11,7 +11,7 @@ AddressFunds PurseAccessor::obtain_funds(BingClient &bing_client,
                                          uint64_t requested_funds,
                                          string address) {
   auto points_value =
-      bing_client.fetch_utxo(payment_address(address), 1,
+      bing_client.fetch_utxo(payment_address(address), requested_funds,
                              wallet::select_outputs::algorithm::individual);
   cout << "checking " << address << "\n";
   auto utxos_funds = FundsFinder::find_funds(requested_funds, points_value);

@@ -76,11 +76,13 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
 int main(int argc, char* argv[]){
     try {
         string help_text = "\nYou only provide Electrum mnemonic seed phrase and the program will\n" \
-                "find the funding transaction automatically.\n" \
+                "find the funding transaction automatically.\n\n" \
+                "Note that all funds must be under a single address, multiple addresses will not\n" \
+                "be gathered to contribute their funds to the desired amount.\n\n" \
                 "This program does give change, if any, it will be transferred back into the source address.\n" \
                 "For 'lock until' time, use any available online epoch time converter, \n" \
                 "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n" \
-                "unlocking time will be delayed be around 7 blocks.\n\n" \
+                "unlocking time will be delayed by around 7 blocks.\n\n" \
                 "This program produces transaction in a hex format that can be broadcast\n" \
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
                 "broadcast drop-off place.\n\n" \
