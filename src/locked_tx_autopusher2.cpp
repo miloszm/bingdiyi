@@ -1,3 +1,4 @@
+#include "bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "bing_client.hpp"
 #include "redeem_script.hpp"
@@ -42,7 +43,7 @@ void construct_p2sh_time_locking_transaction(
     cout << "public hex: " << pub_key << endl;
     cout << "private hex: " << priv_key << endl;
 
-    cout << "fetch height: " << bing_client.fetchHeight() << "\n";
+    cout << "fetch height: " << bing_client.fetch_height() << "\n";
 
     auto points_value = bing_client.fetch_utxo(payment_address(src_addr), 1, wallet::select_outputs::algorithm::individual);
     auto satoshis_needed = satoshis_to_transfer + satoshis_fee;

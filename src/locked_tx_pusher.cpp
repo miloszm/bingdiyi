@@ -1,3 +1,4 @@
+#include "bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "redeem_script.hpp"
 #include <boost/program_options.hpp>
@@ -112,6 +113,7 @@ int main2() {
     const uint32_t lock_until = 1615381200;
 
     construct_p2sh_time_locking_transaction(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
+    return 0;
 }
 
 int main(int argc, char* argv[]) {

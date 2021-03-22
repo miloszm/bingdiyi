@@ -1,3 +1,4 @@
+#include "bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "bing_client.hpp"
 #include "redeem_script.hpp"

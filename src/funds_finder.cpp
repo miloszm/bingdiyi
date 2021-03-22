@@ -1,4 +1,3 @@
-#include <bitcoin/bitcoin.hpp>
 #include "funds_finder.hpp"
 
 using namespace std;

@@ -1,3 +1,4 @@
+#include "bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "redeem_script.hpp"
 #include <boost/program_options.hpp>
@@ -96,6 +97,7 @@ int main2() {
     const string target_addr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
 
     construct_raw_transaction(priv_key_wif, src_txid, src_vout, lock_until, target_addr, amount_to_transfer);
+    return 0;
 }
 
 int main(int argc, char* argv[]) {

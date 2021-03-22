@@ -1,5 +1,4 @@
 #include "redeem_script.hpp"
-#include <bitcoin/bitcoin.hpp>
 
 using namespace std;
 using namespace bc;
