@@ -18,7 +18,7 @@ using namespace bc::machine;
  */
 
 
-void construct_p2sh_time_locking_transaction(
+void construct_p2sh_time_locking_transaction_from_tx(
         const string src_addr,
         const string priv_key_wif,
         const string src_txid,
@@ -90,7 +90,6 @@ void construct_p2sh_time_locking_transaction(
     cout << "desired target address where the unlocked funds will be transferred" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-
 }
 
 int main2() {
@@ -112,7 +111,7 @@ int main2() {
     const uint64_t amount_to_transfer {51000};
     const uint32_t lock_until = 1615381200;
 
-    construct_p2sh_time_locking_transaction(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
+    construct_p2sh_time_locking_transaction_from_tx(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
     return 0;
 }
 
@@ -137,8 +136,8 @@ int main(int argc, char* argv[]) {
                 "This is an offline program, it produces transaction in a hex format that can be broadcast\n" \
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
                 "broadcast drop-off place.\n\n" \
-                "Remember that you need to store unlocking data as printed out by this program,\n" \
-                "otherwise your funds will be lost forever.\n";
+                "Remember that you need to store the unlocking data as printed out by this program,\n" \
+                "otherwise your funds will be lost.\n";
 
         string src_addr;
         string priv_key_wif;
@@ -171,7 +170,7 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
-        construct_p2sh_time_locking_transaction(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
+        construct_p2sh_time_locking_transaction_from_tx(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
 
         return 0;
     }
