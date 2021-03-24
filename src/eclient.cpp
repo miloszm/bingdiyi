@@ -31,7 +31,7 @@ public:
             : socket_(io_context, context)
     {
         prepare_connection.lock();
-        socket_.set_verify_mode(boost::asio::ssl::verify_peer);
+        socket_.set_verify_mode(boost::asio::ssl::verify_none);
         socket_.set_verify_callback(
                 std::bind(&client::verify_certificate, this, _1, _2));
 
@@ -137,6 +137,9 @@ int main(int argc, char* argv[])
 
         tcp::resolver resolver(io_context);
         auto endpoints = resolver.resolve("localhost", "51002");
+//        auto endpoints = resolver.resolve("blockstream.info", "993");
+//        auto endpoints = resolver.resolve("testnet.qtornado.com", "51002");
+//        auto endpoints = resolver.resolve("testnet.electrumx.hodlwallet.com", "51002");
 
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
         ctx.load_verify_file("cert.crt");
