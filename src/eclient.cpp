@@ -13,6 +13,7 @@
 #include <functional>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/array.hpp>
 #include <boost/asio/ssl.hpp>
 
 using boost::asio::ip::tcp;
@@ -52,10 +53,8 @@ private:
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
         X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
         std::cout << "Verifying: " << subject_name << "\n";
-        std::cout << "Verifying returns: " << preverified << "\n";
 
         return preverified;
-//        return true;
     }
 
     void connect(const tcp::resolver::results_type& endpoints)
@@ -115,57 +114,26 @@ private:
 
     void receive_response(std::size_t length)
     {
-        boost::asio::async_read(socket_,
-                                boost::asio::buffer(reply_, length+100),
-                                [this](const boost::system::error_code& error, std::size_t length)
-                                {
-                                    if (!error)
-                                    {
-                                        std::cout << "Reply: (length=" << length << ")" << "\n";
-                                        std::cout << reply_ << "\n";
-                                        std::cout << "\n";
-                                    }
-                                    else
-                                    {
-                                        std::cout << "Read failed: " << error.message() << "\n";
-                                    }
-                                });
+        for (;;)
+        {
+            boost::array<char, 128> buf;
+            boost::system::error_code error;
+
+            size_t len = socket_.read_some(boost::asio::buffer(buf), error);
+
+            if (error == boost::asio::error::eof)
+                break; // Connection closed cleanly by peer.
+            else if (error)
+                throw boost::system::system_error(error); // Some other error.
+
+            std::cout.write(buf.data(), len);
+        }
     }
 
     boost::asio::ssl::stream<tcp::socket> socket_;
     char request_[max_length];
     char reply_[max_length];
 };
-
-int main2(int argc, char* argv[])
-{
-    try
-    {
-        if (argc != 3)
-        {
-            std::cerr << "Usage: client <host> <port>\n";
-            return 1;
-        }
-
-        boost::asio::io_context io_context;
-
-        tcp::resolver resolver(io_context);
-        auto endpoints = resolver.resolve(argv[1], argv[2]);
-
-        boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
-        ctx.load_verify_file("ca.pem");
-
-        client c(io_context, ctx, endpoints);
-
-        io_context.run();
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
-
-    return 0;
-}
 
 int main(int argc, char* argv[])
 {
