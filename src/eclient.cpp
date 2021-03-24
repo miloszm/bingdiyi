@@ -22,6 +22,34 @@ using std::placeholders::_2;
 
 enum { max_length = 1024 };
 
+
+/**
+ * ======================================================
+procedure to convert address to what get_history needs:
+
+say address is: mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE
+
+do:
+
+bitcoin-cli getaddressinfo mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE
+
+read scriptPubKey from the output of ^^:
+"scriptPubKey": "76a91461c95cddadf465cac9b0751edad16624d01572c088ac"
+
+then do:
+
+bx sha256 76a91461c95cddadf465cac9b0751edad16624d01572c088ac
+
+this produces: 04f0d935b98f356c0c87bd23b51be014ec6ad60038222be09edf5d9188af89af
+
+now you need to reverse it byte-wise:
+af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004
+
+this is it ^^
+to sum up: it is a reversed sha256 of scriptPubKey of the address
+========================================================
+ */
+
 class client
 {
 public:
@@ -95,9 +123,9 @@ private:
     }
 
 public:
-    void send_request()
+    void send_request(std::string json_request)
     {
-        std::string req0 = R"({"jsonrpc":"2.0","method":"server.banner","id":1712})";
+        std::string req0 = json_request;
         std::string req = req0 + "\n";
         strcpy(request_, req.data());
         size_t request_length = std::strlen(req.data());
@@ -148,10 +176,22 @@ int main(int argc, char* argv[])
 
         io_context.run();
 
+        std::cout << "waiting for connection..." << "\n";
+
         c.prepare_connection.lock();
 
         std::cout << "sending request..." << "\n";
-        c.send_request();
+
+        std::string x = "04f0d935b98f356c0c87bd23b51be014ec6ad60038222be09edf5d9188af89af";
+        std::cout << "reversed=\n";
+        for (int i = 31; i >= 0; --i)
+            std::cout << x.at(i*2) << x.at(i*2+1);
+        std::cout << "\n";
+
+        std::string banner_request = R"({"jsonrpc":"2.0","method":"server.banner","id":1712})";
+        std::string get_history_request = R"({"jsonrpc":"2.0","method":"blockchain.scripthash.get_history","id":1712,"params":["af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"]})";
+
+        c.send_request(get_history_request);
         c.receive_response();
 
     }
