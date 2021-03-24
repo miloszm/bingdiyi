@@ -1,4 +1,4 @@
-bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx
+bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx eclient
 
 
 crtx_SOURCES = src/raw_transaction_producer.cpp
@@ -11,6 +11,8 @@ crlocktx3_SOURCES = src/autopusher.cpp src/purse_accessor.cpp src/funds_finder.c
 
 crunlocktx_SOURCES = src/redeem_script.cpp src/locked_tx_spender.cpp
 
+eclient_SOURCES = src/eclient.cpp
+
 
 crtx_LDADD= @bitcoin_client_LIBS@
 
@@ -21,3 +23,5 @@ crlocktx2_LDADD= @bitcoin_client_LIBS@
 crlocktx3_LDADD= @bitcoin_client_LIBS@
 
 crunlocktx_LDADD= @bitcoin_client_LIBS@
+
+eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@

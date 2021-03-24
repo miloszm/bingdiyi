@@ -12,6 +12,31 @@ AC_SUBST([bitcoin_client_CPPFLAGS], [${bitcoin_client_CFLAGS}])
 AC_MSG_NOTICE([bitcoin_client_CPPFLAGS : ${bitcoin_client_CPPFLAGS}])
 AC_MSG_NOTICE([bitcoin_client_LIBS : ${bitcoin_client_LIBS}])
 
-CXXFLAGS="-ggdb -I../include/ $CXXFLAGS -std=c++14 $bitcoin_client_CPPFLAGS $DEBUG"
+PKG_CHECK_MODULES([libjsonrpccpp_client], [libjsonrpccpp-client >= 1.3.0])
+AC_SUBST([libjsonrpccpp_client_PKG], ['libjsonrpccpp-client >= 1.3.0'])
+AC_SUBST([libjsonrpccpp_client_CPPFLAGS], [${libjsonrpccpp_client_CFLAGS}])
+AC_MSG_NOTICE([libjsonrpccpp_client_CPPFLAGS : ${libjsonrpccpp_client_CPPFLAGS}])
+AC_MSG_NOTICE([libjsonrpccpp_client_LIBS : ${libjsonrpccpp_client_LIBS}])
+
+PKG_CHECK_MODULES([libjsonrpccpp_common], [libjsonrpccpp-common >= 1.3.0])
+AC_SUBST([libjsonrpccpp_common_PKG], ['libjsonrpccpp-common >= 1.3.0'])
+AC_SUBST([libjsonrpccpp_common_CPPFLAGS], [${libjsonrpccpp_common_CFLAGS}])
+AC_MSG_NOTICE([libjsonrpccpp_common_CPPFLAGS : ${libjsonrpccpp_common_CPPFLAGS}])
+AC_MSG_NOTICE([libjsonrpccpp_common_LIBS : ${libjsonrpccpp_common_LIBS}])
+
+PKG_CHECK_MODULES([openssl_libssl], [libssl])
+AC_SUBST([openssl_libssl_PKG], ['OpenSSL-libssl'])
+AC_SUBST([openssl_libssl_CPPFLAGS], [${openssl_libssl_CFLAGS}])
+AC_MSG_NOTICE([openssl_libssl_CPPFLAGS : ${openssl_libssl_CPPFLAGS}])
+AC_MSG_NOTICE([openssl_libssl_LIBS : ${openssl_libssl_LIBS}])
+
+PKG_CHECK_MODULES([openssl_libcrypto], [libcrypto])
+AC_SUBST([openssl_libcrypto_PKG], ['OpenSSL-libcrypto'])
+AC_SUBST([openssl_libcrypto_CPPFLAGS], [${openssl_libcrypto_CFLAGS}])
+AC_MSG_NOTICE([openssl_libcrypto_CPPFLAGS : ${openssl_libcrypto_CPPFLAGS}])
+AC_MSG_NOTICE([openssl_libcrypto_LIBS : ${openssl_libcrypto_LIBS}])
+
+
+CXXFLAGS="-ggdb -I../include/ $CXXFLAGS -std=c++14 $bitcoin_client_CPPFLAGS $libjsonrpccpp_client_CPPFLAGS $libjsonrpccpp_common_CPPFLAGS $openssl_libcrypto_CPPFLAGS $openssl_libssl_CPPFLAGS $DEBUG"
 
 AC_OUTPUT
