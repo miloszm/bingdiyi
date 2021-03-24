@@ -30,14 +30,12 @@ public:
            const tcp::resolver::results_type& endpoints)
             : socket_(io_context, context)
     {
-        prepare_connection.lock();
-        socket_.set_verify_mode(boost::asio::ssl::verify_peer);
+        socket_.set_verify_mode(boost::asio::ssl::verify_none);
         socket_.set_verify_callback(
                 std::bind(&client::verify_certificate, this, _1, _2));
 
         connect(endpoints);
     }
-    std::mutex prepare_connection;
 
 private:
     bool verify_certificate(bool preverified,
@@ -83,18 +81,15 @@ private:
                                 {
                                     if (!error)
                                     {
-                                        std::cout << "unlocking prepare_connection" << "\n";
-                                        prepare_connection.unlock();
+                                        send_request();
                                     }
                                     else
                                     {
                                         std::cout << "Handshake failed: " << error.message() << "\n";
                                     }
-
                                 });
     }
 
-public:
     void send_request()
     {
         std::string req0 = R"({"jsonrpc":"2.0","method":"server.banner","id":1712})";
@@ -102,10 +97,22 @@ public:
         strcpy(request_, req.data());
         size_t request_length = std::strlen(req.data());
 
-        boost::asio::write(socket_,boost::asio::buffer(request_, request_length));
+        boost::asio::async_write(socket_,
+                                 boost::asio::buffer(request_, request_length),
+                                 [this](const boost::system::error_code& error, std::size_t length)
+                                 {
+                                     if (!error)
+                                     {
+                                         receive_response(length);
+                                     }
+                                     else
+                                     {
+                                         std::cout << "Write failed: " << error.message() << "\n";
+                                     }
+                                 });
     }
 
-    void receive_response()
+    void receive_response(std::size_t length)
     {
         for (;;)
         {
@@ -123,7 +130,6 @@ public:
         }
     }
 
-private:
     boost::asio::ssl::stream<tcp::socket> socket_;
     char request_[max_length];
     char reply_[max_length];
@@ -144,13 +150,6 @@ int main(int argc, char* argv[])
         client c(io_context, ctx, endpoints);
 
         io_context.run();
-
-        c.prepare_connection.lock();
-
-        std::cout << "sending request..." << "\n";
-        c.send_request();
-        c.receive_response();
-
     }
     catch (std::exception& e)
     {
