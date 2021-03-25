@@ -36,7 +36,13 @@ AC_SUBST([openssl_libcrypto_CPPFLAGS], [${openssl_libcrypto_CFLAGS}])
 AC_MSG_NOTICE([openssl_libcrypto_CPPFLAGS : ${openssl_libcrypto_CPPFLAGS}])
 AC_MSG_NOTICE([openssl_libcrypto_LIBS : ${openssl_libcrypto_LIBS}])
 
+PKG_CHECK_MODULES([nlohmann_json], [nlohmann_json])
+AC_SUBST([nlohmann_json_PKG], ['nlohmann_json'])
+AC_SUBST([nlohmann_json_CPPFLAGS], [${nlohmann_json_CFLAGS}])
+AC_MSG_NOTICE([nlohmann_json_CPPFLAGS : ${nlohmann_json_CPPFLAGS}])
+AC_MSG_NOTICE([nlohmann_json_LIBS : ${nlohmann_json_LIBS}])
 
-CXXFLAGS="-ggdb -I../include/ $CXXFLAGS -std=c++14 $bitcoin_client_CPPFLAGS $libjsonrpccpp_client_CPPFLAGS $libjsonrpccpp_common_CPPFLAGS $openssl_libcrypto_CPPFLAGS $openssl_libssl_CPPFLAGS $DEBUG"
+
+CXXFLAGS="-ggdb -I../include/ $CXXFLAGS -std=c++14 $bitcoin_client_CPPFLAGS $openssl_libcrypto_CPPFLAGS $openssl_libssl_CPPFLAGS $nlohmann_json_CPPFLAGS $DEBUG"
 
 AC_OUTPUT

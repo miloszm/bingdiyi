@@ -15,10 +15,13 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/asio/ssl.hpp>
+#include <nlohmann/json.hpp>
 
 using boost::asio::ip::tcp;
 using std::placeholders::_1;
 using std::placeholders::_2;
+using json = nlohmann::json;
+using namespace std;
 
 enum { max_length = 1024 };
 
@@ -47,6 +50,16 @@ af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004
 
 this is it ^^
 to sum up: it is a reversed sha256 of scriptPubKey of the address
+========================================================
+
+bx base58-decode mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE
+6f61c95cddadf465cac9b0751edad16624d01572c066ff8027
+
+first byte is sth else, last 4 bytes are checksum in little endian
+the rest needs to have 76a914 prepended and 88ac appended
+this is it
+then just sha256, then byte-wise reverse and we are done
+
 ========================================================
  */
 
@@ -123,9 +136,9 @@ private:
     }
 
 public:
-    void send_request(std::string json_request)
+    void send_request(json json_request)
     {
-        std::string req0 = json_request;
+        std::string req0 = json_request.dump();
         std::string req = req0 + "\n";
         strcpy(request_, req.data());
         size_t request_length = std::strlen(req.data());
@@ -133,12 +146,13 @@ public:
         boost::asio::write(socket_,boost::asio::buffer(request_, request_length));
     }
 
-    void receive_response()
+    std::string receive_response()
     {
         for (;;)
         {
-            boost::array<char, 128> buf;
+            boost::array<char, 1024> buf;
             boost::system::error_code error;
+            std::ostringstream oss;
 
             size_t len = socket_.read_some(boost::asio::buffer(buf), error);
 
@@ -147,8 +161,12 @@ public:
             else if (error)
                 throw boost::system::system_error(error); // Some other error.
 
-            std::cout.write(buf.data(), len);
+            oss.write(buf.data(), len);
+            std::string s = oss.str();
+            if (s.find('}') != std::string::npos)
+               return s;
         }
+        return std::string();
     }
 
 private:
@@ -188,11 +206,14 @@ int main(int argc, char* argv[])
             std::cout << x.at(i*2) << x.at(i*2+1);
         std::cout << "\n";
 
-        std::string banner_request = R"({"jsonrpc":"2.0","method":"server.banner","id":1712})";
-        std::string get_history_request = R"({"jsonrpc":"2.0","method":"blockchain.scripthash.get_history","id":1712,"params":["af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"]})";
+        json banner_request = R"({"jsonrpc":"2.0","method":"server.banner","id":1712})"_json;
+        json get_history_request = R"({"jsonrpc":"2.0","method":"blockchain.scripthash.get_history","id":1712,"params":["af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"]})"_json;
 
         c.send_request(get_history_request);
-        c.receive_response();
+        string response = c.receive_response();
+        cout << "response = \n";
+        json j = json::parse(response);
+        cout << j.dump(4) << "\n";
 
     }
     catch (std::exception& e)
