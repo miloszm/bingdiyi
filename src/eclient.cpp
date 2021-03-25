@@ -205,16 +205,11 @@ int main(int argc, char* argv[])
 
         std::cout << "sending request..." << "\n";
 
-        std::string x = "04f0d935b98f356c0c87bd23b51be014ec6ad60038222be09edf5d9188af89af";
-        std::cout << "reversed=\n";
-        for (int i = 31; i >= 0; --i)
-            std::cout << x.at(i*2) << x.at(i*2+1);
-        std::cout << "\n";
-
         json banner_request = R"({"jsonrpc":"2.0","method":"server.banner","id":1712})"_json;
         json get_history_request = R"({"jsonrpc":"2.0","method":"blockchain.scripthash.get_history","id":1712,"params":["af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"]})"_json;
 
         c.send_request(get_history_request);
+//        c.send_request(banner_request);
         cout << "response = \n";
         json j = c.receive_response();
         cout << j.dump(4) << "\n";
