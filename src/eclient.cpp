@@ -146,13 +146,13 @@ public:
         boost::asio::write(socket_,boost::asio::buffer(request_, request_length));
     }
 
-    std::string receive_response()
+    json receive_response()
     {
+        std::ostringstream oss;
         for (;;)
         {
-            boost::array<char, 1024> buf;
+            boost::array<char, 512> buf;
             boost::system::error_code error;
-            std::ostringstream oss;
 
             size_t len = socket_.read_some(boost::asio::buffer(buf), error);
 
@@ -162,11 +162,16 @@ public:
                 throw boost::system::system_error(error); // Some other error.
 
             oss.write(buf.data(), len);
-            std::string s = oss.str();
-            if (s.find('}') != std::string::npos)
-               return s;
+            std::string candidate_response = oss.str();
+            try {
+                json parsed_response = json::parse(candidate_response);
+                return parsed_response;
+            } catch (json::parse_error& e){
+                // not yet parsable, keep reading
+                continue;
+            }
         }
-        return std::string();
+        return json::parse("{}");
     }
 
 private:
@@ -210,11 +215,9 @@ int main(int argc, char* argv[])
         json get_history_request = R"({"jsonrpc":"2.0","method":"blockchain.scripthash.get_history","id":1712,"params":["af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"]})"_json;
 
         c.send_request(get_history_request);
-        string response = c.receive_response();
         cout << "response = \n";
-        json j = json::parse(response);
+        json j = c.receive_response();
         cout << j.dump(4) << "\n";
-
     }
     catch (std::exception& e)
     {
