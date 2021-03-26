@@ -7,7 +7,7 @@
 
 using namespace bc;
 
-class BingClient {
+class LibbClient {
 public:
   void init();
   size_t fetch_height();

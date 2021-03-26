@@ -1,6 +1,6 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "src/libbitcoinclient/bing_client.hpp"
+#include "src/libbitcoinclient/libb_client.hpp"
 #include "src/redeem_script.hpp"
 #include "src/funds_finder.hpp"
 #include "online_lock_tx_creator.hpp"
@@ -32,15 +32,15 @@ void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
         const uint64_t satoshis_fee,
         const uint32_t lock_until
 ){
-    BingClient bing_client;
-    bing_client.init();
+    LibbClient libb_client;
+    libb_client.init();
 
     const wallet::ec_public pub_key = priv_key_ec.to_public();
     const libbitcoin::config::base16 priv_key = libbitcoin::config::base16(priv_key_ec.secret());
     data_chunk pub_key_data_chunk;
     pub_key.to_data(pub_key_data_chunk);
 
-    auto points_value = bing_client.fetch_utxo(payment_address(src_addr), 1, wallet::select_outputs::algorithm::individual);
+    auto points_value = libb_client.fetch_utxo(payment_address(src_addr), 1, wallet::select_outputs::algorithm::individual);
     auto satoshis_needed = amount_to_transfer + satoshis_fee;
     auto utxos_funds = FundsFinder::find_funds(satoshis_needed, points_value);
     auto utxos = utxos_funds.first;

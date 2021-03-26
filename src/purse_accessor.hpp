@@ -1,7 +1,7 @@
 #ifndef PURSE_ACCESSOR_HPP
 #define PURSE_ACCESSOR_HPP
 
-#include "src/libbitcoinclient/bing_client.hpp"
+#include "src/libbitcoinclient/libb_client.hpp"
 #include <bitcoin/bitcoin.hpp>
 
 struct AddressFunds {
@@ -13,10 +13,10 @@ struct AddressFunds {
 
 class PurseAccessor {
 public:
-  static AddressFunds obtain_funds(BingClient &bing_client,
+  static AddressFunds obtain_funds(LibbClient &libb_client,
                                    uint64_t requested_funds,
                                    std::string address);
-  static AddressFunds look_for_funds(BingClient &bing_client,
+  static AddressFunds look_for_funds(LibbClient &libb_client,
                                      uint64_t requested_funds,
                                      std::vector<std::string> addresses);
 };

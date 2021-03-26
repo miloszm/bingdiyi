@@ -9,14 +9,14 @@ crlocktx_SOURCES = src/redeem_script.cpp \
 crlocktx2_SOURCES = src/locktx/online_lock_tx_creator.cpp \
                     src/funds_finder.cpp \
                     src/redeem_script.cpp \
-                    src/libbitcoinclient/bing_client.cpp \
+                    src/libbitcoinclient/libb_client.cpp \
                     src/cmdtool/locked_tx_autopusher2.cpp
 
 crlocktx3_SOURCES = src/locktx/online_lock_tx_creator.cpp \
                     src/purse_accessor.cpp \
                     src/funds_finder.cpp \
                     src/redeem_script.cpp \
-                    src/libbitcoinclient/bing_client.cpp \
+                    src/libbitcoinclient/libb_client.cpp \
                     src/cmdtool/locked_tx_autopusher_seed.cpp
 
 crunlocktx_SOURCES = src/redeem_script.cpp \

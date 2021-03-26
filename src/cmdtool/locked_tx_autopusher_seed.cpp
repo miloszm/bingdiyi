@@ -1,6 +1,6 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "src/libbitcoinclient/bing_client.hpp"
+#include "src/libbitcoinclient/libb_client.hpp"
 #include "src/purse_accessor.hpp"
 #include <boost/program_options.hpp>
 #include "src/locktx/online_lock_tx_creator.hpp"
@@ -15,8 +15,8 @@ using namespace bc::machine;
 
 void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase, const string src_addr_hint) {
     uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
-    BingClient bing_client;
-    bing_client.init();
+    LibbClient libb_client;
+    libb_client.init();
 
     const word_list mnemonic = split(seed_phrase, " ");
 
@@ -69,7 +69,7 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     }
 
     cout << "required funds: " << required_funds << "\n";
-    AddressFunds funds = PurseAccessor::look_for_funds(bing_client, required_funds, addresses);
+    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
 
     cout << "funds found:" << "\n";
     cout << "address = " << funds.address << "\n";

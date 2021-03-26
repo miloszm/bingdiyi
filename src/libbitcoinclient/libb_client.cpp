@@ -1,6 +1,6 @@
-#include "bing_client.hpp"
+#include "libb_client.hpp"
 
-void BingClient::init() {
+void LibbClient::init() {
   connection = {};
   connection.retries = 3;
   connection.timeout_seconds = 8;
@@ -9,13 +9,13 @@ void BingClient::init() {
   connection.server = config::endpoint("tcp://testnet1.libbitcoin.net:19091");
 }
 
-void BingClient::do_connect(client::obelisk_client &client) {
+void LibbClient::do_connect(client::obelisk_client &client) {
   if (!client.connect(connection)) {
     std::cout << "Connection Failed" << std::endl;
   }
 }
 
-size_t BingClient::fetch_height() {
+size_t LibbClient::fetch_height() {
   client::obelisk_client client(connection);
   do_connect(client);
 
@@ -33,7 +33,7 @@ size_t BingClient::fetch_height() {
 }
 
 chain::points_value
-BingClient::fetch_utxo(const wallet::payment_address address, uint64_t satoshis,
+LibbClient::fetch_utxo(const wallet::payment_address address, uint64_t satoshis,
                        wallet::select_outputs::algorithm algorithm) {
   client::obelisk_client client(connection);
   do_connect(client);

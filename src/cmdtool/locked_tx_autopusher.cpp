@@ -1,6 +1,6 @@
 #include "../common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "../libbitcoinclient/bing_client.hpp"
+#include "../libbitcoinclient/libb_client.hpp"
 #include "../redeem_script.hpp"
 
 using namespace std;
@@ -29,8 +29,8 @@ void construct_p2sh_time_locking_transaction(
         const uint64_t satoshisFee,
         const uint32_t lockUntil
 ){
-    BingClient bing_client;
-    bing_client.init();
+    LibbClient libb_client;
+    libb_client.init();
 
     const wallet::ec_private privKeyEC(privKeyWIF);
     const wallet::ec_public pubKey = privKeyEC.to_public();
@@ -44,9 +44,9 @@ void construct_p2sh_time_locking_transaction(
     cout << "public hex: " << pubKey << endl;
     cout << "private hex: " << privKey << endl;
 
-    cout << "fetch height: " << bing_client.fetchHeight() << "\n";
+    cout << "fetch height: " << libb_client.fetchHeight() << "\n";
 
-    auto p = bing_client.fetch_utxo(payment_address(srcAddr), satoshisToTransfer, wallet::select_outputs::algorithm::greedy);
+    auto p = libb_client.fetch_utxo(payment_address(srcAddr), satoshisToTransfer, wallet::select_outputs::algorithm::greedy);
     if (p.points.empty()){
         cout << "Insufficient funds, funding tx not found for " << satoshisToTransfer << " Satoshis" << "\n";
         return;
