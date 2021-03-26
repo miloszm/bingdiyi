@@ -3,7 +3,7 @@
 #include "src/bing_client.hpp"
 #include "src/redeem_script.hpp"
 #include "src/funds_finder.hpp"
-#include "autopusher.hpp"
+#include "online_lock_tx_creator.hpp"
 
 
 using namespace std;
@@ -13,7 +13,7 @@ using namespace bc::wallet;
 using namespace bc::machine;
 
 
-void construct_p2sh_time_locking_transaction_from_address(
+void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
         const string src_addr,
         const string priv_key_wif,
         const uint64_t amount_to_transfer,
@@ -25,7 +25,7 @@ void construct_p2sh_time_locking_transaction_from_address(
 }
 
 
-void construct_p2sh_time_locking_transaction_from_address(
+void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
         const string src_addr,
         const ec_private priv_key_ec,
         const uint64_t amount_to_transfer,

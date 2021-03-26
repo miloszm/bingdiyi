@@ -4,7 +4,7 @@
 #include "src/redeem_script.hpp"
 #include "src/funds_finder.hpp"
 #include <boost/program_options.hpp>
-#include "src/locktx/autopusher.hpp"
+#include "src/locktx/online_lock_tx_creator.hpp"
 
 using namespace boost::program_options;
 using namespace std;
@@ -39,7 +39,7 @@ int main2() {
     const uint64_t satoshis_fee {10000};
     const uint32_t lock_until = 1615591800;
 
-    construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_wif, satoshis_to_transfer, satoshis_fee, lock_until);
+    OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_wif, satoshis_to_transfer, satoshis_fee, lock_until);
     return 0;
 }
 
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
-        construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_wif, amount_to_transfer, fee, lock_until);
+        OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_wif, amount_to_transfer, fee, lock_until);
 
         return 0;
     }

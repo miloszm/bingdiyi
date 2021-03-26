@@ -3,7 +3,7 @@
 #include "src/bing_client.hpp"
 #include "src/purse_accessor.hpp"
 #include <boost/program_options.hpp>
-#include "src/locktx/autopusher.hpp"
+#include "src/locktx/online_lock_tx_creator.hpp"
 
 using namespace boost::program_options;
 using namespace std;
@@ -80,7 +80,7 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     string source_address = funds.address;
     ec_private private_key = addresses_to_ec_private[funds.address];
 
-    construct_p2sh_time_locking_transaction_from_address(source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
+    OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
 }
 
 int main(int argc, char* argv[]){
