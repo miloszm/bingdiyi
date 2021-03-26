@@ -12,7 +12,7 @@ using namespace bc::machine;
 
 
 /**
- * autopusher2
+ * autopusher
  *
  * has the ability to extract funding transactions for a given address
  * support multiple inputs if needed
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
                 "This program does give change, if any, it will be transferred back into the source address.\n" \
                 "For 'lock until' time, use any available online epoch time converter, \n" \
                 "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n" \
-                "unlocking time will be delayed be around 7 blocks.\n" \
+                "unlocking time will be delayed by around 7 blocks.\n" \
                 "Private key can be found in your wallet, in Electrum, go to tab 'Addresses',\n" \
                 "highlight the desired address, right click and choose `private key'.\n" \
                 "Ignore script type part of the key, like 'p2pkh', copy only the key part.\n\n" \

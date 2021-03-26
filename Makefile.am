@@ -10,7 +10,7 @@ crlocktx2_SOURCES = src/locktx/online_lock_tx_creator.cpp \
                     src/libbfunds/funds_finder.cpp \
                     src/libbscript/redeem_script.cpp \
                     src/libbitcoinclient/libb_client.cpp \
-                    src/cmdtool/locked_tx_autopusher2.cpp
+                    src/cmdtool/locked_tx_autopusher.cpp
 
 crlocktx3_SOURCES = src/locktx/online_lock_tx_creator.cpp \
                     src/libbfunds/purse_accessor.cpp \
