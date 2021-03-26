@@ -3,7 +3,7 @@
 #include "src/bing_client.hpp"
 #include "src/purse_accessor.hpp"
 #include <boost/program_options.hpp>
-#include "src/autopusher.hpp"
+#include "src/locktx/autopusher.hpp"
 
 using namespace boost::program_options;
 using namespace std;

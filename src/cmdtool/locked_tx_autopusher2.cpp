@@ -4,7 +4,7 @@
 #include "src/redeem_script.hpp"
 #include "src/funds_finder.hpp"
 #include <boost/program_options.hpp>
-#include "src/autopusher.hpp"
+#include "src/locktx/autopusher.hpp"
 
 using namespace boost::program_options;
 using namespace std;

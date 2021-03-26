@@ -1,8 +1,8 @@
-#include "bing_common.hpp"
+#include "src/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "bing_client.hpp"
-#include "redeem_script.hpp"
-#include "funds_finder.hpp"
+#include "src/bing_client.hpp"
+#include "src/redeem_script.hpp"
+#include "src/funds_finder.hpp"
 #include "autopusher.hpp"
 
 

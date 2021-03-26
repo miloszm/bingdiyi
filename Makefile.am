@@ -5,9 +5,9 @@ crtx_SOURCES = src/cmdtool/raw_transaction_producer.cpp
 
 crlocktx_SOURCES = src/redeem_script.cpp src/cmdtool/locked_tx_pusher.cpp
 
-crlocktx2_SOURCES = src/autopusher.cpp src/funds_finder.cpp src/redeem_script.cpp src/bing_client.cpp src/cmdtool/locked_tx_autopusher2.cpp
+crlocktx2_SOURCES = src/locktx/autopusher.cpp src/funds_finder.cpp src/redeem_script.cpp src/bing_client.cpp src/cmdtool/locked_tx_autopusher2.cpp
 
-crlocktx3_SOURCES = src/autopusher.cpp src/purse_accessor.cpp src/funds_finder.cpp src/redeem_script.cpp src/bing_client.cpp src/cmdtool/locked_tx_autopusher_seed.cpp
+crlocktx3_SOURCES = src/locktx/autopusher.cpp src/purse_accessor.cpp src/funds_finder.cpp src/redeem_script.cpp src/bing_client.cpp src/cmdtool/locked_tx_autopusher_seed.cpp
 
 crunlocktx_SOURCES = src/redeem_script.cpp src/cmdtool/locked_tx_spender.cpp
 
