@@ -1,7 +1,7 @@
 #ifndef REDEEM_SCRIPT_HPP
 #define REDEEM_SCRIPT_HPP
 
-#include "bing_common.hpp"
+#include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 
 class RedeemScript {

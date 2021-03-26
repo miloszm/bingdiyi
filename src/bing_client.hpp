@@ -1,7 +1,7 @@
 #ifndef BING_CLIENT_HPP
 #define BING_CLIENT_HPP
 
-#include "bing_common.hpp"
+#include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include <bitcoin/client.hpp>
 

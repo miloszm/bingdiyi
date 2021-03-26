@@ -1,4 +1,4 @@
-#include "src/bing_common.hpp"
+#include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "src/bing_client.hpp"
 #include "src/purse_accessor.hpp"
