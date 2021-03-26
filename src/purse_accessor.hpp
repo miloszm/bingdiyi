@@ -1,7 +1,7 @@
 #ifndef PURSE_ACCESSOR_HPP
 #define PURSE_ACCESSOR_HPP
 
-#include "bing_client.hpp"
+#include "src/libbitcoinclient/bing_client.hpp"
 #include <bitcoin/bitcoin.hpp>
 
 struct AddressFunds {

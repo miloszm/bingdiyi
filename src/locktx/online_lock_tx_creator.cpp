@@ -1,6 +1,6 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "src/bing_client.hpp"
+#include "src/libbitcoinclient/bing_client.hpp"
 #include "src/redeem_script.hpp"
 #include "src/funds_finder.hpp"
 #include "online_lock_tx_creator.hpp"
