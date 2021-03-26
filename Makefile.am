@@ -38,3 +38,10 @@ crlocktx3_LDADD= @bitcoin_client_LIBS@
 crunlocktx_LDADD= @bitcoin_client_LIBS@
 
 eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@
+
+
+check_PROGRAMS = test1
+test1_SOURCES = \
+    test/utility/address_converter.cpp
+TESTS = $(check_PROGRAMS)
+
