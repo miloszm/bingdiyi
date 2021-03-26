@@ -4,7 +4,7 @@ bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx eclient
 crtx_SOURCES = src/cmdtool/raw_transaction_producer.cpp
 
 crlocktx_SOURCES = src/redeem_script.cpp \
-                    src/cmdtool/locked_tx_pusher.cpp
+                   src/cmdtool/locked_tx_pusher.cpp
 
 crlocktx2_SOURCES = src/locktx/online_lock_tx_creator.cpp \
                     src/funds_finder.cpp \
@@ -20,11 +20,11 @@ crlocktx3_SOURCES = src/locktx/online_lock_tx_creator.cpp \
                     src/cmdtool/locked_tx_autopusher_seed.cpp
 
 crunlocktx_SOURCES = src/redeem_script.cpp \
-                    src/cmdtool/locked_tx_spender.cpp
+                     src/cmdtool/locked_tx_spender.cpp
 
-eclient_SOURCES = src/comm/json_socket_client.cpp \
-                    src/comm/electrum_client.cpp \
-                    src/comm/eclient.cpp
+eclient_SOURCES = src/electrumclient/json_socket_client.cpp \
+                  src/electrumclient/electrum_client.cpp \
+                  src/electrumclient/eclient.cpp
 
 
 crtx_LDADD= @bitcoin_client_LIBS@

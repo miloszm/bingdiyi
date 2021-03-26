@@ -15,3 +15,4 @@ depcomp
 doc/~*
 bing
 *.tmp
+.dirstamp
