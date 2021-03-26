@@ -1,7 +1,7 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "src/libbitcoinclient/libb_client.hpp"
-#include "src/redeem_script.hpp"
+#include "src/libbscript/redeem_script.hpp"
 #include "src/libbfunds/funds_finder.hpp"
 #include "online_lock_tx_creator.hpp"
 
