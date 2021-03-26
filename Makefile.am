@@ -11,7 +11,7 @@ crlocktx3_SOURCES = src/autopusher.cpp src/purse_accessor.cpp src/funds_finder.c
 
 crunlocktx_SOURCES = src/redeem_script.cpp src/locked_tx_spender.cpp
 
-eclient_SOURCES = src/json_socket_client.cpp src/electrum_client.cpp src/eclient.cpp
+eclient_SOURCES = src/comm/json_socket_client.cpp src/comm/electrum_client.cpp src/comm/eclient.cpp
 
 
 crtx_LDADD= @bitcoin_client_LIBS@

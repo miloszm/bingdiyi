@@ -1,3 +1,4 @@
+#include "bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include <boost/program_options.hpp>
 
