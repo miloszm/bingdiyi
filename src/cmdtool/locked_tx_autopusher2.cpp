@@ -1,10 +1,10 @@
-#include "bing_common.hpp"
+#include "src/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "bing_client.hpp"
-#include "redeem_script.hpp"
-#include "funds_finder.hpp"
+#include "src/bing_client.hpp"
+#include "src/redeem_script.hpp"
+#include "src/funds_finder.hpp"
 #include <boost/program_options.hpp>
-#include "autopusher.hpp"
+#include "src/autopusher.hpp"
 
 using namespace boost::program_options;
 using namespace std;

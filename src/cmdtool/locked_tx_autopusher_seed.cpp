@@ -1,9 +1,9 @@
-#include "bing_common.hpp"
+#include "src/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "bing_client.hpp"
-#include "purse_accessor.hpp"
+#include "src/bing_client.hpp"
+#include "src/purse_accessor.hpp"
 #include <boost/program_options.hpp>
-#include "autopusher.hpp"
+#include "src/autopusher.hpp"
 
 using namespace boost::program_options;
 using namespace std;

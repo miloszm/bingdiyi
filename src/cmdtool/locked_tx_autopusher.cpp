@@ -1,7 +1,7 @@
-#include "bing_common.hpp"
+#include "../bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "bing_client.hpp"
-#include "redeem_script.hpp"
+#include "../bing_client.hpp"
+#include "../redeem_script.hpp"
 
 using namespace std;
 using namespace bc;
