@@ -1,7 +1,7 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "src/libbitcoinclient/libb_client.hpp"
-#include "src/purse_accessor.hpp"
+#include "src/libbfunds/purse_accessor.hpp"
 #include <boost/program_options.hpp>
 #include "src/locktx/online_lock_tx_creator.hpp"
 
