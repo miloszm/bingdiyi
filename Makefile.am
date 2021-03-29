@@ -1,4 +1,4 @@
-bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx eclient
+bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx eclient aconv
 
 
 crtx_SOURCES = src/cmdtool/raw_transaction_producer.cpp
@@ -26,6 +26,8 @@ eclient_SOURCES = src/electrumclient/json_socket_client.cpp \
                   src/electrumclient/electrum_client.cpp \
                   src/electrumclient/eclient.cpp
 
+aconv_SOURCES = src/cmdtool/address_spkh.cpp
+
 
 crtx_LDADD= @bitcoin_client_LIBS@
 
@@ -39,9 +41,13 @@ crunlocktx_LDADD= @bitcoin_client_LIBS@
 
 eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@
 
+aconv_LDADD= @libbinglib_LIBS@
 
-check_PROGRAMS = test1
-test1_SOURCES = \
-    test/utility/address_converter.cpp
-TESTS = $(check_PROGRAMS)
+
+#check_PROGRAMS = test1
+#test1_SOURCES = \
+#    test/utility/address_converter.cpp \
+#    src/utility/address_converter.cpp
+#test1_CPPFLAGS = -I$(top_srcdir)/src
+#TESTS = $(check_PROGRAMS)
 
