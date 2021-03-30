@@ -19,11 +19,19 @@ typedef vector<AddressHistoryItem> AddressHistory;
 
 void address_history_from_json(const nlohmann::json& j, AddressHistory& ah);
 
+struct AddressBalance {
+    long confirmed;
+    long unconfirmed;
+};
+
+void address_balance_from_json(const nlohmann::json& j, AddressBalance& ab);
+
 class ElectrumApiClient {
 public:
     ElectrumApiClient(ElectrumClient& client): client_(client){}
 
     vector<AddressHistory> getHistory(vector<string> addresses);
+    AddressBalance getBalance(string address);
 private:
     ElectrumClient& client_;
     atomic<int> id_counter;

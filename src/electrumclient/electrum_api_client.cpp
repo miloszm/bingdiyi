@@ -21,6 +21,12 @@ void address_history_from_json(const nlohmann::json& j, AddressHistory& ah){
 }
 
 
+void address_balance_from_json(const nlohmann::json& j, AddressBalance& ab) {
+    j.at("confirmed").get_to(ab.confirmed);
+    j.at("unconfirmed").get_to(ab.unconfirmed);
+}
+
+
 vector<AddressHistory> ElectrumApiClient::getHistory(vector<string> addresses){
     vector<AddressHistory> address_histories;
     for (string address: addresses) {
@@ -34,4 +40,16 @@ vector<AddressHistory> ElectrumApiClient::getHistory(vector<string> addresses){
         address_histories.push_back(address_history);
     }
     return address_histories;
+}
+
+
+AddressBalance ElectrumApiClient::getBalance(string address){
+    vector<string> av{address};
+    ElectrumRequest request{"blockchain.scripthash.get_balance", ++id_counter, av};
+    json json_request;
+    electrum_request_to_json(json_request, request);
+    json json_response = client_.send_request(json_request);
+    AddressBalance address_balance;
+    address_balance_from_json(json_response["result"], address_balance);
+    return address_balance;
 }
