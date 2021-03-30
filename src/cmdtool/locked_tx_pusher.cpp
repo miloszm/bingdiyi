@@ -81,13 +81,13 @@ void construct_p2sh_time_locking_transaction_from_tx(
 
     string tx_to_unlock = encode_hash(tx.hash());
 
-    cout << "===== data to unlock: ====" << "\n";
-    cout << "lock time: " << lock_until << "\n";
-    cout << "private key of address: " << src_addr << "\n";
-    cout << "available amount: " << amount_to_transfer << "\n";
-    cout << "from ^^ please subtract fee" << "\n";
-    cout << "funding transaction id to unlock: " << tx_to_unlock << "\n";
-    cout << "desired target address to which the unlocked funds will be transferred" << "\n";
+    cout << "===== data that will be needed to unlock the funds: ====" << "\n";
+    cout << "1) lock time: " << lock_until << "\n";
+    cout << "2) private key of address: " << src_addr << "\n";
+    cout << "3) available amount: " << amount_to_transfer << "\n";
+    cout << "   from ^^ please subtract fee" << "\n";
+    cout << "4) funding transaction id: " << tx_to_unlock << "\n";
+    cout << "5) desired target address to which the unlocked funds will be transferred" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
 }
