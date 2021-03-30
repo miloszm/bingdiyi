@@ -71,11 +71,13 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     cout << "required funds: " << required_funds << "\n";
     AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
 
-    cout << "funds found:" << "\n";
-    cout << "address = " << funds.address << "\n";
-    cout << "requested funds = " << funds.requested_funds << "\n";
-    cout << "actual funds = " << funds.actual_funds << "\n";
-    cout << "number of inputs = " << funds.points.size() << "\n";
+    if (funds.actual_funds >= funds.requested_funds) {
+        cout << "funds found:" << "\n";
+        cout << "address = " << funds.address << "\n";
+        cout << "requested funds = " << funds.requested_funds << "\n";
+        cout << "actual funds = " << funds.actual_funds << "\n";
+        cout << "number of inputs = " << funds.points.size() << "\n";
+    }
 
     string source_address = funds.address;
     ec_private private_key = addresses_to_ec_private[funds.address];
