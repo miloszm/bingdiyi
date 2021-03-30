@@ -81,6 +81,7 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
         cout << "address = " << funds.address << "\n";
         cout << "requested funds = " << funds.requested_funds << "\n";
         cout << "actual funds = " << funds.actual_funds << "\n";
+        cout << "refund = " << funds.actual_funds - funds.requested_funds << "\n";
         cout << "number of inputs = " << funds.points.size() << "\n";
     }
 

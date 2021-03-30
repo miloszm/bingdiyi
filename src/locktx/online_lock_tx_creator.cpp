@@ -46,14 +46,10 @@ void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
     auto utxos = utxos_funds.first;
     auto available_funds = utxos_funds.second;
     if (utxos_funds.first.empty()){
-        cout << "Insufficient funds, required " << satoshis_needed << ", available " << available_funds << "\n";
+        cout << "Insufficient funds, required " << satoshis_needed << ", maximum at one address available " << available_funds << "\n";
         return;
     }
     auto refund = available_funds - satoshis_needed;
-    cout << "available funds: " << available_funds << "\n";
-    cout << "requested funds: " << amount_to_transfer << "\n";
-    cout << "fee: " << satoshis_fee << "\n";
-    cout << "refund: " << refund << "\n";
 
     // output 0
     script cltv_script = RedeemScript::to_pay_key_hash_pattern_with_lock(pub_key_data_chunk, lock_until);
