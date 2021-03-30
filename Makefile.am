@@ -40,7 +40,7 @@ crlocktx3_LDADD= @bitcoin_client_LIBS@
 
 crunlocktx_LDADD= @bitcoin_client_LIBS@
 
-eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@
+eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
 
 aconv_LDADD= @libbinglib_LIBS@
 

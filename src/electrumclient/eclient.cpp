@@ -1,5 +1,6 @@
 #include <iostream>
 #include "electrum_api_client.hpp"
+#include <binglib/address_converter.hpp>
 
 using json = nlohmann::json;
 using namespace std;
@@ -30,7 +31,8 @@ int main(int argc, char *argv[]) {
     cout << "========================== \n";
 
     ElectrumApiClient electrum_api_client(electrum_client);
-    vector<string> addresses{"af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"};
+    string addr {AddressConverter::base58_to_spkh_hex("mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE")};
+    vector<string> addresses{addr};
     vector<AddressHistory> histories = electrum_api_client.getHistory(addresses);
     cout << "got " << histories.size() << " histories" << "\n";
     auto hh = histories.at(0);
