@@ -1,5 +1,5 @@
 #include <iostream>
-#include "electrum_client.hpp"
+#include "electrum_api_client.hpp"
 
 using json = nlohmann::json;
 using namespace std;
@@ -26,6 +26,14 @@ int main(int argc, char *argv[]) {
     //        c.send_request(banner_request);
     cout << "response = \n";
     cout << response.dump(4) << "\n";
+
+    cout << "========================== \n";
+
+    ElectrumApiClient electrum_api_client(electrum_client);
+    vector<string> addresses{"af89af88915ddf9ee02b223800d66aec14e01bb523bd870c6c358fb935d9f004"};
+    vector<AddressHistory> histories = electrum_api_client.getHistory(addresses);
+    cout << "got " << histories.size() << " histories" << "\n";
+
   } catch (std::exception &e) {
     std::cerr << "Exception: " << e.what() << "\n";
   }
