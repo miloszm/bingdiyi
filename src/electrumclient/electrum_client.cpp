@@ -14,6 +14,12 @@ using json = nlohmann::json;
 using namespace std;
 #include "electrum_client.hpp"
 
+
+void electrum_request_to_json(nlohmann::json& j, const ElectrumRequest& r) {
+    j = nlohmann::json{{"jsonrpc", "2.0"}, {"method", r.method}, {"id", r.id}, {"params", r.params}};
+}
+
+
 ElectrumClient::ElectrumClient() {}
 
 ElectrumClient::~ElectrumClient() { delete client; }

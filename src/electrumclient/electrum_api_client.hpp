@@ -13,21 +13,11 @@ struct AddressHistoryItem {
 };
 
 
-void address_history_item_from_json(const nlohmann::json& j, AddressHistoryItem& ahi) {
-    j.at("txid").get_to(ahi.txid);
-    j.at("height").get_to(ahi.height);
-}
+void address_history_item_from_json(const nlohmann::json& j, AddressHistoryItem& ahi);
 
 typedef vector<AddressHistoryItem> AddressHistory;
 
-void address_history_from_json(const nlohmann::json& j, AddressHistory& ah){
-    auto items = j.items();
-    for (auto i = items.begin(); i != items.end(); ++i){
-        AddressHistoryItem ahi;
-        address_history_item_from_json(i.value(), ahi);
-        ah.push_back(ahi);
-    }
-}
+void address_history_from_json(const nlohmann::json& j, AddressHistory& ah);
 
 class ElectrumApiClient {
 public:

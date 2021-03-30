@@ -9,12 +9,11 @@ using namespace std;
 struct ElectrumRequest {
     string method;
     int id;
-    string params;
+    vector<string> params;
 };
 
-void electrum_request_to_json(nlohmann::json& j, const ElectrumRequest& r) {
-    j = nlohmann::json{{"jsonrpc", "2.0"}, {"method", r.method}, {"id", r.id}, {"params", r.params}};
-}
+void electrum_request_to_json(nlohmann::json& j, const ElectrumRequest& r);
+
 
 class ElectrumClient {
 public:
