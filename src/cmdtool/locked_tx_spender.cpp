@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
                 "available amount: 210000\n" \
                 "from ^^ please subtract fee\n" \
                 "funding transaction id to unlock: 085f3e80771036a68ee4116fdb208eb44ffadce70fcd9d77cf935537535d0b27\n" \
-                "desired target address where the unlocked funds will be transferred\n" \
+                "desired target address to which the unlocked funds will be transferred\n" \
                 "==========================\n\n" \
                 "This program produces transaction in a hex format that can be broadcast\n" \
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
