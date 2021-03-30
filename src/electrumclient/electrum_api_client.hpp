@@ -34,7 +34,7 @@ public:
     AddressBalance getBalance(string address);
 private:
     ElectrumClient& client_;
-    atomic<int> id_counter;
+    std::atomic<int> id_counter;
 };
 
 #endif

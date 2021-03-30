@@ -1,6 +1,7 @@
 #ifndef PURSE_ACCESSOR_HPP
 #define PURSE_ACCESSOR_HPP
 
+#include "src/electrumclient/electrum_api_client.hpp"
 #include "src/libbitcoinclient/libb_client.hpp"
 #include <bitcoin/bitcoin.hpp>
 
@@ -19,6 +20,10 @@ public:
   static AddressFunds look_for_funds(LibbClient &libb_client,
                                      uint64_t requested_funds,
                                      std::vector<std::string> addresses);
+  static AddressFunds
+  look_for_funds_by_balance(ElectrumApiClient &electrum_client,
+                            LibbClient &libb_client, uint64_t requested_funds,
+                            std::vector<std::string> addresses);
 };
 
 #endif

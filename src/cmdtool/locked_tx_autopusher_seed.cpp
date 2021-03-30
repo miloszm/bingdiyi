@@ -1,6 +1,7 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include "src/libbitcoinclient/libb_client.hpp"
+#include "src/electrumclient/electrum_api_client.hpp"
 #include "src/libbfunds/purse_accessor.hpp"
 #include <boost/program_options.hpp>
 #include "src/locktx/online_lock_tx_creator.hpp"
@@ -17,6 +18,9 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
     LibbClient libb_client;
     libb_client.init();
+    ElectrumClient electrum_client;
+    electrum_client.init("testnet.electrumx.hodlwallet.com", "51002", "cert.crt");
+    ElectrumApiClient electrum_api_client(electrum_client);
 
     const word_list mnemonic = split(seed_phrase, " ");
 
@@ -69,7 +73,8 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     }
 
     cout << "required funds: " << required_funds << "\n";
-    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
+    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses);
+//    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
 
     if (funds.actual_funds >= funds.requested_funds) {
         cout << "funds found:" << "\n";
