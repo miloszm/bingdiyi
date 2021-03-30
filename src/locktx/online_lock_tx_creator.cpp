@@ -109,6 +109,7 @@ void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
     cout << "   from ^^ please subtract fee" << "\n";
     cout << "4) funding transaction id: " << tx_to_unlock << "\n";
     cout << "5) desired target address to which the unlocked funds will be transferred" << "\n";
+    cout << "YOU NEED TO PRESERVE THIS DATA TO AVOID LOSS OF FUNDS!" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
 
