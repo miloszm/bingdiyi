@@ -6,6 +6,8 @@
 #include "src/libbfunds/purse_accessor.hpp"
 #include <boost/program_options.hpp>
 #include "src/locktx/online_lock_tx_creator.hpp"
+#include <binglib/bing_wallet.hpp>
+
 
 using namespace boost::program_options;
 using namespace std;
@@ -17,6 +19,9 @@ using namespace std::chrono;
 
 
 void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase, const string src_addr_hint) {
+    bool is_testnet = true;
+    int  num_addresses = 100;
+
     uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
     LibbClient libb_client;
     libb_client.init();
@@ -24,44 +29,11 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     electrum_client.init("testnet.electrumx.hodlwallet.com", "51002", "cert.crt");
     ElectrumApiClient electrum_api_client(electrum_client);
 
-    const word_list mnemonic = split(seed_phrase, " ");
-
-    if (electrum::validate_mnemonic(mnemonic, language::en)){
-        cout << "mnemonic validated OK" << "\n";
-    } else {
-        cout << "mnemonic BAD" << "\n";
-    }
-
-    long_hash seed = electrum::decode_mnemonic(mnemonic);
-
-    cout << "seed=" << "\n";
-    cout << config::base16(seed) << "\n";
-
-    data_chunk seedAsChunk(seed.begin(), seed.end());
-
-    const hd_private m(seedAsChunk, hd_private::testnet);
-    const hd_public m_pub = m;
-
-    auto m0_pub = m.derive_public(0);
-    auto m1_pub = m.derive_public(1);
-
-    cout << m_pub.encoded() << "\n";
-    cout << m0_pub.encoded() << "\n";
-    cout << m1_pub.encoded() << "\n";
-
-    hd_private m0 = m.derive_private(0);
-
     vector<string> addresses;
     map<string, ec_private> addresses_to_ec_private;
 
     cout << "from m/0/0 to m/0/99: " << "\n";
-    for (int i = 0; i < 100; ++i){
-        hd_private hdPrivate = m0.derive_private(i);
-        const payment_address address({ hdPrivate.secret(), payment_address::testnet_p2kh });
-        cout << "m/0/" << i <<" address: " << address.encoded() << "\n";
-        addresses.push_back(address.encoded());
-        addresses_to_ec_private[address.encoded()] = ec_private(hdPrivate.secret(), payment_address::testnet_p2kh);
-    }
+    BingWallet::derive_addresses(is_testnet, seed_phrase, num_addresses, addresses, addresses_to_ec_private);
 
     if (!src_addr_hint.empty()) {
         auto a = find(addresses.begin(), addresses.end(), src_addr_hint);
