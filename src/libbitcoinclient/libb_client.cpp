@@ -1,12 +1,10 @@
 #include "libb_client.hpp"
 
 void LibbClient::init() {
-  connection = {};
-  connection.retries = 3;
-  connection.timeout_seconds = 8;
   //connection.server = config::endpoint("tcp://mainnet.libbitcoin.net:9091");
   //connection.server = config::endpoint("tcp://mainnet2.libbitcoin.net:9091");
   connection.server = config::endpoint("tcp://testnet1.libbitcoin.net:19091");
+  do_connect(client);
 }
 
 void LibbClient::do_connect(client::obelisk_client &client) {
@@ -16,9 +14,6 @@ void LibbClient::do_connect(client::obelisk_client &client) {
 }
 
 size_t LibbClient::fetch_height() {
-  client::obelisk_client client(connection);
-  do_connect(client);
-
   size_t height;
 
   const auto on_error = [](const code &ec) {
@@ -35,9 +30,6 @@ size_t LibbClient::fetch_height() {
 chain::points_value
 LibbClient::fetch_utxo(const wallet::payment_address address, uint64_t satoshis,
                        wallet::select_outputs::algorithm algorithm) {
-  client::obelisk_client client(connection);
-  do_connect(client);
-
   chain::points_value points_value;
 
   const auto on_error = [](const code &ec) {

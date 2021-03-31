@@ -9,6 +9,7 @@ using namespace bc;
 
 class LibbClient {
 public:
+  LibbClient() : connection{3,8}, client{connection}{}
   void init();
   size_t fetch_height();
   chain::points_value fetch_utxo(const wallet::payment_address address,
@@ -17,6 +18,7 @@ public:
 
 private:
   client::connection_type connection;
+  client::obelisk_client client;
   void do_connect(client::obelisk_client &client);
 };
 

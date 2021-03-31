@@ -1,4 +1,5 @@
 #include "src/common/bing_common.hpp"
+#include <chrono>
 #include <bitcoin/bitcoin.hpp>
 #include "src/libbitcoinclient/libb_client.hpp"
 #include "src/electrumclient/electrum_api_client.hpp"
@@ -12,6 +13,7 @@ using namespace bc;
 using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
+using namespace std::chrono;
 
 
 void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase, const string src_addr_hint) {
@@ -52,7 +54,6 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     vector<string> addresses;
     map<string, ec_private> addresses_to_ec_private;
 
-    // from m/0/0 to m/0/99
     cout << "from m/0/0 to m/0/99: " << "\n";
     for (int i = 0; i < 100; ++i){
         hd_private hdPrivate = m0.derive_private(i);
@@ -73,8 +74,17 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     }
 
     cout << "required funds: " << required_funds << "\n";
-    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses);
-//    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
+
+    milliseconds ms_before = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+
+//    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses);
+    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
+
+    milliseconds ms_after = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+
+    int ms_elapsed = ms_after.count() - ms_before.count();
+
+    cout << "took " << ms_elapsed << " ms\n";
 
     if (funds.actual_funds >= funds.requested_funds) {
         cout << "funds found:" << "\n";

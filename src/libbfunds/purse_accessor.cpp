@@ -11,7 +11,8 @@ using namespace bc::machine;
 AddressFunds PurseAccessor::obtain_funds(LibbClient &libb_client,
                                          uint64_t requested_funds,
                                          string address) {
-  auto points_value =
+    cout << "checking utxos " << address << "\n";
+    auto points_value =
       libb_client.fetch_utxo(payment_address(address), requested_funds,
                              wallet::select_outputs::algorithm::individual);
   auto utxos_funds = FundsFinder::find_funds(requested_funds, points_value);

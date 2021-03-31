@@ -38,6 +38,12 @@ void ElectrumClient::init(string hostname, string service,
   client->prepare_connection.lock();
 }
 
+/**
+ * NOTE
+ * To really use this client, it is needed to implement
+ * some form of correlation check, currently request id
+ * correlation is not done
+ */
 json ElectrumClient::send_request(json json_request) {
   client->send_request(json_request);
   return client->receive_response();
