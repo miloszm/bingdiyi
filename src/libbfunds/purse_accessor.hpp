@@ -1,7 +1,7 @@
 #ifndef PURSE_ACCESSOR_HPP
 #define PURSE_ACCESSOR_HPP
 
-#include "src/electrumclient/electrum_api_client.hpp"
+#include <binglib/electrum_api_client.hpp>
 #include "src/libbitcoinclient/libb_client.hpp"
 #include <bitcoin/bitcoin.hpp>
 

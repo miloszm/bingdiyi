@@ -1,7 +1,7 @@
 #include <iostream>
-#include "electrum_api_client.hpp"
 #include <binglib/address_converter.hpp>
 #include "src/config/bing_config.hpp"
+#include <binglib/electrum_api_client.hpp>
 
 using json = nlohmann::json;
 using namespace std;

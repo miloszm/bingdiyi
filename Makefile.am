@@ -14,9 +14,6 @@ crlocktx2_SOURCES = src/config/bing_config.cpp \
                     src/cmdtool/locked_tx_autopusher.cpp
 
 crlocktx3_SOURCES = src/config/bing_config.cpp \
-                    src/electrumclient/json_socket_client.cpp \
-                    src/electrumclient/electrum_client.cpp \
-                    src/electrumclient/electrum_api_client.cpp \
                     src/locktx/online_lock_tx_creator.cpp \
                     src/libbfunds/purse_accessor.cpp \
                     src/libbfunds/funds_finder.cpp \
@@ -28,9 +25,6 @@ crunlocktx_SOURCES = src/libbscript/redeem_script.cpp \
                      src/cmdtool/locked_tx_spender.cpp
 
 eclient_SOURCES = src/config/bing_config.cpp \
-                  src/electrumclient/json_socket_client.cpp \
-                  src/electrumclient/electrum_client.cpp \
-                  src/electrumclient/electrum_api_client.cpp \
                   src/electrumclient/eclient.cpp
 
 aconv_SOURCES = src/cmdtool/address_spkh.cpp
