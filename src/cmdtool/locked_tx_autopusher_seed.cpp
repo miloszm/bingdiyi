@@ -19,7 +19,7 @@ using namespace bc::machine;
 using namespace std::chrono;
 
 
-void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase, const string src_addr_hint) {
+void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
     bool is_testnet = true;
     int  num_addresses = 100;
 
@@ -35,16 +35,6 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
 
     cout << "from m/0/0 to m/0/99: " << "\n";
     BingWallet::derive_addresses(is_testnet, seed_phrase, num_addresses, addresses, addresses_to_ec_private);
-
-    if (!src_addr_hint.empty()) {
-        auto a = find(addresses.begin(), addresses.end(), src_addr_hint);
-        if (a != addresses.end()){
-            addresses = vector<string>{src_addr_hint};
-        } else {
-            cout << "address not found: " << src_addr_hint << "\n";
-            return;
-        }
-    }
 
     cout << "required funds: " << required_funds << "\n";
 
@@ -90,7 +80,6 @@ int main(int argc, char* argv[]){
                 "Remember that you need to store the unlocking data as printed out by this program,\n" \
                 "otherwise your funds will be lost.\n";
 
-        string   src_addr_hint {""};
         uint64_t amount_to_transfer {0};
         uint64_t fee {0};
         uint32_t lock_until {0};
@@ -100,7 +89,6 @@ int main(int argc, char* argv[]){
         desc.add_options()
                 ("help,h", "print usage message")
                 ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
-                ("addr", value<string>(&src_addr_hint), "Source address hint")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
                 ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
                 ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
@@ -120,7 +108,7 @@ int main(int argc, char* argv[]){
         // note: must be after help option check
         notify(vm);
 
-        create_time_locking_transaction_from_seed(amount_to_transfer, fee, lock_until, seed_phrase, src_addr_hint);
+        create_time_locking_transaction_from_seed(amount_to_transfer, fee, lock_until, seed_phrase);
         return 0;
     }
     catch(exception& e) {
