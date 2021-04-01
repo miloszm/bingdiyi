@@ -10,7 +10,7 @@ using namespace bc;
 class LibbClient {
 public:
   LibbClient() : connection{3,8}, client{connection}{}
-  void init();
+  void init(std::string url);
   size_t fetch_height();
   chain::points_value fetch_utxo(const wallet::payment_address address,
                                 uint64_t satoshis,

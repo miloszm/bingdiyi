@@ -1,9 +1,7 @@
 #include "libb_client.hpp"
 
-void LibbClient::init() {
-  //connection.server = config::endpoint("tcp://mainnet.libbitcoin.net:9091");
-  //connection.server = config::endpoint("tcp://mainnet2.libbitcoin.net:9091");
-  connection.server = config::endpoint("tcp://testnet1.libbitcoin.net:19091");
+void LibbClient::init(std::string url) {
+  connection.server = config::endpoint(url);
   do_connect(client);
 }
 

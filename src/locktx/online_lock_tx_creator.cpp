@@ -4,6 +4,7 @@
 #include "src/libbscript/redeem_script.hpp"
 #include "src/libbfunds/funds_finder.hpp"
 #include "online_lock_tx_creator.hpp"
+#include "src/config/bing_config.hpp"
 
 
 using namespace std;
@@ -33,7 +34,7 @@ void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
         const uint32_t lock_until
 ){
     LibbClient libb_client;
-    libb_client.init();
+    libb_client.init(BingConfig::libbitcoin_server_url);
 
     const wallet::ec_public pub_key = priv_key_ec.to_public();
     const libbitcoin::config::base16 priv_key = libbitcoin::config::base16(priv_key_ec.secret());

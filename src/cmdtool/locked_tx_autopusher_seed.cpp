@@ -7,6 +7,7 @@
 #include <boost/program_options.hpp>
 #include "src/locktx/online_lock_tx_creator.hpp"
 #include <binglib/bing_wallet.hpp>
+#include "src/config/bing_config.hpp"
 
 
 using namespace boost::program_options;
@@ -24,7 +25,7 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
 
     uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
     LibbClient libb_client;
-    libb_client.init();
+    libb_client.init(BingConfig::libbitcoin_server_url);
     ElectrumClient electrum_client;
     electrum_client.init("testnet.electrumx.hodlwallet.com", "51002", "cert.crt");
     ElectrumApiClient electrum_api_client(electrum_client);

@@ -6,13 +6,15 @@ crtx_SOURCES = src/cmdtool/raw_transaction_producer.cpp
 crlocktx_SOURCES = src/libbscript/redeem_script.cpp \
                    src/cmdtool/locked_tx_pusher.cpp
 
-crlocktx2_SOURCES = src/locktx/online_lock_tx_creator.cpp \
+crlocktx2_SOURCES = src/config/bing_config.cpp \
+                    src/locktx/online_lock_tx_creator.cpp \
                     src/libbfunds/funds_finder.cpp \
                     src/libbscript/redeem_script.cpp \
                     src/libbitcoinclient/libb_client.cpp \
                     src/cmdtool/locked_tx_autopusher.cpp
 
-crlocktx3_SOURCES = src/electrumclient/json_socket_client.cpp \
+crlocktx3_SOURCES = src/config/bing_config.cpp \
+                    src/electrumclient/json_socket_client.cpp \
                     src/electrumclient/electrum_client.cpp \
                     src/electrumclient/electrum_api_client.cpp \
                     src/locktx/online_lock_tx_creator.cpp \
