@@ -2,7 +2,7 @@
 #include <bitcoin/bitcoin.hpp>
 #include <binglib/libb_client.hpp>
 #include "src/libbscript/redeem_script.hpp"
-#include "src/libbfunds/funds_finder.hpp"
+#include <binglib/funds_finder.hpp>
 #include "online_lock_tx_creator.hpp"
 #include "src/config/bing_config.hpp"
 
