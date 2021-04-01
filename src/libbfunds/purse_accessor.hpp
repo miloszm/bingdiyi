@@ -23,7 +23,8 @@ public:
   static AddressFunds
   look_for_funds_by_balance(ElectrumApiClient &electrum_client,
                             LibbClient &libb_client, uint64_t requested_funds,
-                            std::vector<std::string> &addresses);
+                            std::vector<std::string> &addresses,
+                            map<string, uint64_t> &address_to_balance);
 };
 
 #endif

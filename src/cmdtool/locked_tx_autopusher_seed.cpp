@@ -40,8 +40,12 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
 
     milliseconds ms_before = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 
-    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses);
+    map<string, uint64_t> address_to_balance;
+    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses, address_to_balance);
 //    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
+    for (auto a: address_to_balance){
+        cout << a.first << " " << a.second << "\n";
+    }
 
     milliseconds ms_after = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 
