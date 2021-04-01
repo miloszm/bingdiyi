@@ -19,11 +19,11 @@ public:
                                    std::string address);
   static AddressFunds look_for_funds(LibbClient &libb_client,
                                      uint64_t requested_funds,
-                                     std::vector<std::string> addresses);
+                                     std::vector<std::string> &addresses);
   static AddressFunds
   look_for_funds_by_balance(ElectrumApiClient &electrum_client,
                             LibbClient &libb_client, uint64_t requested_funds,
-                            std::vector<std::string> addresses);
+                            std::vector<std::string> &addresses);
 };
 
 #endif

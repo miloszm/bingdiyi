@@ -22,7 +22,7 @@ AddressFunds PurseAccessor::obtain_funds(LibbClient &libb_client,
 
 AddressFunds PurseAccessor::look_for_funds(LibbClient &libb_client,
                                            uint64_t requested_funds,
-                                           vector<string> addresses) {
+                                           vector<string> &addresses) {
   AddressFunds maxFunds = AddressFunds{"", 0, 0, vector<output_point>()};
   for (auto a : addresses) {
     auto funds = obtain_funds(libb_client, requested_funds, a);
@@ -36,7 +36,7 @@ AddressFunds PurseAccessor::look_for_funds(LibbClient &libb_client,
 
 AddressFunds PurseAccessor::look_for_funds_by_balance(
     ElectrumApiClient &electrum_api_client, LibbClient &libb_client,
-    uint64_t requested_funds, std::vector<std::string> addresses) {
+    uint64_t requested_funds, vector<string> &addresses) {
     AddressFunds maxFunds = AddressFunds{"", 0, 0, vector<output_point>()};
     for (auto a : addresses) {
         string address_spkh = AddressConverter::base58_to_spkh_hex(a);

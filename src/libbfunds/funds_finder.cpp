@@ -7,7 +7,7 @@ using namespace bc::wallet;
 using namespace bc::machine;
 
 pair<vector<output_point>, uint64_t>
-FundsFinder::find_funds(uint64_t satoshis_needed, chain::points_value points) {
+FundsFinder::find_funds(uint64_t satoshis_needed, chain::points_value &points) {
     vector<output_point> utxos;
     uint64_t gathered_funds{0};
     for (auto p = begin(points.points);

@@ -14,7 +14,7 @@ public:
        * if 1) empty means funds were not sufficient, in such case 2) contains available funds
        */
     static std::pair<std::vector<libbitcoin::chain::output_point>, uint64_t>
-    find_funds(uint64_t satoshis_needed, libbitcoin::chain::points_value points);
+    find_funds(uint64_t satoshis_needed, libbitcoin::chain::points_value &points);
 };
 
 #endif
