@@ -2,6 +2,7 @@
 #define BING_CONFIG_HPP
 
 #include <string>
+#include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 
 using namespace std;

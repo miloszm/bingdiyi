@@ -1,4 +1,3 @@
-#include "src/common/bing_common.hpp"
 #include "bing_config.hpp"
 
 // "tcp://mainnet.libbitcoin.net:9091"
