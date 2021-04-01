@@ -5,6 +5,7 @@
 #include <string>
 
 using namespace std;
+using boost::asio::ip::tcp;
 
 struct ElectrumRequest {
     string method;
@@ -23,6 +24,9 @@ public:
     nlohmann::json send_request(nlohmann::json json_request);
 private:
     JsonSocketClient* client;
+    boost::asio::io_context* io_context;
+    boost::asio::ssl::context* ctx;
+    tcp::resolver::results_type endpoints;
 };
 
 #endif

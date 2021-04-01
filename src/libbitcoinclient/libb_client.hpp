@@ -2,20 +2,23 @@
 #define BING_CLIENT_HPP
 
 #include "src/common/bing_common.hpp"
+#include "src/config/bing_config.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include <bitcoin/client.hpp>
-#include "src/config/bing_config.hpp"
 
 using namespace bc;
 
 class LibbClient {
 public:
-  LibbClient() : connection{BingConfig::libbitcoin_connection_retries,BingConfig::libbitcoin_connection_timeout_seconds}, client{connection}{}
+  LibbClient()
+      : connection{BingConfig::libbitcoin_connection_retries,
+                   BingConfig::libbitcoin_connection_timeout_seconds},
+        client{connection} {}
   void init(std::string url);
   size_t fetch_height();
-  chain::points_value fetch_utxo(const wallet::payment_address address,
-                                uint64_t satoshis,
-                                wallet::select_outputs::algorithm);
+  void fetch_utxo(const wallet::payment_address address, uint64_t satoshis,
+                  wallet::select_outputs::algorithm,
+                  chain::points_value &points_value);
 
 private:
   client::connection_type connection;

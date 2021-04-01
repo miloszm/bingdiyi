@@ -50,8 +50,8 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
 
     milliseconds ms_before = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 
-//    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses);
-    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
+    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses);
+//    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
 
     milliseconds ms_after = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 
@@ -91,9 +91,9 @@ int main(int argc, char* argv[]){
                 "otherwise your funds will be lost.\n";
 
         string   src_addr_hint {""};
-        uint64_t amount_to_transfer;
-        uint64_t fee;
-        uint32_t lock_until;
+        uint64_t amount_to_transfer {0};
+        uint64_t fee {0};
+        uint32_t lock_until {0};
         string seed_phrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
 
         options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");

@@ -14,27 +14,30 @@ using json = nlohmann::json;
 using namespace std;
 #include "electrum_client.hpp"
 
-
-void electrum_request_to_json(nlohmann::json& j, const ElectrumRequest& r) {
-    j = nlohmann::json{{"jsonrpc", "2.0"}, {"method", r.method}, {"id", r.id}, {"params", r.params}};
+void electrum_request_to_json(nlohmann::json &j, const ElectrumRequest &r) {
+  j = nlohmann::json{{"jsonrpc", "2.0"},
+                     {"method", r.method},
+                     {"id", r.id},
+                     {"params", r.params}};
 }
 
+ElectrumClient::ElectrumClient() : io_context(new boost::asio::io_context()), ctx(new boost::asio::ssl::context(boost::asio::ssl::context::sslv23)) {}
 
-ElectrumClient::ElectrumClient() {}
-
-ElectrumClient::~ElectrumClient() { delete client; }
+ElectrumClient::~ElectrumClient() {
+    delete client;
+    delete io_context;
+    delete ctx;
+}
 
 void ElectrumClient::init(string hostname, string service,
                           string cert_file_path) {
-  boost::asio::io_context io_context;
-  tcp::resolver resolver(io_context);
-  auto endpoints = resolver.resolve(hostname, service);
+  tcp::resolver resolver(*io_context);
+  endpoints = resolver.resolve(hostname, service);
 
-  boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
-  ctx.load_verify_file(cert_file_path);
+  ctx->load_verify_file(cert_file_path);
 
-  client = new JsonSocketClient(io_context, ctx, endpoints);
-  io_context.run();
+  client = new JsonSocketClient(*io_context, *ctx, endpoints);
+  io_context->run();
   client->prepare_connection.lock();
 }
 

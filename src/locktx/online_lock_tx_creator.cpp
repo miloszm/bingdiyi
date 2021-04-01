@@ -41,7 +41,8 @@ void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
     data_chunk pub_key_data_chunk;
     pub_key.to_data(pub_key_data_chunk);
 
-    auto points_value = libb_client.fetch_utxo(payment_address(src_addr), 1, wallet::select_outputs::algorithm::individual);
+    chain::points_value points_value;
+    libb_client.fetch_utxo(payment_address(src_addr), 1, wallet::select_outputs::algorithm::individual, points_value);
     auto satoshis_needed = amount_to_transfer + satoshis_fee;
     auto utxos_funds = FundsFinder::find_funds(satoshis_needed, points_value);
     auto utxos = utxos_funds.first;

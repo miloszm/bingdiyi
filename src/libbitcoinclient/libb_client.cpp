@@ -25,10 +25,9 @@ size_t LibbClient::fetch_height() {
   return height;
 }
 
-chain::points_value
+void
 LibbClient::fetch_utxo(const wallet::payment_address address, uint64_t satoshis,
-                       wallet::select_outputs::algorithm algorithm) {
-  chain::points_value points_value;
+                       wallet::select_outputs::algorithm algorithm, chain::points_value &points_value) {
 
   const auto on_error = [](const code &ec) {
     std::cout << "Error Code: " << ec.message() << std::endl;
@@ -41,6 +40,4 @@ LibbClient::fetch_utxo(const wallet::payment_address address, uint64_t satoshis,
   client.blockchain_fetch_unspent_outputs(on_error, on_reply, address, satoshis,
                                           algorithm);
   client.wait();
-
-  return points_value;
 }
