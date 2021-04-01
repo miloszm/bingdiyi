@@ -27,7 +27,8 @@ crlocktx3_SOURCES = src/config/bing_config.cpp \
 crunlocktx_SOURCES = src/libbscript/redeem_script.cpp \
                      src/cmdtool/locked_tx_spender.cpp
 
-eclient_SOURCES = src/electrumclient/json_socket_client.cpp \
+eclient_SOURCES = src/config/bing_config.cpp \
+                  src/electrumclient/json_socket_client.cpp \
                   src/electrumclient/electrum_client.cpp \
                   src/electrumclient/electrum_api_client.cpp \
                   src/electrumclient/eclient.cpp

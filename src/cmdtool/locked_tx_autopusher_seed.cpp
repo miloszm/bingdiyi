@@ -27,7 +27,7 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     LibbClient libb_client;
     libb_client.init(BingConfig::libbitcoin_server_url);
     ElectrumClient electrum_client;
-    electrum_client.init("testnet.electrumx.hodlwallet.com", "51002", "cert.crt");
+    electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
     ElectrumApiClient electrum_api_client(electrum_client);
 
     vector<string> addresses;

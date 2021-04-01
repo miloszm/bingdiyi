@@ -1,20 +1,16 @@
 #include <iostream>
 #include "electrum_api_client.hpp"
 #include <binglib/address_converter.hpp>
+#include "src/config/bing_config.hpp"
 
 using json = nlohmann::json;
 using namespace std;
 
 int main(int argc, char *argv[]) {
   try {
-    //  ("localhost", "51002");
-    //  ("blockstream.info", "993");
-    //  ("testnet.qtornado.com", "51002");
-    //  ("testnet.electrumx.hodlwallet.com", "51002");
-
     ElectrumClient electrum_client;
 
-    electrum_client.init("testnet.electrumx.hodlwallet.com", "51002", "cert.crt");
+    electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
 
 //    json banner_request =
 //        R"({"jsonrpc":"2.0","method":"server.banner","id":1712})"_json;

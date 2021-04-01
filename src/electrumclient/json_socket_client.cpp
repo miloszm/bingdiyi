@@ -85,9 +85,9 @@ void JsonSocketClient::send_request(json json_request) {
 }
 
 json JsonSocketClient::receive_response() {
+  boost::array<char, 512> buf;
   std::ostringstream oss;
   for (;;) {
-    boost::array<char, 512> buf;
     boost::system::error_code error;
 
     size_t len = socket_.read_some(boost::asio::buffer(buf), error);

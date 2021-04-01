@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitcoin/bitcoin.hpp>
 #include <bitcoin/client.hpp>
+#include "src/config/bing_config.hpp"
 
 
 using namespace bc;
@@ -19,13 +20,7 @@ int main() {
     client::connection_type connection = {};
     connection.retries = 3;
     connection.timeout_seconds = 8;
-    //connection.server = config::endpoint("tcp://mainnet.libbitcoin.net:9091");
-    //connection.server = config::endpoint("tcp://mainnet2.libbitcoin.net:9091");
-    connection.server = config::endpoint("tcp://testnet1.libbitcoin.net:19091");
-
-
-    static constexpr uint8_t num_retries = 0;
-    static constexpr uint16_t timeout_seconds = 8;
+    connection.server = config::endpoint(BingConfig::libbitcoin_server_url);
 
 
     static const auto on_error = [](const code& ec)

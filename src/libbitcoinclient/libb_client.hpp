@@ -4,6 +4,7 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include <bitcoin/client.hpp>
+#include "src/config/bing_config.hpp"
 
 using namespace bc;
 
