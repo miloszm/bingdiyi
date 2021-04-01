@@ -10,7 +10,6 @@ crlocktx2_SOURCES = src/config/bing_config.cpp \
                     src/locktx/online_lock_tx_creator.cpp \
                     src/libbfunds/funds_finder.cpp \
                     src/libbscript/redeem_script.cpp \
-                    src/libbitcoinclient/libb_client.cpp \
                     src/cmdtool/locked_tx_autopusher.cpp
 
 crlocktx3_SOURCES = src/config/bing_config.cpp \
@@ -18,7 +17,6 @@ crlocktx3_SOURCES = src/config/bing_config.cpp \
                     src/libbfunds/purse_accessor.cpp \
                     src/libbfunds/funds_finder.cpp \
                     src/libbscript/redeem_script.cpp \
-                    src/libbitcoinclient/libb_client.cpp \
                     src/cmdtool/locked_tx_autopusher_seed.cpp
 
 crunlocktx_SOURCES = src/libbscript/redeem_script.cpp \
@@ -34,7 +32,7 @@ crtx_LDADD= @bitcoin_client_LIBS@
 
 crlocktx_LDADD= @bitcoin_client_LIBS@
 
-crlocktx2_LDADD= @bitcoin_client_LIBS@
+crlocktx2_LDADD= @bitcoin_client_LIBS@ @libbinglib_LIBS@
 
 crlocktx3_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @bitcoin_client_LIBS@ @libbinglib_LIBS@
 

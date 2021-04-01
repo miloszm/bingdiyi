@@ -2,7 +2,7 @@
 #define PURSE_ACCESSOR_HPP
 
 #include <binglib/electrum_api_client.hpp>
-#include "src/libbitcoinclient/libb_client.hpp"
+#include <binglib/libb_client.hpp>
 #include <bitcoin/bitcoin.hpp>
 
 struct AddressFunds {
