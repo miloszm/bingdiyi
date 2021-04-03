@@ -12,13 +12,16 @@ using namespace bc::machine;
 /**
  * produces p2pkh transaction
  * no locking, no p2sh, just plan and simple p2pkh
+ * does not give rest
+ * single input, single output
+ * single funding address
  */
 
-void construct_raw_transaction(const string priv_key_wif,
-                               const string src_tx_id,
-                               const int src_tx_output_index,
-                               const string target_addr,
-                               const uint64_t satoshis_to_transfer) {
+void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
+                                        const string src_tx_id,
+                                        const int src_tx_output_index,
+                                        const string target_addr,
+                                        const uint64_t satoshis_to_transfer) {
   const wallet::ec_private priv_key_ec(priv_key_wif);
   const wallet::ec_public pub_key = priv_key_ec.to_public();
   const libbitcoin::config::base16 priv_key =
@@ -126,8 +129,8 @@ int main2() {
   const string target_addr{"mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz"};
   const uint64_t satoshis_to_transfer{75000};
 
-  construct_raw_transaction(priv_key_wif, src_tx_id, src_tx_output_index,
-                            target_addr, satoshis_to_transfer);
+    construct_p2pkh_tx_from_funding_tx(priv_key_wif, src_tx_id, src_tx_output_index,
+                                target_addr, satoshis_to_transfer);
   return 0;
 }
 
@@ -179,7 +182,7 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
-        construct_raw_transaction(priv_key_wif, src_txid, src_vout, target_addr, amount_to_transfer);
+        construct_p2pkh_tx_from_funding_tx(priv_key_wif, src_txid, src_vout, target_addr, amount_to_transfer);
 
         return 0;
     }
