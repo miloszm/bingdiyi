@@ -4,8 +4,7 @@ bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv
 crtx_SOURCES = src/cmdtool/p2pkh_tx_pusher.cpp
 
 crtx2_SOURCES = src/config/bing_config.cpp \
-                src/cmdtool/p2pkh_tx_autopusher.cpp \
-                src/p2pkhtx/online_p2pkh_tx_creator.cpp
+                src/cmdtool/p2pkh_tx_autopusher.cpp
 
 crlocktx_SOURCES = src/libbscript/redeem_script.cpp \
                    src/cmdtool/locked_tx_pusher.cpp
@@ -46,10 +45,4 @@ eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
 aconv_LDADD= @libbinglib_LIBS@
 
 
-#check_PROGRAMS = test1
-#test1_SOURCES = \
-#    test/utility/address_converter.cpp \
-#    src/utility/address_converter.cpp
-#test1_CPPFLAGS = -I$(top_srcdir)/src
-#TESTS = $(check_PROGRAMS)
 
