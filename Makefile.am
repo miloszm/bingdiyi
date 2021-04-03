@@ -1,5 +1,7 @@
-bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv
+bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv main
 
+main_SOURCES = src/config/bing_config.cpp \
+               src/main.cpp
 
 crtx_SOURCES = src/cmdtool/p2pkh_tx_pusher.cpp
 
@@ -27,6 +29,8 @@ eclient_SOURCES = src/config/bing_config.cpp \
 
 aconv_SOURCES = src/cmdtool/address_spkh.cpp
 
+
+main_LDADD= @bitcoin_client_LIBS@
 
 crtx_LDADD= @bitcoin_client_LIBS@
 
