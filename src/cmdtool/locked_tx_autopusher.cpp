@@ -1,7 +1,10 @@
 #include "src/common/bing_common.hpp"
+#include "src/config/bing_config.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include <boost/program_options.hpp>
 #include "src/locktx/online_lock_tx_creator.hpp"
+#include <binglib/libb_client.hpp>
+
 
 using namespace boost::program_options;
 using namespace std;
@@ -26,6 +29,9 @@ using namespace bc::machine;
 
 
 int main2() {
+    LibbClient libb_client;
+    libb_client.init(BingConfig::libbitcoin_server_url);
+
     const string version {"0.001"};
     cout << "locked_tx_pusher" << "\n";
     cout << "version:" << version << "\n";
@@ -36,12 +42,15 @@ int main2() {
     const uint64_t satoshis_fee {10000};
     const uint32_t lock_until = 1615591800;
 
-    OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_wif, satoshis_to_transfer, satoshis_fee, lock_until);
+    OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, src_addr, priv_key_wif, satoshis_to_transfer, satoshis_fee, lock_until);
     return 0;
 }
 
 int main(int argc, char* argv[]) {
     try {
+        LibbClient libb_client;
+        libb_client.init(BingConfig::libbitcoin_server_url);
+
         string help_text = "\nYou can find funding address by inspecting your wallet.\n" \
                 "Note that the amount to transfer plus fee must be smaller than or equal to the available amount for a given address.\n" \
                 "This program does give change, if any, it will be transferred back into the source address.\n" \
@@ -86,7 +95,7 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
-        OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_wif, amount_to_transfer, fee, lock_until);
+        OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, src_addr, priv_key_wif, amount_to_transfer, fee, lock_until);
 
         return 0;
     }

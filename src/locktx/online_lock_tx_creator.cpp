@@ -14,7 +14,8 @@ using namespace bc::wallet;
 using namespace bc::machine;
 
 
-void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
+void OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(
+        LibbClient &libb_client,
         const string src_addr,
         const string priv_key_wif,
         const uint64_t amount_to_transfer,
@@ -22,20 +23,18 @@ void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
         const uint32_t lock_until
 ){
     const wallet::ec_private priv_key_ec(priv_key_wif);
-    return construct_p2sh_time_locking_transaction_from_address(src_addr, priv_key_ec, amount_to_transfer, satoshis_fee, lock_until);
+    return construct_p2sh_time_locking_tx_from_address(libb_client, src_addr, priv_key_ec, amount_to_transfer, satoshis_fee, lock_until);
 }
 
 
-void OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(
+void OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(
+        LibbClient &libb_client,
         const string src_addr,
         const ec_private priv_key_ec,
         const uint64_t amount_to_transfer,
         const uint64_t satoshis_fee,
         const uint32_t lock_until
 ){
-    LibbClient libb_client;
-    libb_client.init(BingConfig::libbitcoin_server_url);
-
     const wallet::ec_public pub_key = priv_key_ec.to_public();
     const libbitcoin::config::base16 priv_key = libbitcoin::config::base16(priv_key_ec.secret());
     data_chunk pub_key_data_chunk;

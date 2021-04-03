@@ -19,16 +19,11 @@ using namespace bc::machine;
 using namespace std::chrono;
 
 
-void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
+void create_time_locking_transaction_from_seed(LibbClient &libb_client, ElectrumApiClient &electrum_api_client, const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
     bool is_testnet = true;
     int  num_addresses = 100;
 
     uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
-    LibbClient libb_client;
-    libb_client.init(BingConfig::libbitcoin_server_url);
-    ElectrumClient electrum_client;
-    electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
-    ElectrumApiClient electrum_api_client(electrum_client);
 
     vector<string> addresses;
     map<string, ec_private> addresses_to_ec_private;
@@ -65,11 +60,17 @@ void create_time_locking_transaction_from_seed(const uint64_t satoshis_to_transf
     string source_address = funds.address;
     ec_private private_key = addresses_to_ec_private[funds.address];
 
-    OnlineLockTxCreator::construct_p2sh_time_locking_transaction_from_address(source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
+    OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
 }
 
 int main(int argc, char* argv[]){
     try {
+        LibbClient libb_client;
+        libb_client.init(BingConfig::libbitcoin_server_url);
+        ElectrumClient electrum_client;
+        electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
+        ElectrumApiClient electrum_api_client(electrum_client);
+
         string help_text = "\nYou only provide Electrum mnemonic seed phrase and the program will\n" \
                 "find the funding transaction automatically.\n\n" \
                 "Note that all funds must be under a single address, multiple addresses will not\n" \
@@ -112,7 +113,7 @@ int main(int argc, char* argv[]){
         // note: must be after help option check
         notify(vm);
 
-        create_time_locking_transaction_from_seed(amount_to_transfer, fee, lock_until, seed_phrase);
+        create_time_locking_transaction_from_seed(libb_client, electrum_api_client, amount_to_transfer, fee, lock_until, seed_phrase);
         return 0;
     }
     catch(exception& e) {
