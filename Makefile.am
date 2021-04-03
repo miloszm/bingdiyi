@@ -3,7 +3,9 @@ bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv
 
 crtx_SOURCES = src/cmdtool/p2pkh_tx_pusher.cpp
 
-crtx2_SOURCES = src/cmdtool/p2pkh_tx_autopusher.cpp
+crtx2_SOURCES = src/config/bing_config.cpp \
+                src/cmdtool/p2pkh_tx_autopusher.cpp \
+                src/p2pkhtx/online_p2pkh_tx_creator.cpp
 
 crlocktx_SOURCES = src/libbscript/redeem_script.cpp \
                    src/cmdtool/locked_tx_pusher.cpp
@@ -29,7 +31,7 @@ aconv_SOURCES = src/cmdtool/address_spkh.cpp
 
 crtx_LDADD= @bitcoin_client_LIBS@
 
-crtx2_LDADD= @bitcoin_client_LIBS@
+crtx2_LDADD= @bitcoin_client_LIBS@ @libbinglib_LIBS@
 
 crlocktx_LDADD= @bitcoin_client_LIBS@
 

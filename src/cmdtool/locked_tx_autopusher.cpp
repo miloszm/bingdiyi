@@ -43,7 +43,7 @@ int main2() {
 int main(int argc, char* argv[]) {
     try {
         string help_text = "\nYou can find funding address by inspecting your wallet.\n" \
-                "Note that the amount to transfer plus fee must be smaller than or equal to the available amount for a given addres.\n" \
+                "Note that the amount to transfer plus fee must be smaller than or equal to the available amount for a given address.\n" \
                 "This program does give change, if any, it will be transferred back into the source address.\n" \
                 "For 'lock until' time, use any available online epoch time converter, \n" \
                 "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n" \
