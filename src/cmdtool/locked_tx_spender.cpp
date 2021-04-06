@@ -1,6 +1,6 @@
 #include "src/common/bing_common.hpp"
 #include <bitcoin/bitcoin.hpp>
-#include "src/libbscript/redeem_script.hpp"
+#include <binglib/redeem_script.hpp>
 #include <boost/program_options.hpp>
 
 using namespace boost::program_options;

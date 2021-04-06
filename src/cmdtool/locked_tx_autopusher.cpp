@@ -2,7 +2,7 @@
 #include "src/config/bing_config.hpp"
 #include <bitcoin/bitcoin.hpp>
 #include <boost/program_options.hpp>
-#include "src/locktx/online_lock_tx_creator.hpp"
+#include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/libb_client.hpp>
 
 

@@ -3,7 +3,7 @@
 #include <bitcoin/bitcoin.hpp>
 #include <binglib/purse_accessor.hpp>
 #include <boost/program_options.hpp>
-#include "src/locktx/online_lock_tx_creator.hpp"
+#include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/bing_wallet.hpp>
 #include "src/config/bing_config.hpp"
 #include <binglib/electrum_api_client.hpp>
