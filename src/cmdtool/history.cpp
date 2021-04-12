@@ -39,34 +39,63 @@ chain::transaction fetch_tx(ElectrumApiClient &electrum_api_client, string txid)
     return hex_2_tx(tx_hex);
 }
 
+//========
 
-void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_hex, vector<string>& addresses){
+struct TxBalanceInput {
+    string funding_tx;
+    int funding_idx;
+    uint64_t value;
+};
+
+struct TxBalanceOutput {
+    string address;
+    int script_kind;
+    uint64_t value;
+    bool in_wallet;
+};
+
+
+struct TxBalance {
+    string tx_id;
+    vector<TxBalanceInput> inputs;
+    vector<TxBalanceOutput> outputs;
+};
+
+//========
+
+void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_id, string tx_hex, vector<string>& addresses, vector<TxBalance>& balance_items){
     chain::transaction tx = hex_2_tx(tx_hex);
-
-    cout << "total input value: " << tx.total_input_value() << "\n";
-    cout << "total output value: " << tx.total_output_value() << "\n";
+    cout << "tot out: " << tx.total_output_value() << "\n";
+    vector<TxBalanceInput> balance_inputs;
+    vector<TxBalanceOutput> balance_outputs;
     for (auto& i: tx.inputs()){
         string funding_tx = encode_hash(i.previous_output().hash());
         int funding_idx = i.previous_output().index();
         chain::transaction input_tx = fetch_tx(electrum_api_client, funding_tx);
         auto& ii = input_tx.outputs().at(funding_idx);
-        cout << "input from utxo: " << funding_tx << ":" << funding_idx << "\n";
-        cout << "input value: " << ii.value() << "\n";
+        cout << "   input from utxo: " << funding_tx << ":" << funding_idx << " value: " << ii.value() << "\n";
+        TxBalanceInput balance_input {funding_tx, funding_idx, ii.value()};
+        balance_inputs.push_back(balance_input);
     };
     for (auto& o: tx.outputs()){
         wallet::payment_address::list axx = o.addresses(wallet::payment_address::testnet_p2kh, wallet::payment_address::testnet_p2sh);
         if (axx.size() > 0) {
             for (wallet::payment_address& ax: axx) {
-                cout << "output value: " << o.value() << " address: " << ax << " script: "
-                     << static_cast<int>(o.script().pattern()) << "\n";
                 bool is_in_wallet = (std::find(addresses.begin(), addresses.end(), ax.encoded()) != addresses.end());
-                cout << "in wallet=" << is_in_wallet << "\n";
+                cout << "   output value: " << o.value() << " address: " << ax << " script: "
+                     << static_cast<int>(o.script().pattern()) << " in wallet=" << is_in_wallet << "\n";
+                TxBalanceOutput balance_output {ax.encoded(), static_cast<int>(o.script().pattern()), o.value(), is_in_wallet};
+                balance_outputs.push_back(balance_output);
+                break;
             }
         } else {
-            cout << "output value: " << o.value() << "\n";
+            cout << "   output value: " << o.value() << " in wallet=0" << "\n";
+            TxBalanceOutput balance_output {"", -1, o.value(), false};
+            balance_outputs.push_back(balance_output);
         }
     };
-
+    TxBalance tx_balance{tx_id, balance_inputs, balance_outputs};
+    balance_items.push_back(tx_balance);
 }
 
 
@@ -88,15 +117,40 @@ int main() {
 
     vector<HistoryItem> history_items;
 
-    vector<string> single_address{"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
+    vector<string> single_address{"mvhfqVtVytsTn1LzZpJ7ura59HSPGbPpRP"};
     PurseAccessor::find_history(electrum_api_client, libb_client, single_address, history_items);
 
+    vector<TxBalance> balance_items;
+
     for (HistoryItem& item: history_items){
-        cout << "=============================\n";
-        cout << item.txid << " " << item.address << " " << item.height << " " << item.txhex << "\n";
-        analyse_tx(electrum_api_client, item.txhex, addresses);
-        cout << "=============================\n\n";
+        cout << item.txid << " " << item.address << " ";
+        analyse_tx(electrum_api_client, item.txid, item.txhex, addresses, balance_items);
     }
+
+    // calc address balance (single_address)
+    uint64_t balance{0};
+    int cur_pos{0};
+    for (TxBalance& balance_item: balance_items){
+        for (int oidx = 0; oidx < balance_item.outputs.size(); ++ oidx){
+            TxBalanceOutput &o = balance_item.outputs[oidx];
+            if (o.address == single_address.at(0)){
+                balance += o.value;
+                string cur_tx = balance_item.tx_id;
+                int cur_idx = oidx;
+                for (auto j = cur_pos+1; j < balance_items.size(); ++j){
+                    TxBalance& balance_item2 = balance_items[j];
+                    for (TxBalanceInput &i: balance_item2.inputs){
+                        if (i.funding_tx == cur_tx && i.funding_idx == cur_idx){
+                            balance -= i.value;
+                        }
+                    }
+                }
+            }
+        }
+        ++cur_pos;
+    }
+
+    cout << "balance=" << balance << "\n";
 
     return 0;
 }
