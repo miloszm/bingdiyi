@@ -1,4 +1,4 @@
-bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv main
+bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv main history
 
 main_SOURCES = src/config/bing_config.cpp \
                src/main.cpp
@@ -23,6 +23,10 @@ eclient_SOURCES = src/config/bing_config.cpp \
 
 aconv_SOURCES = src/cmdtool/address_spkh.cpp
 
+history_SOURCES = src/config/bing_config.cpp \
+                  src/cmdtool/history.cpp
+
+
 
 main_LDADD= @bitcoin_client_LIBS@
 
@@ -42,5 +46,5 @@ eclient_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
 
 aconv_LDADD= @libbinglib_LIBS@
 
-
+history_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
 

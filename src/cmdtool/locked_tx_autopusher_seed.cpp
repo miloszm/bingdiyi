@@ -21,15 +21,16 @@ using namespace std::chrono;
 
 void create_time_locking_transaction_from_seed(LibbClient &libb_client, ElectrumApiClient &electrum_api_client, const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
     bool is_testnet = true;
-    int  num_addresses = 100;
+    int  num_addresses0 = 51;
+    int  num_addresses1 = 15;
 
     uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
 
     vector<string> addresses;
-    map<string, ec_private> addresses_to_ec_private;
+    map<string, AddressDerivationResult> addresses_to_data;
 
     cout << "from m/0/0 to m/0/99: " << "\n";
-    BingWallet::derive_addresses(is_testnet, seed_phrase, num_addresses, addresses, addresses_to_ec_private);
+    BingWallet::derive_electrum_addresses(is_testnet, seed_phrase, num_addresses0, num_addresses1, addresses, addresses_to_data);
 
     cout << "required funds: " << required_funds << "\n";
 
@@ -58,7 +59,7 @@ void create_time_locking_transaction_from_seed(LibbClient &libb_client, Electrum
     }
 
     string source_address = funds.address;
-    ec_private private_key = addresses_to_ec_private[funds.address];
+    ec_private private_key = addresses_to_data[funds.address].priv_key_ec;
 
     OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
 }
