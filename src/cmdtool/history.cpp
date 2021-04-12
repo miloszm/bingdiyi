@@ -4,8 +4,10 @@
 #include <boost/program_options.hpp>
 #include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/libb_client.hpp>
+#include <binglib/electrum_api_client.hpp>
 #include <binglib/purse_accessor.hpp>
-
+#include <binglib/bing_wallet.hpp>
+#include <algorithm>
 
 using namespace boost::program_options;
 using namespace std;
@@ -38,7 +40,7 @@ chain::transaction fetch_tx(ElectrumApiClient &electrum_api_client, string txid)
 }
 
 
-void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_hex){
+void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_hex, vector<string>& addresses){
     chain::transaction tx = hex_2_tx(tx_hex);
 
     cout << "total input value: " << tx.total_input_value() << "\n";
@@ -52,10 +54,14 @@ void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_hex){
         cout << "input value: " << ii.value() << "\n";
     };
     for (auto& o: tx.outputs()){
-        auto axx = o.addresses(wallet::payment_address::testnet_p2kh, wallet::payment_address::testnet_p2sh);
+        wallet::payment_address::list axx = o.addresses(wallet::payment_address::testnet_p2kh, wallet::payment_address::testnet_p2sh);
         if (axx.size() > 0) {
-            for (auto ax: axx)
-                cout << "output value: " << o.value() << " address: " << ax << " script: " << static_cast<int>(o.script().pattern()) << "\n";
+            for (wallet::payment_address& ax: axx) {
+                cout << "output value: " << o.value() << " address: " << ax << " script: "
+                     << static_cast<int>(o.script().pattern()) << "\n";
+                bool is_in_wallet = (std::find(addresses.begin(), addresses.end(), ax.encoded()) != addresses.end());
+                cout << "in wallet=" << is_in_wallet << "\n";
+            }
         } else {
             cout << "output value: " << o.value() << "\n";
         }
@@ -72,15 +78,23 @@ int main() {
     electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
     ElectrumApiClient electrum_api_client(electrum_client);
 
-    vector<string> addresses {"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
+    bool is_testnet = true;
+    int  num_addresses0 = 51;
+    int  num_addresses1 = 15;
+    vector<string> addresses;
+    map<string, AddressDerivationResult> addresses_to_data;
+    string seed_phrase = "effort canal zoo clown shoulder genuine penalty moral unit skate few quick";
+    BingWallet::derive_electrum_addresses(is_testnet, seed_phrase, num_addresses0, num_addresses1, addresses, addresses_to_data);
+
     vector<HistoryItem> history_items;
 
-    PurseAccessor::find_history(electrum_api_client, libb_client, addresses, history_items);
+    vector<string> single_address{"mihBbdmqPut61bs9eDYZ3fdYxAKEP3mdiX"};
+    PurseAccessor::find_history(electrum_api_client, libb_client, single_address, history_items);
 
     for (HistoryItem& item: history_items){
         cout << "=============================\n";
         cout << item.txid << " " << item.address << " " << item.height << " " << item.txhex << "\n";
-        analyse_tx(electrum_api_client, item.txhex);
+        analyse_tx(electrum_api_client, item.txhex, addresses);
         cout << "=============================\n\n";
     }
 
