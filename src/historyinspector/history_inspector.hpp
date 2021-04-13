@@ -61,6 +61,7 @@ private:
 private:
     void analyse_tx_balances(string tx_id, vector<TxBalance>& balance_items);
     static uint64_t calc_address_balance(const string& address, vector<TxBalance>& balance_items);
+    static header hex_2_header(string tx_hex);
 };
 
 

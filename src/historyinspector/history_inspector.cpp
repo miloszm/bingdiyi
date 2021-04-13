@@ -134,8 +134,9 @@ void HistoryInspector::create_history_view_rows(vector<HistoryViewRow>& history_
         string tx_id = encode_hash(tx.hash());
         int64_t impact = calculate_tx_wallet_impact(tx_id);
         // todo: cache it
-        chain::header block_header;
-        libb_client_.fetch_header(tx_and_height.height, block_header);
+        string header_hex = electrum_api_client_.getBlockHeader(tx_and_height.height);
+        chain::header block_header = hex_2_header(header_hex);
+        //libb_client_.fetch_header(tx_and_height.height, block_header);
         uint32_t timestamp = block_header.timestamp();
         HistoryViewRow history_view_row {
             timestamp,
@@ -150,4 +151,19 @@ void HistoryInspector::create_history_view_rows(vector<HistoryViewRow>& history_
         balance += p->amount;
         p->balance = balance;
     }
+}
+
+chain::header HistoryInspector::hex_2_header(string header_hex){
+    chain::header header;
+    data_chunk header_chunk;
+
+    if (!decode_base16(header_chunk, header_hex)){
+        throw std::invalid_argument("could not decode raw hex header");
+    }
+
+    if (!header.from_data(header_chunk)){
+        throw std::invalid_argument("could not decode header");
+    }
+
+    return header;
 }
