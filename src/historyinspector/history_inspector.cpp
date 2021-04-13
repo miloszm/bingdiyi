@@ -124,3 +124,25 @@ int64_t HistoryInspector::calculate_tx_wallet_impact(const string& tx_id) {
     }
     return sum_to_wallet_outputs - sum_from_wallet_inputs;
 }
+
+void HistoryInspector::create_history_view_rows(vector<HistoryViewRow>& history_view_rows) {
+
+    vector<transaction> sorted_txs = wallet_state_.get_all_txs_sorted(electrum_api_client_);
+
+    for (auto& tx: sorted_txs){
+        string tx_id = encode_hash(tx.hash());
+        int64_t impact = calculate_tx_wallet_impact(tx_id);
+        HistoryViewRow history_view_row {
+            "",
+            impact,
+            tx_id,
+            0
+        };
+        history_view_rows.push_back(history_view_row);
+    }
+    uint64_t balance {0};
+    for (auto p = history_view_rows.rbegin(); p != history_view_rows.rend(); ++p){
+        balance += p->amount;
+        p->balance = balance;
+    }
+}

@@ -48,13 +48,11 @@ int main() {
 
     cout << "\n\ntotal_balance=" << total_balance << "\n\n";
 
-    vector<transaction> sorted_txs = wallet_state.get_all_txs_sorted(electrum_api_client);
+    vector<HistoryViewRow> history_view_rows;
+    history_inspector.create_history_view_rows(history_view_rows);
 
-    int i {1};
-    for (auto& tx: sorted_txs){
-        string tx_id = encode_hash(tx.hash());
-        int64_t impact = history_inspector.calculate_tx_wallet_impact(tx_id);
-        cout << i++ << " " << impact << " " << tx.total_output_value() << " " << tx_id <<"\n";
+    for (auto& r: history_view_rows){
+        cout << r.timestamp << " " << r.amount << " " << r.balance << " " << r.tx_id << "\n";
     }
 
     return 0;

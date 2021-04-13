@@ -27,11 +27,17 @@ struct TxBalanceOutput {
     bool in_wallet;
 };
 
-
 struct TxBalance {
     string tx_id;
     vector<TxBalanceInput> inputs;
     vector<TxBalanceOutput> outputs;
+};
+
+struct HistoryViewRow {
+    string timestamp;
+    int64_t amount;
+    string tx_id;
+    uint64_t balance;
 };
 
 
@@ -43,6 +49,7 @@ public:
     uint64_t calculate_address_balance(const string& address);
     uint64_t calculate_total_balance();
     int64_t calculate_tx_wallet_impact(const string& tx_id);
+    void create_history_view_rows(vector<HistoryViewRow>& history_view_rows);
 
 private:
     WalletState& wallet_state_;
