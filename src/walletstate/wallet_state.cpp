@@ -75,7 +75,7 @@ void WalletState::refresh_all_history(ElectrumApiClient &electrum_api_client) {
 }
 
 
-vector<transaction> WalletState::get_all_txs_sorted(ElectrumApiClient &electrum_api_client) {
+vector<TransactionAndHeight> WalletState::get_all_txs_sorted(ElectrumApiClient &electrum_api_client) {
     refresh_all_history(electrum_api_client);
     std::sort( all_history_.begin( ), all_history_.end( ), [ ]( const AddressHistoryItem& lhs, const AddressHistoryItem& rhs )
     {
@@ -90,10 +90,11 @@ vector<transaction> WalletState::get_all_txs_sorted(ElectrumApiClient &electrum_
     });
     all_history_.erase( last, all_history_.end() );
 
-    vector<transaction> txs;
+    vector<TransactionAndHeight> txs;
     for (const AddressHistoryItem& item: all_history_){
         transaction tx = get_transaction(electrum_api_client, item.txid);
-        txs.push_back(tx);
+        TransactionAndHeight transaction_and_height {tx, item.height};
+        txs.push_back(transaction_and_height);
     }
 
     return txs;

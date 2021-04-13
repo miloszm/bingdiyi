@@ -8,8 +8,8 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
-HistoryInspector::HistoryInspector(ElectrumApiClient &electrum_api_client, WalletState& wallet_state)
-    : electrum_api_client_(electrum_api_client), wallet_state_(wallet_state){}
+HistoryInspector::HistoryInspector(ElectrumApiClient &electrum_api_client, LibbClient& libb_client, WalletState& wallet_state)
+    : electrum_api_client_(electrum_api_client), libb_client_(libb_client), wallet_state_(wallet_state){}
 
 HistoryInspector::~HistoryInspector(){}
 
@@ -127,13 +127,18 @@ int64_t HistoryInspector::calculate_tx_wallet_impact(const string& tx_id) {
 
 void HistoryInspector::create_history_view_rows(vector<HistoryViewRow>& history_view_rows) {
 
-    vector<transaction> sorted_txs = wallet_state_.get_all_txs_sorted(electrum_api_client_);
+    vector<TransactionAndHeight> sorted_txs = wallet_state_.get_all_txs_sorted(electrum_api_client_);
 
-    for (auto& tx: sorted_txs){
+    for (auto& tx_and_height: sorted_txs){
+        auto& tx = tx_and_height.tx;
         string tx_id = encode_hash(tx.hash());
         int64_t impact = calculate_tx_wallet_impact(tx_id);
+        // todo: cache it
+        chain::header block_header;
+        libb_client_.fetch_header(tx_and_height.height, block_header);
+        uint32_t timestamp = block_header.timestamp();
         HistoryViewRow history_view_row {
-            "",
+            timestamp,
             impact,
             tx_id,
             0

@@ -38,7 +38,7 @@ int main() {
 
     WalletState wallet_state(addresses);
 
-    HistoryInspector history_inspector(electrum_api_client, wallet_state);
+    HistoryInspector history_inspector(electrum_api_client, libb_client, wallet_state);
 
     uint64_t balance = history_inspector.calculate_address_balance("mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh");
 

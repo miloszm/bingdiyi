@@ -3,6 +3,8 @@
 
 #include <bitcoin/bitcoin.hpp>
 #include "src/walletstate/wallet_state.hpp"
+#include <binglib/libb_client.hpp>
+#include <binglib/electrum_api_client.hpp>
 
 using namespace bc;
 using namespace bc::chain;
@@ -34,7 +36,7 @@ struct TxBalance {
 };
 
 struct HistoryViewRow {
-    string timestamp;
+    uint32_t timestamp;
     int64_t amount;
     string tx_id;
     uint64_t balance;
@@ -43,7 +45,7 @@ struct HistoryViewRow {
 
 class HistoryInspector {
 public:
-    HistoryInspector(ElectrumApiClient &electrum_api_client, WalletState& wallet_state);
+    HistoryInspector(ElectrumApiClient &electrum_api_client, LibbClient& libb_client, WalletState& wallet_state);
     virtual ~HistoryInspector();
 
     uint64_t calculate_address_balance(const string& address);
@@ -53,7 +55,8 @@ public:
 
 private:
     WalletState& wallet_state_;
-    ElectrumApiClient &electrum_api_client_;
+    ElectrumApiClient& electrum_api_client_;
+    LibbClient& libb_client_;
 
 private:
     void analyse_tx_balances(string tx_id, vector<TxBalance>& balance_items);
