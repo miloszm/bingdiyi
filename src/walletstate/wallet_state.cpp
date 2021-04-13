@@ -16,6 +16,11 @@ vector<string>& WalletState::get_addresses() {
     return addresses_;
 }
 
+bool WalletState::is_in_wallet(string address) {
+    return std::find(addresses_.begin(), addresses_.end(), address) != addresses_.end();
+}
+
+
 chain::transaction WalletState::hex_2_tx(string tx_hex){
     chain::transaction tx;
     data_chunk tx_chunk;
@@ -38,4 +43,10 @@ chain::transaction WalletState::get_transaction(ElectrumApiClient &electrum_api_
         tx_cache_[txid] = tx_hex;
     }
     return hex_2_tx(tx_hex);
+}
+
+void WalletState::print_cache() {
+    for (auto e: tx_cache_){
+        cout << e.first << " -> " << e.second << "\n";
+    }
 }

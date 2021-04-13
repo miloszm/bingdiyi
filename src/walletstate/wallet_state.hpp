@@ -18,7 +18,9 @@ public:
     WalletState(vector<string>& addresses);
     virtual ~WalletState();
     vector<string>& get_addresses();
+    bool is_in_wallet(string address);
     transaction get_transaction(ElectrumApiClient &electrum_api_client, string txid);
+    void print_cache();
 private:
     vector<string> addresses_;
     map<string, string> tx_cache_;

@@ -7,6 +7,7 @@
 #include <binglib/electrum_api_client.hpp>
 #include <binglib/purse_accessor.hpp>
 #include <binglib/bing_wallet.hpp>
+#include "src/walletstate/wallet_state.hpp"
 #include <algorithm>
 
 using namespace boost::program_options;
@@ -63,7 +64,7 @@ struct TxBalance {
 
 //========
 
-void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_id, string tx_hex, vector<string>& addresses, vector<TxBalance>& balance_items){
+void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_id, string tx_hex, WalletState& wallet_state, vector<TxBalance>& balance_items){
     chain::transaction tx = hex_2_tx(tx_hex);
     cout << "tot out: " << tx.total_output_value() << "\n";
     vector<TxBalanceInput> balance_inputs;
@@ -71,7 +72,7 @@ void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_id, string tx_
     for (auto& i: tx.inputs()){
         string funding_tx = encode_hash(i.previous_output().hash());
         int funding_idx = i.previous_output().index();
-        chain::transaction input_tx = fetch_tx(electrum_api_client, funding_tx);
+        chain::transaction input_tx = wallet_state.get_transaction(electrum_api_client, funding_tx);
         auto& ii = input_tx.outputs().at(funding_idx);
         cout << "   input from utxo: " << funding_tx << ":" << funding_idx << " value: " << ii.value() << "\n";
         TxBalanceInput balance_input {funding_tx, funding_idx, ii.value()};
@@ -81,7 +82,7 @@ void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_id, string tx_
         wallet::payment_address::list axx = o.addresses(wallet::payment_address::testnet_p2kh, wallet::payment_address::testnet_p2sh);
         if (axx.size() > 0) {
             for (wallet::payment_address& ax: axx) {
-                bool is_in_wallet = (std::find(addresses.begin(), addresses.end(), ax.encoded()) != addresses.end());
+                bool is_in_wallet = wallet_state.is_in_wallet(ax.encoded());
                 cout << "   output value: " << o.value() << " address: " << ax << " script: "
                      << static_cast<int>(o.script().pattern()) << " in wallet=" << is_in_wallet << "\n";
                 TxBalanceOutput balance_output {ax.encoded(), static_cast<int>(o.script().pattern()), o.value(), is_in_wallet};
@@ -144,6 +145,8 @@ int main() {
     string seed_phrase = "effort canal zoo clown shoulder genuine penalty moral unit skate few quick";
     BingWallet::derive_electrum_addresses(is_testnet, seed_phrase, num_addresses0, num_addresses1, addresses, addresses_to_data);
 
+    WalletState wallet_state(addresses);
+
     vector<HistoryItem> history_items;
 
     vector<string> single_address{"mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh"};
@@ -153,12 +156,12 @@ int main() {
 
     for (HistoryItem& item: history_items){
         cout << item.txid << " " << item.address << " ";
-        analyse_tx(electrum_api_client, item.txid, item.txhex, addresses, balance_items);
+        analyse_tx(electrum_api_client, item.txid, item.txhex, wallet_state, balance_items);
     }
 
     uint64_t balance = calculate_address_balance(single_address[0], balance_items);
 
-    cout << "balance=" << balance << "\n";
+    cout << "balance=" << balance << "\n\n";
 
     return 0;
 }
