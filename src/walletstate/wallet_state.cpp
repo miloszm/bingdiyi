@@ -22,7 +22,6 @@ bool WalletState::is_in_wallet(string address) {
     return std::find(addresses_.begin(), addresses_.end(), address) != addresses_.end();
 }
 
-
 chain::transaction WalletState::hex_2_tx(string tx_hex){
     chain::transaction tx;
     data_chunk tx_chunk;

@@ -46,8 +46,18 @@ void HistoryInspector::analyse_tx_balances(string tx_id, vector<TxBalance>& bala
         int funding_idx = i.previous_output().index();
         chain::transaction funding_tx = wallet_state_.get_transaction(electrum_api_client_, funding_tx_id);
         auto& previous_output = funding_tx.outputs().at(funding_idx);
-        TxBalanceInput balance_input {funding_tx_id, funding_idx, previous_output.value()};
-        balance_inputs.push_back(balance_input);
+        wallet::payment_address::list axx = previous_output.addresses(wallet::payment_address::testnet_p2kh, wallet::payment_address::testnet_p2sh);
+        if (axx.size() > 0) {
+            for (wallet::payment_address& ax: axx) {
+                bool is_in_wallet = wallet_state_.is_in_wallet(ax.encoded());
+                TxBalanceInput balance_input {funding_tx_id, funding_idx, previous_output.value(), is_in_wallet};
+                balance_inputs.push_back(balance_input);
+                break;
+            }
+        } else {
+            TxBalanceInput balance_input {funding_tx_id, funding_idx, previous_output.value(), false};
+            balance_inputs.push_back(balance_input);
+        }
     };
     for (auto& o: tx.outputs()){
         wallet::payment_address::list axx = o.addresses(wallet::payment_address::testnet_p2kh, wallet::payment_address::testnet_p2sh);
@@ -93,4 +103,24 @@ uint64_t HistoryInspector::calc_address_balance(const string& address, vector<Tx
         ++cur_pos;
     }
     return balance;
+}
+
+int64_t HistoryInspector::calculate_tx_wallet_impact(const string& tx_id) {
+    vector<TxBalance> balance_items;
+    analyse_tx_balances(tx_id, balance_items);
+    uint64_t sum_from_wallet_inputs {0};
+    uint64_t sum_to_wallet_outputs {0};
+    for (const TxBalance& balance_item: balance_items) {
+        for (const TxBalanceInput &i: balance_item.inputs) {
+            bool inside = i.in_wallet;
+            if (inside)
+                sum_from_wallet_inputs += i.value;
+        }
+        for (const TxBalanceOutput &o: balance_item.outputs) {
+            bool inside = o.in_wallet;
+            if (inside)
+                sum_to_wallet_outputs += o.value;
+        }
+    }
+    return sum_to_wallet_outputs - sum_from_wallet_inputs;
 }

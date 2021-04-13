@@ -17,6 +17,7 @@ struct TxBalanceInput {
     string funding_tx;
     int funding_idx;
     uint64_t value;
+    bool in_wallet;
 };
 
 struct TxBalanceOutput {
@@ -41,7 +42,7 @@ public:
 
     uint64_t calculate_address_balance(const string& address);
     uint64_t calculate_total_balance();
-
+    int64_t calculate_tx_wallet_impact(const string& tx_id);
 
 private:
     WalletState& wallet_state_;

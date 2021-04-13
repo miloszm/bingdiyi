@@ -52,7 +52,9 @@ int main() {
 
     int i {1};
     for (auto& tx: sorted_txs){
-        cout << i++ << " " << tx.total_output_value() << " " << encode_hash(tx.hash()) <<"\n";
+        string tx_id = encode_hash(tx.hash());
+        int64_t impact = history_inspector.calculate_tx_wallet_impact(tx_id);
+        cout << i++ << " " << impact << " " << tx.total_output_value() << " " << tx_id <<"\n";
     }
 
     return 0;
