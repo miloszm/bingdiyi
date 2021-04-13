@@ -34,12 +34,6 @@ struct TxBalance {
 };
 
 
-struct ElectrumHistoryItem {
-    string txid;
-    int height;
-};
-
-
 class HistoryInspector {
 public:
     HistoryInspector(ElectrumApiClient &electrum_api_client, WalletState& wallet_state);
@@ -54,7 +48,6 @@ private:
     ElectrumApiClient &electrum_api_client_;
 
 private:
-    void find_history(const string& address, vector<ElectrumHistoryItem>& history_items);
     void analyse_tx_balances(string tx_id, vector<TxBalance>& balance_items);
     static uint64_t calc_address_balance(const string& address, vector<TxBalance>& balance_items);
 };

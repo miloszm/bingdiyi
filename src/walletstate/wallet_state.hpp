@@ -20,15 +20,16 @@ public:
     vector<string>& get_addresses();
     bool is_in_wallet(string address);
     transaction get_transaction(ElectrumApiClient &electrum_api_client, string txid);
-    void print_cache();
-    vector<transaction> get_all_tx_sorted(ElectrumApiClient &electrum_api_client);
-    void add_to_all_history(const AddressHistoryItem& item);
+    void get_history(ElectrumApiClient &electrum_api_client, const string& address, vector<AddressHistoryItem>& history_items);
+    vector<transaction> get_all_txs_sorted(ElectrumApiClient &electrum_api_client);
 private:
     vector<string> addresses_;
     map<string, string> tx_cache_;
+    map<string, vector<AddressHistoryItem>> address_history_cache_;
     vector<AddressHistoryItem> all_history_;
 private:
     static transaction hex_2_tx(string tx_hex);
+    void refresh_all_history(ElectrumApiClient &electrum_api_client);
 };
 
 

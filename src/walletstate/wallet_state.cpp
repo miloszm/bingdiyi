@@ -1,5 +1,6 @@
 #include <binglib/bing_common.hpp>
 #include "wallet_state.hpp"
+#include <binglib/address_converter.hpp>
 #include <algorithm>
 
 using namespace std;
@@ -46,13 +47,37 @@ chain::transaction WalletState::get_transaction(ElectrumApiClient &electrum_api_
     return hex_2_tx(tx_hex);
 }
 
-void WalletState::print_cache() {
-    for (auto e: tx_cache_){
-        cout << e.first << " -> " << e.second << "\n";
+void WalletState::get_history(ElectrumApiClient &electrum_api_client, const string& address, vector<AddressHistoryItem>& history_items){
+    vector<AddressHistoryItem> address_history = address_history_cache_[address];
+    if(address_history.empty()){
+        string address_spkh = AddressConverter::base58_to_spkh_hex(address);
+        AddressHistory history = electrum_api_client.getHistory(address_spkh);
+        for (const AddressHistoryItem& history_item: history){
+            history_items.push_back(history_item);
+        }
+        address_history_cache_[address] = history_items;
+    } else {
+        for (const AddressHistoryItem& history_item: address_history){
+            history_items.push_back(history_item);
+        }
     }
 }
 
-vector<transaction> WalletState::get_all_tx_sorted(ElectrumApiClient &electrum_api_client) {
+
+void WalletState::refresh_all_history(ElectrumApiClient &electrum_api_client) {
+    all_history_.clear();
+    for (auto& address: addresses_){
+        vector<AddressHistoryItem> history_items;
+        get_history(electrum_api_client, address, history_items);
+        for (auto& history_item: history_items){
+            all_history_.push_back(history_item);
+        }
+    }
+}
+
+
+vector<transaction> WalletState::get_all_txs_sorted(ElectrumApiClient &electrum_api_client) {
+    refresh_all_history(electrum_api_client);
     std::sort( all_history_.begin( ), all_history_.end( ), [ ]( const AddressHistoryItem& lhs, const AddressHistoryItem& rhs )
     {
         if (lhs.height != rhs.height)
@@ -68,18 +93,9 @@ vector<transaction> WalletState::get_all_tx_sorted(ElectrumApiClient &electrum_a
 
     vector<transaction> txs;
     for (const AddressHistoryItem& item: all_history_){
-        try {
-            transaction tx = get_transaction(electrum_api_client, item.txid);
-            txs.push_back(tx);
-        }
-        catch(exception& e) {
-            cerr << e.what() << "\n";
-        }
+        transaction tx = get_transaction(electrum_api_client, item.txid);
+        txs.push_back(tx);
     }
 
     return txs;
-}
-
-void WalletState::add_to_all_history(const AddressHistoryItem& item) {
-    all_history_.push_back(item);
 }

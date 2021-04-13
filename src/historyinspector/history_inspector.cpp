@@ -22,31 +22,19 @@ uint64_t HistoryInspector::calculate_total_balance(){
 }
 
 uint64_t HistoryInspector::calculate_address_balance(const string& address){
-    vector<ElectrumHistoryItem> history_items;
+    vector<AddressHistoryItem> history_items;
 
-    find_history(address, history_items);
+    wallet_state_.get_history(electrum_api_client_, address, history_items);
 
     vector<TxBalance> balance_items;
 
-    for (ElectrumHistoryItem& item: history_items){
+    for (AddressHistoryItem& item: history_items){
         analyse_tx_balances(item.txid, balance_items);
     }
 
     uint64_t balance = calc_address_balance(address, balance_items);
 
     return balance;
-}
-
-void HistoryInspector::find_history(const string& address, vector<ElectrumHistoryItem>& history_items){
-    string address_spkh = AddressConverter::base58_to_spkh_hex(address);
-    AddressHistory history = electrum_api_client_.getHistory(address_spkh);
-    for (const AddressHistoryItem& history_item: history){
-        ElectrumHistoryItem item;
-        item.txid = history_item.txid;
-        item.height = history_item.height;
-        history_items.push_back(item);
-        wallet_state_.add_to_all_history(history_item);
-    }
 }
 
 void HistoryInspector::analyse_tx_balances(string tx_id, vector<TxBalance>& balance_items){
