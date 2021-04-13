@@ -98,6 +98,35 @@ void analyse_tx(ElectrumApiClient &electrum_api_client, string tx_id, string tx_
     balance_items.push_back(tx_balance);
 }
 
+/**
+ * note: balance_items have to be in order of real time appearance of corresponding transactions
+ */
+uint64_t calculate_address_balance(string address, vector<TxBalance>& balance_items){
+    // calc address balance (single_address)
+    uint64_t balance{0};
+    int cur_pos{0};
+    for (TxBalance& balance_item: balance_items){
+        for (int oidx = 0; oidx < balance_item.outputs.size(); ++ oidx){
+            TxBalanceOutput &o = balance_item.outputs[oidx];
+            if (o.address == address){
+                balance += o.value;
+                string cur_tx = balance_item.tx_id;
+                int cur_idx = oidx;
+                for (auto j = cur_pos+1; j < balance_items.size(); ++j){
+                    TxBalance& balance_item2 = balance_items[j];
+                    for (TxBalanceInput &i: balance_item2.inputs){
+                        if (i.funding_tx == cur_tx && i.funding_idx == cur_idx){
+                            balance -= i.value;
+                        }
+                    }
+                }
+            }
+        }
+        ++cur_pos;
+    }
+    return balance;
+}
+
 
 
 int main() {
@@ -117,7 +146,7 @@ int main() {
 
     vector<HistoryItem> history_items;
 
-    vector<string> single_address{"mvhfqVtVytsTn1LzZpJ7ura59HSPGbPpRP"};
+    vector<string> single_address{"mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh"};
     PurseAccessor::find_history(electrum_api_client, libb_client, single_address, history_items);
 
     vector<TxBalance> balance_items;
@@ -127,28 +156,7 @@ int main() {
         analyse_tx(electrum_api_client, item.txid, item.txhex, addresses, balance_items);
     }
 
-    // calc address balance (single_address)
-    uint64_t balance{0};
-    int cur_pos{0};
-    for (TxBalance& balance_item: balance_items){
-        for (int oidx = 0; oidx < balance_item.outputs.size(); ++ oidx){
-            TxBalanceOutput &o = balance_item.outputs[oidx];
-            if (o.address == single_address.at(0)){
-                balance += o.value;
-                string cur_tx = balance_item.tx_id;
-                int cur_idx = oidx;
-                for (auto j = cur_pos+1; j < balance_items.size(); ++j){
-                    TxBalance& balance_item2 = balance_items[j];
-                    for (TxBalanceInput &i: balance_item2.inputs){
-                        if (i.funding_tx == cur_tx && i.funding_idx == cur_idx){
-                            balance -= i.value;
-                        }
-                    }
-                }
-            }
-        }
-        ++cur_pos;
-    }
+    uint64_t balance = calculate_address_balance(single_address[0], balance_items);
 
     cout << "balance=" << balance << "\n";
 

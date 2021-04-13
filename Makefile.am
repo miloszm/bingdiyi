@@ -24,6 +24,7 @@ eclient_SOURCES = src/config/bing_config.cpp \
 aconv_SOURCES = src/cmdtool/address_spkh.cpp
 
 history_SOURCES = src/config/bing_config.cpp \
+                  src/walletstate/wallet_state.cpp \
                   src/cmdtool/history.cpp
 
 
