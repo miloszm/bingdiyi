@@ -1,5 +1,6 @@
 #include <binglib/bing_common.hpp>
 #include "wallet_state.hpp"
+#include <algorithm>
 
 using namespace std;
 using namespace bc;
@@ -49,4 +50,36 @@ void WalletState::print_cache() {
     for (auto e: tx_cache_){
         cout << e.first << " -> " << e.second << "\n";
     }
+}
+
+vector<transaction> WalletState::get_all_tx_sorted(ElectrumApiClient &electrum_api_client) {
+    std::sort( all_history_.begin( ), all_history_.end( ), [ ]( const AddressHistoryItem& lhs, const AddressHistoryItem& rhs )
+    {
+        if (lhs.height != rhs.height)
+            return lhs.height > rhs.height;
+        else
+            return lhs.txid > rhs.txid;
+    });
+    auto last = std::unique( all_history_.begin(), all_history_.end(), [ ]( const AddressHistoryItem& lhs, const AddressHistoryItem& rhs )
+    {
+        return lhs.txid == rhs.txid;
+    });
+    all_history_.erase( last, all_history_.end() );
+
+    vector<transaction> txs;
+    for (const AddressHistoryItem& item: all_history_){
+        try {
+            transaction tx = get_transaction(electrum_api_client, item.txid);
+            txs.push_back(tx);
+        }
+        catch(exception& e) {
+            cerr << e.what() << "\n";
+        }
+    }
+
+    return txs;
+}
+
+void WalletState::add_to_all_history(const AddressHistoryItem& item) {
+    all_history_.push_back(item);
 }

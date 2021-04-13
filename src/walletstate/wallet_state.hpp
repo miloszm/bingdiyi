@@ -21,9 +21,12 @@ public:
     bool is_in_wallet(string address);
     transaction get_transaction(ElectrumApiClient &electrum_api_client, string txid);
     void print_cache();
+    vector<transaction> get_all_tx_sorted(ElectrumApiClient &electrum_api_client);
+    void add_to_all_history(const AddressHistoryItem& item);
 private:
     vector<string> addresses_;
     map<string, string> tx_cache_;
+    vector<AddressHistoryItem> all_history_;
 private:
     static transaction hex_2_tx(string tx_hex);
 };

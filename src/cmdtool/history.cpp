@@ -48,5 +48,12 @@ int main() {
 
     cout << "\n\ntotal_balance=" << total_balance << "\n\n";
 
+    vector<transaction> sorted_txs = wallet_state.get_all_tx_sorted(electrum_api_client);
+
+    int i {1};
+    for (auto& tx: sorted_txs){
+        cout << i++ << " " << tx.total_output_value() << " " << encode_hash(tx.hash()) <<"\n";
+    }
+
     return 0;
 }
