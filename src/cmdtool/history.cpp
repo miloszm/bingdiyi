@@ -44,5 +44,9 @@ int main() {
 
     cout << "\n\nbalance=" << balance << "\n\n";
 
+    uint64_t total_balance = history_inspector.calculate_total_balance();
+
+    cout << "\n\ntotal_balance=" << total_balance << "\n\n";
+
     return 0;
 }

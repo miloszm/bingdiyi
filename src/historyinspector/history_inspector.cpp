@@ -14,7 +14,11 @@ HistoryInspector::HistoryInspector(ElectrumApiClient &electrum_api_client, Walle
 HistoryInspector::~HistoryInspector(){}
 
 uint64_t HistoryInspector::calculate_total_balance(){
-    return 0;
+    uint64_t balance{0};
+    for (const string& address: wallet_state_.get_addresses()){
+        balance += calculate_address_balance(address);
+    }
+    return balance;
 }
 
 uint64_t HistoryInspector::calculate_address_balance(const string& address){
