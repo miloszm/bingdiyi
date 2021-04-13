@@ -25,6 +25,7 @@ aconv_SOURCES = src/cmdtool/address_spkh.cpp
 
 history_SOURCES = src/config/bing_config.cpp \
                   src/walletstate/wallet_state.cpp \
+                  src/historyinspector/history_inspector.cpp \
                   src/cmdtool/history.cpp
 
 
