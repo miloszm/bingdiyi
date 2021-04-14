@@ -34,7 +34,7 @@ class WalletState {
   private:
     vector<string> addresses_;
     map<string, string> txid_2_txhex_cache_;
-    map<string, vector<AddressHistoryItem>> address_history_cache_;
+    map<string, vector<AddressHistoryItem>> address_2_history_cache_;
     vector<AddressHistoryItem> all_history_;
 
   private:

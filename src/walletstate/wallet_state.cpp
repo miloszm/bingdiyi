@@ -50,14 +50,14 @@ void WalletState::get_history(ElectrumApiClient &electrum_api_client,
                               const string &address,
                               vector<AddressHistoryItem> &history_items) {
     vector<AddressHistoryItem> address_history =
-        address_history_cache_[address];
+        address_2_history_cache_[address];
     if (address_history.empty()) {
         string address_spkh = AddressConverter::base58_to_spkh_hex(address);
         AddressHistory history = electrum_api_client.getHistory(address_spkh);
         for (const AddressHistoryItem &history_item : history) {
             history_items.push_back(history_item);
         }
-        address_history_cache_[address] = history_items;
+        address_2_history_cache_[address] = history_items;
     } else {
         for (const AddressHistoryItem &history_item : address_history) {
             history_items.push_back(history_item);
