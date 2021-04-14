@@ -38,7 +38,7 @@ int main() {
 
     WalletState wallet_state(addresses);
 
-    HistoryInspector history_inspector(electrum_api_client, libb_client, wallet_state);
+    HistoryInspector history_inspector(is_testnet, electrum_api_client, libb_client, wallet_state);
 
     uint64_t balance = history_inspector.calculate_address_balance("mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh");
 
@@ -52,7 +52,7 @@ int main() {
     history_inspector.create_history_view_rows(history_view_rows);
 
     for (auto& r: history_view_rows){
-        cout << r.timestamp << " " << r.amount << " " << r.balance << " " << r.tx_id << "\n";
+        cout << r.height << " " << r.balance_delta << " " << r.balance << " " << r.tx_id << "\n";
     }
 
     return 0;
