@@ -7,8 +7,8 @@
 #include <binglib/electrum_api_client.hpp>
 #include <binglib/purse_accessor.hpp>
 #include <binglib/bing_wallet.hpp>
-#include "src/walletstate/wallet_state.hpp"
-#include "src/historyinspector/history_inspector.hpp"
+#include <binglib/wallet_state.hpp>
+#include <binglib/history_inspector.hpp>
 #include <algorithm>
 
 using namespace boost::program_options;
