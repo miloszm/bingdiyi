@@ -52,7 +52,7 @@ int main() {
     history_inspector.create_history_view_rows(history_view_rows);
 
     for (auto& r: history_view_rows){
-        cout << r.height << " " << r.balance_delta << " " << r.balance << " " << r.tx_id << "\n";
+        cout << r.height << " " << r.balance_delta << " " << r.balance << " " << r.tx_id << " p2sh=" << r.is_p2sh << "\n";
     }
 
     return 0;
