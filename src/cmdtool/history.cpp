@@ -24,9 +24,8 @@ using namespace bc::machine;
 int main() {
     LibbClient libb_client;
     libb_client.init(BingConfig::libbitcoin_server_url);
-    ElectrumClient electrum_client;
-    electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
-    ElectrumApiClient electrum_api_client(electrum_client);
+    ElectrumApiClient electrum_api_client;
+    electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
 
     bool is_testnet = true;
     int  num_addresses0 = 51;
@@ -36,7 +35,7 @@ int main() {
     string seed_phrase = "effort canal zoo clown shoulder genuine penalty moral unit skate few quick";
     BingWallet::derive_electrum_addresses(is_testnet, seed_phrase, num_addresses0, num_addresses1, addresses, addresses_to_data);
 
-    WalletState wallet_state(addresses);
+    WalletState wallet_state(addresses, addresses_to_data);
 
     HistoryInspector history_inspector(is_testnet, electrum_api_client, libb_client, wallet_state);
 
@@ -48,8 +47,8 @@ int main() {
 
     cout << "\n\ntotal_balance=" << total_balance << "\n\n";
 
-    vector<HistoryViewRow> history_view_rows;
-    history_inspector.create_history_view_rows(history_view_rows);
+    history_inspector.create_history_view_rows();
+    vector<HistoryViewRow> history_view_rows = wallet_state.get_history_update();
 
     for (auto& r: history_view_rows){
         cout << r.height << " " << r.balance_delta << " " << r.balance << " " << r.tx_id << " p2sh=" << r.is_p2sh << "\n";

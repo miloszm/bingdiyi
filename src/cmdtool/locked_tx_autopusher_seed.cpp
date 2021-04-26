@@ -68,9 +68,8 @@ int main(int argc, char* argv[]){
     try {
         LibbClient libb_client;
         libb_client.init(BingConfig::libbitcoin_server_url);
-        ElectrumClient electrum_client;
-        electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
-        ElectrumApiClient electrum_api_client(electrum_client);
+        ElectrumApiClient electrum_api_client;
+        electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
 
         string help_text = "\nYou only provide Electrum mnemonic seed phrase and the program will\n" \
                 "find the funding transaction automatically.\n\n" \

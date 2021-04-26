@@ -8,9 +8,8 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
   try {
-    ElectrumClient electrum_client;
-
-    electrum_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
+    ElectrumApiClient electrum_api_client;
+    electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
 
 //    json banner_request =
 //        R"({"jsonrpc":"2.0","method":"server.banner","id":1712})"_json;
@@ -28,7 +27,6 @@ int main(int argc, char *argv[]) {
 
     cout << "========================== \n";
 
-    ElectrumApiClient electrum_api_client(electrum_client);
     string addr {AddressConverter::base58_to_spkh_hex("mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE")};
 //    vector<string> addresses{addr};
 //    vector<AddressHistory> histories = electrum_api_client.getHistory(addresses);
