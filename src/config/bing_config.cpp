@@ -10,6 +10,8 @@ const uint16_t BingConfig::libbitcoin_connection_timeout_seconds {8};
 //  ("blockstream.info", "993");
 //  ("testnet.qtornado.com", "51002");
 //  ("testnet.electrumx.hodlwallet.com", "51002");
-const string BingConfig::electrum_server_host {"testnet.electrumx.hodlwallet.com"};
-const string BingConfig::electrum_server_service {"51002"};
+//  ("testnet.hsmiths.com", "53012");
+const string BingConfig::electrum_server_host {"testnet.hsmiths.com"};
+const string BingConfig::electrum_server_service {"53012"};
 const string BingConfig::electrum_cert_file_path {"cert.crt"};
+
