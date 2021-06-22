@@ -1,5 +1,5 @@
 #include "src/common/bing_common.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/address_converter.hpp>
 

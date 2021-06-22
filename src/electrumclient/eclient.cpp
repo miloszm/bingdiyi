@@ -1,14 +1,14 @@
 #include <iostream>
 #include <binglib/address_converter.hpp>
 #include "src/config/bing_config.hpp"
-#include <binglib/electrum_api_client.hpp>
+#include <binglib/ronghua_client.hpp>
 
 using json = nlohmann::json;
 using namespace std;
 
 int main(int argc, char *argv[]) {
   try {
-    ElectrumApiClient electrum_api_client;
+    RonghuaClient electrum_api_client;
     electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
 
 //    json banner_request =

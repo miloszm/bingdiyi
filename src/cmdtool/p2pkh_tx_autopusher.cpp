@@ -1,6 +1,6 @@
 #include "src/common/bing_common.hpp"
 #include "src/config/bing_config.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/online_p2pkh_tx_creator.hpp>
 #include <binglib/libb_client.hpp>

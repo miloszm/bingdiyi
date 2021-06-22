@@ -1,12 +1,12 @@
 #include "src/common/bing_common.hpp"
 #include <chrono>
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <binglib/purse_accessor.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/bing_wallet.hpp>
 #include "src/config/bing_config.hpp"
-#include <binglib/electrum_api_client.hpp>
+#include <binglib/ronghua_client.hpp>
 #include <binglib/libb_client.hpp>
 
 
@@ -19,7 +19,7 @@ using namespace bc::machine;
 using namespace std::chrono;
 
 
-void create_time_locking_transaction_from_seed(LibbClient &libb_client, ElectrumApiClient &electrum_api_client, const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
+void create_time_locking_transaction_from_seed(LibbClient &libb_client, RonghuaClient &electrum_api_client, const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
     bool is_testnet = true;
     int  num_addresses0 = 51;
     int  num_addresses1 = 15;
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
     try {
         LibbClient libb_client;
         libb_client.init(BingConfig::libbitcoin_server_url);
-        ElectrumApiClient electrum_api_client;
+        RonghuaClient electrum_api_client;
         electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
 
         string help_text = "\nYou only provide Electrum mnemonic seed phrase and the program will\n" \
