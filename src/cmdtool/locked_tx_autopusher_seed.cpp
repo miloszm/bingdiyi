@@ -38,7 +38,6 @@ void create_time_locking_transaction_from_seed(LibbClient &libb_client, RonghuaC
 
     map<string, uint64_t> address_to_balance;
     AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses, address_to_balance);
-//    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
     for (auto a: address_to_balance){
         cout << a.first << " " << a.second << "\n";
     }
@@ -61,16 +60,14 @@ void create_time_locking_transaction_from_seed(LibbClient &libb_client, RonghuaC
     string source_address = funds.address;
     ec_private private_key = addresses_to_data[funds.address].priv_key_ec;
 
-    OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
+    LockTxInfo lock_tx_info = OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(electrum_api_client, source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
+    cout << lock_tx_info.unlocking_info << "\n";
+    cout << lock_tx_info.locking_tx << "\n";
+
 }
 
 int main(int argc, char* argv[]){
     try {
-        LibbClient libb_client;
-        libb_client.init(BingConfig::libbitcoin_server_url);
-        RonghuaClient electrum_api_client;
-        electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
-
         string help_text = "\nYou only provide Electrum mnemonic seed phrase and the program will\n" \
                 "find the funding transaction automatically.\n\n" \
                 "Note that all funds must be under a single address, multiple addresses will not\n" \
@@ -113,7 +110,14 @@ int main(int argc, char* argv[]){
         // note: must be after help option check
         notify(vm);
 
+        LibbClient libb_client;
+        libb_client.init(BingConfig::libbitcoin_server_url);
+        RonghuaClient electrum_api_client;
+        electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
+
         create_time_locking_transaction_from_seed(libb_client, electrum_api_client, amount_to_transfer, fee, lock_until, seed_phrase);
+
+        electrum_api_client.stop();
         return 0;
     }
     catch(exception& e) {

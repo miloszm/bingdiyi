@@ -40,3 +40,122 @@ similar to locked_tx_pusher but:
 transaction created by locked_tx_autopusher can be spent by
 locked_tx_spender, transaction UTXO is the same as from locked_tx_pusher
   
+***
+# crlocktx
+
+Creates transaction to lock funds via p2sh
+
+Required options:
+```
+-h [ --help ]           print usage message
+--addr arg              funding address
+-p [ --priv-key ] arg   private key to unlock the funding transaction (in WIF format)
+-t [ --txid ] arg       funding transaction id
+-v [ --vout ] arg       funding transaction output index (vout)
+--amount arg            amount to transfer (satoshis)
+-l [ --lock-until ] arg lock until epoch time (seconds)
+```
+example:
+```
+--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq
+```
+
+You can find funding transaction by:
+1) bx fetch-balance <funding_address>
+2) if the balance is sufficient, do:
+   bx fetch-utxo <desired-amount-in-satoshis> <funding-address>
+3) choose one utxo and capture 'hash' as funding transaction id
+   and 'index' as funding transaction output index (vout)
+   Note that the amount to transfer must be smaller than the available amount in utxo
+   so that the remainder can be used as a fee.
+   This program does not give change, you need to use up the entire amount
+   from the UTXO (divided to funds being locked and to a fee).
+   For 'lock until' time, use any available online epoch time converter,
+   note that epoch must be in seconds, not milliseconds. Also note, that the actual
+   unlocking time will be delayed by around 7 blocks.
+
+Private key can be found in your wallet, in Electrum, go to tab 'Addresses',
+highlight the desired address, right click and choose `private key'.
+Ignore script type part of the key, like 'p2pkh', copy only the key part.
+
+This is an offline program, it produces transaction in a hex format that can be broadcast
+using any means, for example via 'bx send-tx <tx>' or any online transaction
+broadcast drop-off place.
+
+Remember that you need to store the unlocking data as printed out by this program,
+otherwise your funds will be lost.
+
+
+***
+# crlocktx2
+
+Creates transaction to lock funds via p2sh
+Unlike crlocktx, it does give the rest.
+It does not require funding transaction so it is easier to use than crlocktx
+
+Required options:
+```
+-h [ --help ]           print usage message
+--addr arg              funding address
+-p [ --priv-key ] arg   private key for the funding address (in WIF format)
+--amount arg            amount to transfer (satoshis)
+-f [ --fee ] arg        fee (satoshis), note: amount+fee <= available funds
+-l [ --lock-until ] arg lock until epoch time (seconds)
+```
+example:
+```
+--amount=890000 --fee=5000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq
+```
+
+You can find funding address by inspecting your wallet.
+Note that the amount to transfer plus fee must be smaller than or equal to the available amount for a given address.
+This program does give change, if any, it will be transferred back into the source address.
+For 'lock until' time, use any available online epoch time converter,
+note that epoch must be in seconds, not milliseconds. Also note, that the actual
+unlocking time will be delayed by around 7 blocks.
+Private key can be found in your wallet, in Electrum, go to tab 'Addresses',
+highlight the desired address, right click and choose `private key'.
+Ignore script type part of the key, like 'p2pkh', copy only the key part.
+
+This program produces transaction in a hex format that can be broadcast
+using any means, for example via 'bx send-tx <tx>' or any online transaction
+broadcast drop-off place.
+
+Remember that you need to store the unlocking data as printed out by this program,
+otherwise your funds will be lost.
+
+***
+# crlocktx3
+
+Creates transaction to lock funds via p2sh
+Requires only the seed phrase, finds funding transaction(s) automatically.
+
+Required options:
+```
+-h [ --help ]           print usage message
+-s [ --seed ] arg       Electrum seed phrase
+--amount arg            amount to transfer (satoshis)
+-f [ --fee ] arg        fee (satoshis), note: amount+fee <= available funds
+-l [ --lock-until ] arg lock until epoch time (seconds)
+```
+example:
+```
+--amount=890000 --fee=5000 --l=1616255000 --s="effort canal zoo clown shoulder genuine penalty moral unit skate few quick"
+```
+You only provide Electrum mnemonic seed phrase and the program will
+find the funding transaction(s) automatically.
+
+Note that all funds must be under a single address, multiple addresses will not
+be gathered to contribute their funds to the desired amount.
+
+This program gives change, it will be transferred back into the source address.
+For 'lock until' time, use any available online epoch time converter,
+note that epoch must be in seconds, not milliseconds. Also note, that the actual
+unlocking time will be delayed by around 7 blocks.
+
+This program produces transaction in a hex format that can be broadcast
+using any means, for example via 'bx send-tx <tx>' or any online transaction
+broadcast drop-off place.
+
+Remember that you need to store the unlocking data as printed out by this program,
+otherwise your funds will be lost.

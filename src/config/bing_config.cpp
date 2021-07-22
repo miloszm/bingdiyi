@@ -2,7 +2,7 @@
 
 // "tcp://mainnet.libbitcoin.net:9091"
 // "tcp://mainnet2.libbitcoin.net:9091"
-const string BingConfig::libbitcoin_server_url {"tcp://testnet1.libbitcoin.net:19091"};
+const string BingConfig::libbitcoin_server_url {"tcp://testnet2.libbitcoin.net:19091"};
 const uint8_t BingConfig::libbitcoin_connection_retries {3};
 const uint16_t BingConfig::libbitcoin_connection_timeout_seconds {8};
 
