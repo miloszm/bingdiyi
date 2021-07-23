@@ -38,6 +38,8 @@ void create_time_locking_transaction_from_seed(LibbClient &libb_client, RonghuaC
 
     map<string, uint64_t> address_to_balance;
     AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses, address_to_balance);
+    cout << "funds look_for_funds_by_balance finished ===" << "\n";
+
     for (auto a: address_to_balance){
         cout << a.first << " " << a.second << "\n";
     }
@@ -85,7 +87,7 @@ int main(int argc, char* argv[]){
         uint64_t amount_to_transfer {0};
         uint64_t fee {0};
         uint32_t lock_until {0};
-        string seed_phrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
+        string seed_phrase {""};
 
         options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");
         desc.add_options()
@@ -102,7 +104,7 @@ int main(int argc, char* argv[]){
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--amount=890000 --fee=5000 --l=1616255000 --s=""\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\"" << "\n";
+            cout << "--amount=90000 --fee=5000 --l=1616255000 --s=\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\"" << "\n";
             cout << help_text << "\n";
             return 1;
         }

@@ -1,4 +1,4 @@
-AC_INIT([bing], [0.0.2], [mm@example.com])
+AC_INIT([bingdiyi], [0.4.0], [mm@labzm.com])
 
 AM_INIT_AUTOMAKE([subdir-objects])
 

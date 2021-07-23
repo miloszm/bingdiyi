@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
                 "===== data to unlock: ====\n" \
                 "lock time: 1616418000\n" \
                 "private key of address: mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh\n" \
-                "available amount: 210000\n" \
+                "available amount: 210000 satoshi\n" \
                 "from ^^ please subtract fee\n" \
                 "funding transaction id to unlock: 085f3e80771036a68ee4116fdb208eb44ffadce70fcd9d77cf935537535d0b27\n" \
                 "desired target address to which the unlocked funds will be transferred\n" \

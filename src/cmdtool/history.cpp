@@ -2,9 +2,6 @@
 #include "src/config/bing_config.hpp"
 #include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
-#include <binglib/online_lock_tx_creator.hpp>
-#include <binglib/libb_client.hpp>
-#include <binglib/purse_accessor.hpp>
 #include <binglib/bing_wallet.hpp>
 #include <binglib/wallet_state.hpp>
 #include <binglib/history_inspector.hpp>
@@ -18,48 +15,66 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
-int main() {
-    LibbClient libb_client;
-    libb_client.init(BingConfig::libbitcoin_server_url);
-    RonghuaClient& electrum_api_client = *new RonghuaClient();
-    electrum_api_client.init(BingConfig::electrum_server_host,
-                             BingConfig::electrum_server_service,
-                             BingConfig::electrum_cert_file_path);
+int main(int argc, char* argv[]) {
+    try {
+        string seed_phrase{""};
+        int num_addresses0 = 50;
+        int num_addresses1 = 50;
+        bool is_testnet = true;
+        options_description desc("Displays wallet history\n\nRequired options");
+        desc.add_options()
+                ("help,h", "print usage message")
+                ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
+                ("receiving addresses,r", value<int>(&num_addresses0), "number of receiving addresses")
+                ("change addresses,c", value<int>(&num_addresses1), "number of change addresses")
+                ;
 
-    bool is_testnet = true;
-    int num_addresses0 = 51;
-    int num_addresses1 = 15;
-    vector<string> addresses;
-    map<string, AddressDerivationResult> addresses_to_data;
-    string seed_phrase =
-        "effort canal zoo clown shoulder genuine penalty moral unit skate few quick";
-    BingWallet::derive_electrum_addresses(is_testnet, seed_phrase,
-                                          num_addresses0, num_addresses1,
-                                          addresses, addresses_to_data);
+        variables_map vm;
+        store(parse_command_line(argc, argv, desc), vm);
 
-    WalletState wallet_state(addresses, addresses_to_data);
+        if (vm.count("help") || argc <= 1) {
+            cout << "\n\n" << desc << "\n";
+            cout << "example:" << "\n";
+            cout
+                    << "--r=50 --c=50 --s=""\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\""
+                    << "\n";
+            return 1;
+        }
 
-    RonghuaClientProvider ronghua_client_provider(electrum_api_client);
-    HistoryInspector history_inspector(is_testnet, ronghua_client_provider,
-                                       wallet_state);
+        // note: must be after help option check
+        notify(vm);
 
-    uint64_t balance = history_inspector.calculate_address_balance(
-        "mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh");
+        RonghuaClient electrum_api_client;
+        electrum_api_client.init(BingConfig::electrum_server_host,
+                                 BingConfig::electrum_server_service,
+                                 BingConfig::electrum_cert_file_path);
 
-    cout << "\n\nbalance=" << balance << "\n\n";
+        vector<string> addresses;
+        map<string, AddressDerivationResult> addresses_to_data;
+        BingWallet::derive_electrum_addresses(is_testnet, seed_phrase,
+                                              num_addresses0, num_addresses1,
+                                              addresses, addresses_to_data);
 
-    uint64_t total_balance = history_inspector.calculate_total_balance();
+        WalletState wallet_state(addresses, addresses_to_data);
 
-    cout << "\n\ntotal_balance=" << total_balance << "\n\n";
+        RonghuaClientProvider ronghua_client_provider(electrum_api_client);
+        HistoryInspector history_inspector(is_testnet, ronghua_client_provider,
+                                           wallet_state);
 
-    history_inspector.create_history_view_rows(true);
-    vector<HistoryViewRow> history_view_rows =
-        wallet_state.get_history_update();
+        history_inspector.create_history_view_rows(true);
+        vector<HistoryViewRow> history_view_rows =
+                wallet_state.get_history_update();
 
-    for (auto &r : history_view_rows) {
-        cout << r.height << " " << r.balance_delta << " " << r.balance << " "
-             << r.tx_id << " p2sh=" << r.is_p2sh << "\n";
+        cout << "<block>:<amount>:<balance>:<txid>:<p2sh>" << "\n";
+        for (auto &r : history_view_rows) {
+            cout << r.height << " " << r.balance_delta << " " << r.balance << " "
+                 << r.tx_id << " p2sh=" << r.is_p2sh << "\n";
+        }
+
+        electrum_api_client.stop();
+        return 0;
     }
-
-    return 0;
+    catch(exception& e) {
+        cerr << e.what() << "\n";
+    }
 }

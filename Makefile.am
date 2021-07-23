@@ -1,4 +1,4 @@
-bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv main history history_ronghua
+bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv main history balance
 
 main_SOURCES = src/config/bing_config.cpp \
                src/main.cpp
@@ -26,9 +26,8 @@ aconv_SOURCES = src/cmdtool/address_spkh.cpp
 history_SOURCES = src/config/bing_config.cpp \
                   src/cmdtool/history.cpp
 
-history_ronghua_SOURCES = src/config/bing_config.cpp \
-                  src/cmdtool/history_ronghua.cpp
-
+balance_SOURCES = src/config/bing_config.cpp \
+                  src/cmdtool/balance.cpp
 
 
 main_LDADD= @bitcoin_client_LIBS@
@@ -51,4 +50,4 @@ aconv_LDADD= @libbinglib_LIBS@
 
 history_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
 
-history_ronghua_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
+balance_LDADD= @openssl_libcrypto_LIBS@ @openssl_libssl_LIBS@ @libbinglib_LIBS@
