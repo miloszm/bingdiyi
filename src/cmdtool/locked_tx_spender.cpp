@@ -81,22 +81,6 @@ void construct_raw_transaction(
     cout << "==========================" << "\n";
 }
 
-int main2() {
-    const string version {"0.001"};
-    cout << "locked_tx_spender" << "\n";
-    cout << "version:" << version << "\n";
-
-    const string priv_key_wif {"cPtUaUxmB7kd2r2HNJDr5UuhRFCnu1RV7dUX95Rg6av3RrJkumZn"};
-    const string src_txid {"29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba"};
-    const int src_vout {0};
-    const uint64_t amount_to_transfer {880000};
-    const uint32_t lock_until = 1616255893;
-    const string target_addr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
-
-    construct_raw_transaction(priv_key_wif, src_txid, src_vout, lock_until, target_addr, amount_to_transfer);
-    return 0;
-}
-
 int main(int argc, char* argv[]) {
     try {
         string help_text = "\nYou need to have the following items of information available\n" \

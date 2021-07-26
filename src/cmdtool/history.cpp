@@ -1,5 +1,4 @@
 #include "src/common/bing_common.hpp"
-#include "src/config/bing_config.hpp"
 #include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/bing_wallet.hpp>
@@ -17,16 +16,19 @@ using namespace bc::machine;
 
 int main(int argc, char* argv[]) {
     try {
+        const int DEFAULT_NUM_RCV_ADDRESSES {50};
+        const int DEFAULT_NUM_CHG_ADDRESSES {50};
+        int num_rcv_addresses {DEFAULT_NUM_RCV_ADDRESSES};
+        int num_chg_addresses {DEFAULT_NUM_CHG_ADDRESSES};
         string seed_phrase{""};
-        int num_addresses0 = 50;
-        int num_addresses1 = 50;
-        bool is_testnet = true;
+        bool is_testnet {true};
         options_description desc("Displays wallet history\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
-                ("receiving addresses,r", value<int>(&num_addresses0), "number of receiving addresses")
-                ("change addresses,c", value<int>(&num_addresses1), "number of change addresses")
+                ("receiving addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
+                ("change addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
+                ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
                 ;
 
         variables_map vm;
@@ -44,15 +46,22 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
+        std::ifstream ifs("config.json");
+        json config_json = json::parse(ifs);
+        string blockchain = is_testnet ? "testnet" : "mainnet";
+        string electrum_server_host = config_json[blockchain]["electrum_connection"]["host"];
+        string electrum_server_service = config_json[blockchain]["electrum_connection"]["service"];
+        string electrum_cert_file_path = config_json[blockchain]["electrum_connection"]["cert_file_path"];
+
         RonghuaClient electrum_api_client;
-        electrum_api_client.init(BingConfig::electrum_server_host,
-                                 BingConfig::electrum_server_service,
-                                 BingConfig::electrum_cert_file_path);
+        electrum_api_client.init(electrum_server_host,
+                                 electrum_server_service,
+                                 electrum_cert_file_path);
 
         vector<string> addresses;
         map<string, AddressDerivationResult> addresses_to_data;
         BingWallet::derive_electrum_addresses(is_testnet, seed_phrase,
-                                              num_addresses0, num_addresses1,
+                                              num_rcv_addresses, num_chg_addresses,
                                               addresses, addresses_to_data);
 
         WalletState wallet_state(addresses, addresses_to_data);

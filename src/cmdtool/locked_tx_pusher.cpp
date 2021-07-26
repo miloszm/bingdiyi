@@ -92,29 +92,6 @@ void construct_p2sh_time_locking_transaction_from_tx(
     cout << "==========================" << "\n";
 }
 
-int main2() {
-    const string version {"0.001"};
-    cout << "locked_tx_pusher" << "\n";
-    cout << "version:" << version << "\n";
-    /**
-     * 1. source address (for reference only)
-     * 2. private key for source_addr (note source address as SA)
-     * 3. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
-     * 4. source transaction's output index (as found out via bx fetch-utxo <satoshis> SA)
-     * 5. amount to transfer in Satoshis
-     * 6. lock until epoch time (in seconds)
-     */
-    const string src_addr = "12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4";
-    const string priv_key_wif {"L4uNXb2MvLmAtbVMbYg7XsSjgemmyPCnVFaqB4ZX39g8GGNQGqFR"}; // SA = 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const string src_txid {"22667c482f0f69daefabdf0969be53b8d539e1d2abbfc1c7a193ae38ec0d3e31"}; // bx fetch-utxo 80000 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const int src_vout {0};
-    const uint64_t amount_to_transfer {51000};
-    const uint32_t lock_until = 1615381200;
-
-    construct_p2sh_time_locking_transaction_from_tx(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
-    return 0;
-}
-
 int main(int argc, char* argv[]) {
     try {
         string help_text = "\nYou can find funding transaction by: \n" \
