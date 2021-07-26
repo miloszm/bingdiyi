@@ -1,0 +1,22 @@
+{
+  "testnet": {
+    "libbitcoin_connection": {
+      "url": "tcp://testnet2.libbitcoin.net:19091"
+    },
+    "electrum_connection": {
+      "host": "testnet.electrumx.hodlwallet.com",
+      "service": "51002",
+      "cert_file_path": "cert.crt"
+    }
+  },
+  "mainnet": {
+    "libbitcoin_connection": {
+      "url": "tcp://mainnet2.libbitcoin.net:9091"
+    },
+    "electrum_connection": {
+      "host": "electrumx.ultracloud.tk",
+      "service": "50002",
+      "cert_file_path": "cert.crt"
+    }
+  }
+}

@@ -5,7 +5,6 @@
 #include <boost/program_options.hpp>
 #include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/bing_wallet.hpp>
-#include "src/config/bing_config.hpp"
 #include <binglib/ronghua_client.hpp>
 #include <binglib/libb_client.hpp>
 
@@ -17,13 +16,17 @@ using namespace bc::wallet;
 using namespace bc::machine;
 using namespace std::chrono;
 
+
+using json = nlohmann::json;
+
+
+
 void create_time_locking_transaction_from_seed(
     LibbClient &libb_client, RonghuaClient &electrum_api_client,
     const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee,
     const uint32_t lock_until, const string seed_phrase,
-    int num_rcv_addresses, int num_chg_addresses) {
+    int num_rcv_addresses, int num_chg_addresses, bool is_testnet) {
     try {
-        bool is_testnet = true;
         uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
 
         vector<string> addresses;
@@ -108,6 +111,7 @@ int main(int argc, char *argv[]) {
         uint64_t fee{0};
         uint32_t lock_until{0};
         string seed_phrase{""};
+        bool is_testnet {true};
 
         options_description desc(
             "Creates transaction to lock funds via p2sh\n\nRequired options");
@@ -118,7 +122,8 @@ int main(int argc, char *argv[]) {
             ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
             ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
             ("receiving addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
-            ("change addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses");
+            ("change addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
+            ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
 
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
@@ -145,17 +150,26 @@ int main(int argc, char *argv[]) {
             num_chg_addresses = DEFAULT_NUM_CHG_ADDRESSES;
         }
 
+        std::ifstream ifs("config.json");
+        json config_json = json::parse(ifs);
+        string blockchain = is_testnet ? "testnet" : "mainnet";
+        string libbitcoin_server_url = config_json[blockchain]["libbitcoin_connection"]["url"];
+        string electrum_server_host = config_json[blockchain]["electrum_connection"]["host"];
+        string electrum_server_service = config_json[blockchain]["electrum_connection"]["service"];
+        string electrum_cert_file_path = config_json[blockchain]["electrum_connection"]["cert_file_path"];
+
         LibbClient libb_client;
-        libb_client.init(BingConfig::libbitcoin_server_url);
+        libb_client.init(libbitcoin_server_url);
         RonghuaClient electrum_api_client;
-        electrum_api_client.init(BingConfig::electrum_server_host,
-                                 BingConfig::electrum_server_service,
-                                 BingConfig::electrum_cert_file_path);
+        electrum_api_client.init(electrum_server_host,
+                                 electrum_server_service,
+                                 electrum_cert_file_path);
 
         create_time_locking_transaction_from_seed(
             libb_client, electrum_api_client, amount_to_transfer, fee,
-            lock_until, seed_phrase, num_rcv_addresses, num_chg_addresses);
+            lock_until, seed_phrase, num_rcv_addresses, num_chg_addresses, is_testnet);
 
+        electrum_api_client.do_interrupt();
         electrum_api_client.stop();
         return 0;
     } catch (exception &e) {
