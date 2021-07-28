@@ -436,3 +436,14 @@ example:
 ```
 --a=mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE
 ```
+
+
+***
+## how to build
+check out the project into a folder, cd to it and issue the following commands:
+```shell
+$ autoreconf -i
+$ ./configure
+$ make
+```
+prerequisite: build and install project binglib
