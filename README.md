@@ -1,4 +1,95 @@
-btc utility based on libbitcoin-explorer
+# btc locking utilities
+
+## summary:
+
+```
+crtx        - create p2pkh payment transaction from funding transaction (offline)
+crtx2       - create p2pkh payment transaction from address (online-L)
+crlocktx    - create lock transaction from funding transaction (offline)
+crlocktx2   - create lock transaction from address (online-L)
+crlocktx3   - create lock transaction from a wallet created from seed (online-LE)
+crunlocktx  - create unlock (spend) transaction (offline)
+history     - show history of a wallet created from seed (online-E)
+balance     - show balance of a wallet created from seed or given address' balance (online-E)
+eclient     - demos electrum server calls: banner, history, balance (online-E)
+lclient     - demos programmatic bx call: fetch-height, broadcast (online-L)
+aconv       - converts address to EPS/EPSMI/Electrum Server address history key (offline)
+
+E - uses Electrum server
+L - uses Libbitcoin server
+LE - uses both Libbitcoin and Electrum servers
+```
+
+This little set of utilities uses library binglib which is again used for wallet operations in
+a the UI wallet LabZM. This code was meant as manual testing utility for the binglib library.
+The library is based on libbitcoin and the API provided by Electrum servers.
+Some implementation ideas were inspired by Electrum Personal Server and
+its Scala version, but really big thanks to excellent blogs of http://aaronjaramillo.org.
+Scripthash subscription and header subscription mechanisms are used
+by the wallet although they are not used here.
+Utilities like crlocktx3 and clunlocktx can be used to lock and unlock bitcoin,
+although doing it via the UI wallet is probably much easier and less error-prone.
+
+Unfortunately, big step of supporting SegWit is still not done, not to mention Taproot.
+Consolation is that locking is intended to be done very rarely, so that blockchain should not
+be polluted by legacy transactions too much.
+
+All utilities support mainnet and testnet, online commands require --t=false for mainnet
+and --t=true for testnet, which is the default.
+
+## servers
+
+Bingdiyi commands connect to 2 servers - libbitcoin server and Electrum server.
+Server urls are contained in config.json file. Feel free to change the server data there.
+To look up current libbitcoin servers' status, see:
+https://github.com/libbitcoin/libbitcoin-server/wiki/Community-Servers
+If you'd like to change the default Electrum server chosen,
+easies way is to click the green button in your Electrum wallet, and grab
+server url from there, then change config.json accordingly.
+Here is an example config.json:
+```
+{
+  "testnet": {
+    "libbitcoin_connection": {
+      "url": "tcp://testnet2.libbitcoin.net:19091"
+    },
+    "electrum_connection": {
+      "host": "testnet.electrumx.hodlwallet.com",
+      "service": "51002",
+      "cert_file_path": "cert.crt"
+    }
+  },
+  "mainnet": {
+    "libbitcoin_connection": {
+      "url": "tcp://mainnet2.libbitcoin.net:9091"
+    },
+    "electrum_connection": {
+      "host": "electrumx.ultracloud.tk",
+      "service": "50002",
+      "cert_file_path": "cert.crt"
+    }
+  }
+}
+```
+These values worked fine for me at the time of writing, but chances are, especially
+for the Electrum server, that you'll have to update these values.
+UI wallet uses multiple Electrum servers and automatic peer discovery mechanism, this
+utility only uses a single server, so if the server is down, you need to manually
+find out another server's url. Please note that only one utility, crlocktx3 uses
+both Libbitcoin and Electrum servers, the rest uses servers as indicated in 
+the summary - either L for Libbitcoin or E for Electrum.
+
+## help
+
+Every command utility, when invoked with no parameters, or with --h or --help parameter, will show
+help information which should be sufficient to use the command. For completeness, this help information
+is also included in this README file.
+
+
+
+
+
+
 
 ***
 locked_tx_pusher - 100% offline tool
