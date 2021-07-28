@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
         uint64_t amount_to_transfer;
         uint64_t fee;
         string target_addr;
-        options_description desc("Creates transaction to transfer funds via p2pkh\n\nRequired options");
+        options_description desc("Creates transaction to transfer funds via p2pkh. Finds funding transaction(s) based on funding address.\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("addr", value<string>(&src_addr)->required(), "funding address")

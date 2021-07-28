@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
     try {
         string addr_base58;
 
-        options_description desc("Converts address to scripthash as used by EPS/EPSMI/Electrum Server address history key");
+        options_description desc("Converts address to scripthash as used by EPS/EPSMI/Electrum Server address history key.\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("addr", value<string>(&addr_base58)->required(), "source address");

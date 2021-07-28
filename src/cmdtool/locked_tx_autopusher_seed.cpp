@@ -117,7 +117,8 @@ int main(int argc, char *argv[]) {
         bool is_testnet {true};
 
         options_description desc(
-            "Creates transaction to lock funds via p2sh\n\nRequired options");
+            "Creates transaction to lock funds via p2sh\n" \
+            "Requires only the seed phrase, finds funding transaction(s) automatically.\n\nRequired options");
         desc.add_options()
             ("help,h", "print usage message")
             ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")

@@ -49,7 +49,8 @@ int main(int argc, char* argv[]) {
         uint64_t fee;
         uint32_t lock_until;
         bool is_testnet {true};
-        options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");
+        options_description desc("Creates transaction to lock funds via p2sh. Unlike crlocktx, it does give the rest.\n" \
+                                 "It does not require funding transaction so it is easier to use than crlocktx.\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("addr", value<string>(&src_addr)->required(), "funding address")
