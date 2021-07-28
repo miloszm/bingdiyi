@@ -282,7 +282,7 @@ Required options:
 ```
 example:
 ```
---amount=90000 --fee=5000 --l=1616255000 --s="effort canal zoo clown shoulder genuine penalty moral unit skate few quick" --t=true
+--amount=90000 --fee=5000 --l=1616255000 --s="effort canal zoo ... few quick" --t=true
 ```
 You only provide Electrum mnemonic seed phrase and the program will
 find the funding transaction automatically.
@@ -369,7 +369,7 @@ Required options:
 ```
 example:
 ```
---r=50 --c=50 --s="effort canal zoo clown shoulder genuine penalty moral unit skate few quick" --t=true
+--r=50 --c=50 --s="effort canal zoo ... few quick" --t=true
 ```
 
 ***
@@ -390,7 +390,7 @@ Required options:
 ```
 example:
 ```
---r=50 --c=50 --s="effort canal zoo clown shoulder genuine penalty moral unit skate few quick" --t=true
+--r=50 --c=50 --s="effort canal zoo ... few quick" --t=true
 ```
 
 ***
@@ -430,5 +430,5 @@ Required options:
 ```
 example:
 ```
---a=1FpeH5RojTMpaUS8oreYBRtMpCk1mfVxcf
+--a=mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE
 ```

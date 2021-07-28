@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
             cout << "example:"
                  << "\n";
             cout
-                << "--amount=90000 --fee=5000 --l=1616255000 --s=\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\" --t=true"
+                << "--amount=90000 --fee=5000 --l=1616255000 --s=\"effort canal zoo ... few quick\" --t=true"
                 << "\n";
             cout << help_text << "\n";
             return 1;

@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
             cout
-                    << "--r=50 --c=50 --s=""\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\" --t=true"
+                    << "--r=50 --c=50 --s=""\"effort canal zoo ... few quick\" --t=true"
                     << "\n";
             return 1;
         }
