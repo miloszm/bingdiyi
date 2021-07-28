@@ -1,5 +1,23 @@
+/**
+ * Copyright (c) 2020-2021 bingdiyi developers (see AUTHORS)
+ *
+ * This file is part of bingdiyi.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "src/common/bing_common.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <binglib/redeem_script.hpp>
 #include <boost/program_options.hpp>
 
@@ -73,28 +91,10 @@ void construct_raw_transaction(
 
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-    cout << "==========================" << "\n";
     std::cout << "Transaction to be sent to unlock the funds: " << std::endl;
     std::cout << encode_base16(tx.to_data()) << std::endl;
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-    cout << "==========================" << "\n";
-}
-
-int main2() {
-    const string version {"0.001"};
-    cout << "locked_tx_spender" << "\n";
-    cout << "version:" << version << "\n";
-
-    const string priv_key_wif {"cPtUaUxmB7kd2r2HNJDr5UuhRFCnu1RV7dUX95Rg6av3RrJkumZn"};
-    const string src_txid {"29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba"};
-    const int src_vout {0};
-    const uint64_t amount_to_transfer {880000};
-    const uint32_t lock_until = 1616255893;
-    const string target_addr {"mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE"};
-
-    construct_raw_transaction(priv_key_wif, src_txid, src_vout, lock_until, target_addr, amount_to_transfer);
-    return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -105,19 +105,20 @@ int main(int argc, char* argv[]) {
                 " 2) private key of the source address (from where the funds originated before locking)\n" \
                 " 3) available amount (from which the fee needs to be subtracted)\n" \
                 " 4) funding (locking) transaction id to unlock\n" \
-                "You will also need the target address where the funds should be transferred to.\n\n" \
+                "You will also need the destination address where the funds should be transferred to.\n\n" \
                 "An example unlocking information looks as follows:\n" \
                 "===== data to unlock: ====\n" \
                 "lock time: 1616418000\n" \
                 "private key of address: mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh\n" \
-                "available amount: 210000\n" \
+                "available amount: 210000 satoshi\n" \
                 "from ^^ please subtract fee\n" \
                 "funding transaction id to unlock: 085f3e80771036a68ee4116fdb208eb44ffadce70fcd9d77cf935537535d0b27\n" \
-                "desired target address to which the unlocked funds will be transferred\n" \
+                "desired destination address to which the unlocked funds will be transferred\n" \
                 "==========================\n\n" \
                 "This program produces transaction in a hex format that can be broadcast\n" \
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
-                "broadcast drop-off place.\n\n";
+                "broadcast drop-off place.\n\n" \
+                "This program works for both mainnet and testnet.\n\n";
         string priv_key_wif;
         string src_txid;
         int src_vout {0};
@@ -128,10 +129,10 @@ int main(int argc, char* argv[]) {
         desc.add_options()
                 ("help,h", "print usage message")
                 ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key to unlock the funding transaction (in WIF format)")
-                ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+                ("funding-txid,f", value<string>(&src_txid)->required(), "funding transaction id")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
                 ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
-                ("addr", value<string>(&target_addr)->required(), "target address")
+                ("dest,d", value<string>(&target_addr)->required(), "destination address")
                 ;
 
         variables_map vm;
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--p=<private-key> --t=29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba --am=88000 --l=1616255893 --addr=n4XMrFeDdEg2vtDYQzDcaK7jcthh5xG4MX" << "\n";
+            cout << "--p=<private-key> --f=29e959ce847842ee86d22703b68c725c854328675b660f15d5272fa71ffc38ba --a=88000 --l=1616255893 --d=n4XMrFeDdEg2vtDYQzDcaK7jcthh5xG4MX" << "\n";
             cout << help_text << "\n";
             return 1;
         }

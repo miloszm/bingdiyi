@@ -1,14 +1,30 @@
+/**
+ * Copyright (c) 2020-2021 bingdiyi developers (see AUTHORS)
+ *
+ * This file is part of bingdiyi.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "src/common/bing_common.hpp"
 #include <chrono>
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <binglib/purse_accessor.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/bing_wallet.hpp>
-#include "src/config/bing_config.hpp"
-#include <binglib/electrum_api_client.hpp>
+#include <binglib/ronghua_client.hpp>
 #include <binglib/libb_client.hpp>
-
 
 using namespace boost::program_options;
 using namespace std;
@@ -19,93 +35,128 @@ using namespace bc::machine;
 using namespace std::chrono;
 
 
-void create_time_locking_transaction_from_seed(LibbClient &libb_client, ElectrumApiClient &electrum_api_client, const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee, const uint32_t lock_until, const string seed_phrase) {
-    bool is_testnet = true;
-    int  num_addresses0 = 51;
-    int  num_addresses1 = 15;
+using json = nlohmann::json;
 
-    uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
 
-    vector<string> addresses;
-    map<string, AddressDerivationResult> addresses_to_data;
 
-    cout << "from m/0/0 to m/0/99: " << "\n";
-    BingWallet::derive_electrum_addresses(is_testnet, seed_phrase, num_addresses0, num_addresses1, addresses, addresses_to_data);
+void create_time_locking_transaction_from_seed(
+    LibbClient &libb_client, RonghuaClient &electrum_api_client,
+    const uint64_t satoshis_to_transfer, const uint64_t satoshis_fee,
+    const uint32_t lock_until, const string seed_phrase,
+    int num_rcv_addresses, int num_chg_addresses, bool is_testnet) {
+    try {
+        uint64_t required_funds{satoshis_to_transfer + satoshis_fee};
 
-    cout << "required funds: " << required_funds << "\n";
+        vector<string> addresses;
+        map<string, AddressDerivationResult> addresses_to_data;
 
-    milliseconds ms_before = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+        cout << "deriving addresses:" << " m/0/0 .. m/0/" << num_rcv_addresses-1 << ", m/1/0 .. m/1/" << num_chg_addresses-1 << "\n";
+        BingWallet::derive_electrum_addresses(is_testnet, seed_phrase,
+                                              num_rcv_addresses, num_chg_addresses,
+                                              addresses, addresses_to_data);
 
-    map<string, uint64_t> address_to_balance;
-    AddressFunds funds = PurseAccessor::look_for_funds_by_balance(electrum_api_client, libb_client, required_funds, addresses, address_to_balance);
-//    AddressFunds funds = PurseAccessor::look_for_funds(libb_client, required_funds, addresses);
-    for (auto a: address_to_balance){
-        cout << a.first << " " << a.second << "\n";
+        cout << "required funds: " << required_funds << "\n";
+
+        milliseconds ms_before =
+            duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+
+        map<string, uint64_t> address_to_balance;
+        AddressFunds funds = PurseAccessor::look_for_funds_by_balance(
+            electrum_api_client, libb_client, required_funds, addresses,
+            address_to_balance);
+
+        milliseconds ms_after =
+            duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+
+        int ms_elapsed = ms_after.count() - ms_before.count();
+
+        cout << "took " << ms_elapsed << " ms\n";
+
+        cout << "\n";
+        if (funds.actual_funds >= funds.requested_funds) {
+            cout << "funds found:"
+                 << "\n";
+            cout << "address = " << funds.address << "\n";
+            cout << "requested funds = " << funds.requested_funds << "\n";
+            cout << "actual funds = " << funds.actual_funds << "\n";
+            cout << "refund = " << funds.actual_funds - funds.requested_funds
+                 << "\n";
+            cout << "number of inputs = " << funds.points.size() << "\n";
+        }
+        cout << "\n";
+
+        string source_address = funds.address;
+        ec_private private_key = addresses_to_data[funds.address].priv_key_ec;
+
+        LockTxInfo lock_tx_info =
+            OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(
+                electrum_api_client, source_address, private_key,
+                satoshis_to_transfer, satoshis_fee, lock_until);
+        cout << lock_tx_info.unlocking_info << "\n";
+        cout << "==========================" << "\n";
+        std::cout << "Transaction:" << std::endl;
+        cout << lock_tx_info.locking_tx << "\n";
+        cout << "==========================" << "\n";
+    } catch (exception &e) {
+        cerr << "exception in create_time_locking_transaction_from_seed: "
+             << e.what() << "\n";
     }
-
-    milliseconds ms_after = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
-
-    int ms_elapsed = ms_after.count() - ms_before.count();
-
-    cout << "took " << ms_elapsed << " ms\n";
-
-    if (funds.actual_funds >= funds.requested_funds) {
-        cout << "funds found:" << "\n";
-        cout << "address = " << funds.address << "\n";
-        cout << "requested funds = " << funds.requested_funds << "\n";
-        cout << "actual funds = " << funds.actual_funds << "\n";
-        cout << "refund = " << funds.actual_funds - funds.requested_funds << "\n";
-        cout << "number of inputs = " << funds.points.size() << "\n";
-    }
-
-    string source_address = funds.address;
-    ec_private private_key = addresses_to_data[funds.address].priv_key_ec;
-
-    OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, source_address, private_key, satoshis_to_transfer, satoshis_fee, lock_until);
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[]) {
+    const int DEFAULT_NUM_RCV_ADDRESSES {50};
+    const int DEFAULT_NUM_CHG_ADDRESSES {50};
+    const int MIN_NUM_ADDRESSES {10};
+    const int MAX_NUM_ADDRESSES {10000};
+
     try {
-        LibbClient libb_client;
-        libb_client.init(BingConfig::libbitcoin_server_url);
-        ElectrumApiClient electrum_api_client;
-        electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
+        string help_text =
+            "\nYou only provide Electrum mnemonic seed phrase and the program will\n"
+            "find the funding transaction automatically.\n\n"
+            "Note that all funds must be under a single address, multiple addresses will not\n"
+            "be gathered to contribute their funds to the desired amount.\n\n"
+            "This program does give change, if any, it will be transferred back into the source address.\n"
+            "For 'lock until' time, use any available online epoch time converter, \n"
+            "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n"
+            "unlocking time will be delayed by around 7 blocks.\n\n"
+            "This program produces transaction in a hex format that can be broadcast\n"
+            "using any means, for example via 'bx send-tx <tx>' or any online transaction\n"
+            "broadcast drop-off place.\n\n"
+            "Remember that you need to store the unlocking data as printed out by this program,\n"
+            "otherwise your funds will be lost.\n";
 
-        string help_text = "\nYou only provide Electrum mnemonic seed phrase and the program will\n" \
-                "find the funding transaction automatically.\n\n" \
-                "Note that all funds must be under a single address, multiple addresses will not\n" \
-                "be gathered to contribute their funds to the desired amount.\n\n" \
-                "This program does give change, if any, it will be transferred back into the source address.\n" \
-                "For 'lock until' time, use any available online epoch time converter, \n" \
-                "note that epoch must be in seconds, not milliseconds. Also note, that the actual\n" \
-                "unlocking time will be delayed by around 7 blocks.\n\n" \
-                "This program produces transaction in a hex format that can be broadcast\n" \
-                "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
-                "broadcast drop-off place.\n\n" \
-                "Remember that you need to store the unlocking data as printed out by this program,\n" \
-                "otherwise your funds will be lost.\n";
+        int num_rcv_addresses {DEFAULT_NUM_RCV_ADDRESSES};
+        int num_chg_addresses {DEFAULT_NUM_CHG_ADDRESSES};
 
-        uint64_t amount_to_transfer {0};
-        uint64_t fee {0};
-        uint32_t lock_until {0};
-        string seed_phrase {"effort canal zoo clown shoulder genuine penalty moral unit skate few quick"};
+        uint64_t amount_to_transfer{0};
+        uint64_t fee{0};
+        uint32_t lock_until{0};
+        string seed_phrase{""};
+        bool is_testnet {true};
 
-        options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");
+        options_description desc(
+            "Creates transaction to lock funds via p2sh\n" \
+            "Requires only the seed phrase, finds funding transaction(s) automatically.\n\nRequired options");
         desc.add_options()
-                ("help,h", "print usage message")
-                ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
-                ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-                ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
-                ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
-                ;
+            ("help,h", "print usage message")
+            ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
+            ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
+            ("fee", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
+            ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
+            ("receiving addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
+            ("change addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
+            ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
 
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
 
-        if (vm.count("help") || argc <= 1){
+        if (vm.count("help") || argc <= 1) {
             cout << "\n\n" << desc << "\n";
-            cout << "example:" << "\n";
-            cout << "--amount=890000 --fee=5000 --l=1616255000 --s=""\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\"" << "\n";
+            cout << "example:"
+                 << "\n";
+            cout
+                << "--amount=90000 --fee=5000 --l=1616255000 --s=\"effort canal zoo ... few quick\" --t=true"
+                << "\n";
             cout << help_text << "\n";
             return 1;
         }
@@ -113,10 +164,37 @@ int main(int argc, char* argv[]){
         // note: must be after help option check
         notify(vm);
 
-        create_time_locking_transaction_from_seed(libb_client, electrum_api_client, amount_to_transfer, fee, lock_until, seed_phrase);
+        if (num_rcv_addresses < MIN_NUM_ADDRESSES || num_rcv_addresses > MAX_NUM_ADDRESSES){
+            num_rcv_addresses = DEFAULT_NUM_RCV_ADDRESSES;
+        }
+
+        if (num_chg_addresses < MIN_NUM_ADDRESSES || num_chg_addresses > MAX_NUM_ADDRESSES){
+            num_chg_addresses = DEFAULT_NUM_CHG_ADDRESSES;
+        }
+
+        std::ifstream ifs("config.json");
+        json config_json = json::parse(ifs);
+        string blockchain = is_testnet ? "testnet" : "mainnet";
+        string libbitcoin_server_url = config_json[blockchain]["libbitcoin_connection"]["url"];
+        string electrum_server_host = config_json[blockchain]["electrum_connection"]["host"];
+        string electrum_server_service = config_json[blockchain]["electrum_connection"]["service"];
+        string electrum_cert_file_path = config_json[blockchain]["electrum_connection"]["cert_file_path"];
+
+        LibbClient libb_client;
+        libb_client.init(libbitcoin_server_url);
+        RonghuaClient electrum_api_client;
+        electrum_api_client.init(electrum_server_host,
+                                 electrum_server_service,
+                                 electrum_cert_file_path);
+
+        create_time_locking_transaction_from_seed(
+            libb_client, electrum_api_client, amount_to_transfer, fee,
+            lock_until, seed_phrase, num_rcv_addresses, num_chg_addresses, is_testnet);
+
+        electrum_api_client.do_interrupt();
+        electrum_api_client.stop();
         return 0;
-    }
-    catch(exception& e) {
+    } catch (exception &e) {
         cerr << e.what() << "\n";
     }
 }

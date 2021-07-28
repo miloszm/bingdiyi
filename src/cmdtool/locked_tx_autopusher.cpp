@@ -1,6 +1,23 @@
+/**
+ * Copyright (c) 2020-2021 bingdiyi developers (see AUTHORS)
+ *
+ * This file is part of bingdiyi.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "src/common/bing_common.hpp"
-#include "src/config/bing_config.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/online_lock_tx_creator.hpp>
 #include <binglib/libb_client.hpp>
@@ -27,30 +44,8 @@ using namespace bc::machine;
 
 
 
-
-int main2() {
-    LibbClient libb_client;
-    libb_client.init(BingConfig::libbitcoin_server_url);
-
-    const string version {"0.001"};
-    cout << "locked_tx_pusher" << "\n";
-    cout << "version:" << version << "\n";
-
-    const string src_addr {"mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh"};
-    const string priv_key_wif {"cQZ57Q5w1F9YS5n1h81QqnrN2Ea54BMNPCnzoqqgPMdB9wbzwxM6"};
-    const uint64_t satoshis_to_transfer {2000000};
-    const uint64_t satoshis_fee {10000};
-    const uint32_t lock_until = 1615591800;
-
-    OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, src_addr, priv_key_wif, satoshis_to_transfer, satoshis_fee, lock_until);
-    return 0;
-}
-
 int main(int argc, char* argv[]) {
     try {
-        LibbClient libb_client;
-        libb_client.init(BingConfig::libbitcoin_server_url);
-
         string help_text = "\nYou can find funding address by inspecting your wallet.\n" \
                 "Note that the amount to transfer plus fee must be smaller than or equal to the available amount for a given address.\n" \
                 "This program does give change, if any, it will be transferred back into the source address.\n" \
@@ -71,15 +66,17 @@ int main(int argc, char* argv[]) {
         uint64_t amount_to_transfer;
         uint64_t fee;
         uint32_t lock_until;
-        options_description desc("Creates transaction to lock funds via p2sh\n\nRequired options");
+        bool is_testnet {true};
+        options_description desc("Creates transaction to lock funds via p2sh. Unlike crlocktx, it does give the rest.\n" \
+                                 "It does not require funding transaction so it is easier to use than crlocktx.\n\nRequired options");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("addr", value<string>(&src_addr)->required(), "funding address")
                 ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key for the funding address (in WIF format)")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-                ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
+                ("fee", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
                 ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
-                ;
+                ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
 
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
@@ -87,7 +84,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--amount=890000 --fee=5000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--amount=890000 --fee=5000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq --t=true" << "\n";
             cout << help_text << "\n";
             return 1;
         }
@@ -95,7 +92,23 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
-        OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(libb_client, src_addr, priv_key_wif, amount_to_transfer, fee, lock_until);
+        std::ifstream ifs("config.json");
+        json config_json = json::parse(ifs);
+        string blockchain = is_testnet ? "testnet" : "mainnet";
+        string libbitcoin_server_url = config_json[blockchain]["libbitcoin_connection"]["url"];
+
+        LibbClient libb_client;
+        libb_client.init(libbitcoin_server_url);
+
+        LockTxInfo lock_tx_info =
+            OnlineLockTxCreator::construct_p2sh_time_locking_tx_from_address(
+                libb_client, src_addr, priv_key_wif, amount_to_transfer, fee,
+                lock_until);
+        cout << lock_tx_info.unlocking_info << "\n";
+        cout << "==========================" << "\n";
+        std::cout << "Transaction:" << std::endl;
+        cout << lock_tx_info.locking_tx << "\n";
+        cout << "==========================" << "\n";
 
         return 0;
     }

@@ -1,15 +1,29 @@
+/**
+ * Copyright (c) 2020-2021 bingdiyi developers (see AUTHORS)
+ *
+ * This file is part of bingdiyi.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "src/common/bing_common.hpp"
-#include "src/config/bing_config.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
-#include <binglib/online_lock_tx_creator.hpp>
-#include <binglib/libb_client.hpp>
-#include <binglib/electrum_api_client.hpp>
-#include <binglib/purse_accessor.hpp>
 #include <binglib/bing_wallet.hpp>
 #include <binglib/wallet_state.hpp>
 #include <binglib/history_inspector.hpp>
 #include <algorithm>
+#include "ronghua_client_provider.hpp"
 
 using namespace boost::program_options;
 using namespace std;
@@ -18,41 +32,76 @@ using namespace bc::chain;
 using namespace bc::wallet;
 using namespace bc::machine;
 
+int main(int argc, char* argv[]) {
+    try {
+        const int DEFAULT_NUM_RCV_ADDRESSES {50};
+        const int DEFAULT_NUM_CHG_ADDRESSES {50};
+        int num_rcv_addresses {DEFAULT_NUM_RCV_ADDRESSES};
+        int num_chg_addresses {DEFAULT_NUM_CHG_ADDRESSES};
+        string seed_phrase{""};
+        bool is_testnet {true};
+        options_description desc("Displays wallet history\n\nRequired options");
+        desc.add_options()
+                ("help,h", "print usage message")
+                ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
+                ("receiving-addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
+                ("change-addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
+                ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
+                ;
 
+        variables_map vm;
+        store(parse_command_line(argc, argv, desc), vm);
 
+        if (vm.count("help") || argc <= 1) {
+            cout << "\n\n" << desc << "\n";
+            cout << "example:" << "\n";
+            cout
+                    << "--r=50 --c=50 --s=""\"effort canal zoo ... few quick\" --t=true"
+                    << "\n";
+            return 1;
+        }
 
-int main() {
-    LibbClient libb_client;
-    libb_client.init(BingConfig::libbitcoin_server_url);
-    ElectrumApiClient electrum_api_client;
-    electrum_api_client.init(BingConfig::electrum_server_host, BingConfig::electrum_server_service, BingConfig::electrum_cert_file_path);
+        // note: must be after help option check
+        notify(vm);
 
-    bool is_testnet = true;
-    int  num_addresses0 = 51;
-    int  num_addresses1 = 15;
-    vector<string> addresses;
-    map<string, AddressDerivationResult> addresses_to_data;
-    string seed_phrase = "effort canal zoo clown shoulder genuine penalty moral unit skate few quick";
-    BingWallet::derive_electrum_addresses(is_testnet, seed_phrase, num_addresses0, num_addresses1, addresses, addresses_to_data);
+        std::ifstream ifs("config.json");
+        json config_json = json::parse(ifs);
+        string blockchain = is_testnet ? "testnet" : "mainnet";
+        string electrum_server_host = config_json[blockchain]["electrum_connection"]["host"];
+        string electrum_server_service = config_json[blockchain]["electrum_connection"]["service"];
+        string electrum_cert_file_path = config_json[blockchain]["electrum_connection"]["cert_file_path"];
 
-    WalletState wallet_state(addresses, addresses_to_data);
+        RonghuaClient electrum_api_client;
+        electrum_api_client.init(electrum_server_host,
+                                 electrum_server_service,
+                                 electrum_cert_file_path);
 
-    HistoryInspector history_inspector(is_testnet, electrum_api_client, libb_client, wallet_state);
+        vector<string> addresses;
+        map<string, AddressDerivationResult> addresses_to_data;
+        BingWallet::derive_electrum_addresses(is_testnet, seed_phrase,
+                                              num_rcv_addresses, num_chg_addresses,
+                                              addresses, addresses_to_data);
 
-    uint64_t balance = history_inspector.calculate_address_balance("mkP2QQqQYsReSpt3JBoRQ5zVdw3ra1jenh");
+        WalletState wallet_state(addresses, addresses_to_data);
 
-    cout << "\n\nbalance=" << balance << "\n\n";
+        RonghuaClientProvider ronghua_client_provider(electrum_api_client);
+        HistoryInspector history_inspector(is_testnet, ronghua_client_provider,
+                                           wallet_state);
 
-    uint64_t total_balance = history_inspector.calculate_total_balance();
+        history_inspector.create_history_view_rows(true);
+        vector<HistoryViewRow> history_view_rows =
+                wallet_state.get_history_update();
 
-    cout << "\n\ntotal_balance=" << total_balance << "\n\n";
+        cout << "<block>:<amount>:<balance>:<txid>:<p2sh>" << "\n";
+        for (auto &r : history_view_rows) {
+            cout << r.height << " " << r.balance_delta << " " << r.balance << " "
+                 << r.tx_id << " p2sh=" << r.is_p2sh << "\n";
+        }
 
-    history_inspector.create_history_view_rows();
-    vector<HistoryViewRow> history_view_rows = wallet_state.get_history_update();
-
-    for (auto& r: history_view_rows){
-        cout << r.height << " " << r.balance_delta << " " << r.balance << " " << r.tx_id << " p2sh=" << r.is_p2sh << "\n";
+        electrum_api_client.stop();
+        return 0;
     }
-
-    return 0;
+    catch(exception& e) {
+        cerr << e.what() << "\n";
+    }
 }

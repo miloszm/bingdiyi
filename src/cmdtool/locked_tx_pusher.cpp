@@ -1,5 +1,23 @@
+/**
+ * Copyright (c) 2020-2021 bingdiyi developers (see AUTHORS)
+ *
+ * This file is part of bingdiyi.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "src/common/bing_common.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <binglib/redeem_script.hpp>
 #include <boost/program_options.hpp>
 
@@ -87,32 +105,9 @@ void construct_p2sh_time_locking_transaction_from_tx(
     cout << "3) available amount: " << amount_to_transfer << "\n";
     cout << "   from ^^ please subtract fee" << "\n";
     cout << "4) funding transaction id: " << tx_to_unlock << "\n";
-    cout << "5) desired target address to which the unlocked funds will be transferred" << "\n";
+    cout << "5) desired destination address to which the unlocked funds will be transferred" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
-}
-
-int main2() {
-    const string version {"0.001"};
-    cout << "locked_tx_pusher" << "\n";
-    cout << "version:" << version << "\n";
-    /**
-     * 1. source address (for reference only)
-     * 2. private key for source_addr (note source address as SA)
-     * 3. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
-     * 4. source transaction's output index (as found out via bx fetch-utxo <satoshis> SA)
-     * 5. amount to transfer in Satoshis
-     * 6. lock until epoch time (in seconds)
-     */
-    const string src_addr = "12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4";
-    const string priv_key_wif {"L4uNXb2MvLmAtbVMbYg7XsSjgemmyPCnVFaqB4ZX39g8GGNQGqFR"}; // SA = 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const string src_txid {"22667c482f0f69daefabdf0969be53b8d539e1d2abbfc1c7a193ae38ec0d3e31"}; // bx fetch-utxo 80000 12tohASdGUCDFvqaygaGbL7Jub7CiHdwa4
-    const int src_vout {0};
-    const uint64_t amount_to_transfer {51000};
-    const uint32_t lock_until = 1615381200;
-
-    construct_p2sh_time_locking_transaction_from_tx(src_addr, priv_key_wif, src_txid, src_vout, amount_to_transfer, lock_until);
-    return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -137,7 +132,8 @@ int main(int argc, char* argv[]) {
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
                 "broadcast drop-off place.\n\n" \
                 "Remember that you need to store the unlocking data as printed out by this program,\n" \
-                "otherwise your funds will be lost.\n";
+                "otherwise your funds will be lost.\n\n" \
+                "This program works for both mainnet and testnet.\n";
 
         string src_addr;
         string priv_key_wif;
@@ -150,7 +146,7 @@ int main(int argc, char* argv[]) {
             ("help,h", "print usage message")
             ("addr", value<string>(&src_addr)->required(), "funding address")
             ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key to unlock the funding transaction (in WIF format)")
-            ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+            ("funding-txid,f", value<string>(&src_txid)->required(), "funding transaction id")
             ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
             ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
             ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
@@ -162,7 +158,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--f=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --a=890000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
             cout << help_text << "\n";
             return 1;
         }

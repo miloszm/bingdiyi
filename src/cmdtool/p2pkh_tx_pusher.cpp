@@ -1,5 +1,23 @@
+/**
+ * Copyright (c) 2020-2021 bingdiyi developers (see AUTHORS)
+ *
+ * This file is part of bingdiyi.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "src/common/bing_common.hpp"
-#include <bitcoin/bitcoin.hpp>
+#include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
 
 using namespace boost::program_options;
@@ -26,10 +44,6 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   const wallet::ec_public pub_key = priv_key_ec.to_public();
   const libbitcoin::config::base16 priv_key =
       libbitcoin::config::base16(priv_key_ec.secret());
-
-  cout << "priv WIF: " << priv_key_ec << endl;
-  cout << "public hex: " << pub_key << endl;
-  cout << "private hex: " << priv_key << endl;
 
   /**
    * make output
@@ -61,7 +75,7 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   script previous_locking_script =
       script().to_pay_key_hash_pattern(bitcoin_short_hash(pub_key_chunk));
   std::cout << "\nPrevious Locking Script: "
-            << previous_locking_script.to_string(0xffffffff) << std::endl;
+            << previous_locking_script.to_string(0xffffffff) << "\n";
 
   /**
    * make input
@@ -88,7 +102,7 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   endorsement sig;
   if (previous_locking_script.create_endorsement(
           sig, priv_key_ec.secret(), previous_locking_script, tx, 0u, all)) {
-    std::cout << "Signature: " << encode_base16(sig) << std::endl;
+    std::cout << "Signature: " << encode_base16(sig);
   }
 
   /**
@@ -101,37 +115,17 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   script script_unlocking_previous_locking_script(sig_script);
   std::cout << "\nUnlocking Script: "
             << script_unlocking_previous_locking_script.to_string(0xffffffff)
-            << std::endl;
+            << "\n";
 
   /**
    * make Signed TX
    * fill out input with unlocking script which was missing until this point
    */
   tx.inputs()[0].set_script(script_unlocking_previous_locking_script);
-  std::cout << "Raw Transaction: " << std::endl;
-  std::cout << encode_base16(tx.to_data()) << std::endl;
-}
-
-int main2() {
-  /**
-   * 1. private key for source_addr (note source address as SA)
-   * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
-   * 3. source transaction's output index (as found out via bx fetch-utxo
-   * <satoshis> SA)
-   * 4. main target address
-   * 5. amount to transfer in Satoshis
-   */
-  const string priv_key_wif{
-      "cSv9QafnL7UxFDdbRe7G9JtzWn3RoV1GCW9FfFzjDgLUNZgsBwsA"}; // SA = n2JZCSr8MeGuGtvRVjZTqgNNw9pyYW98Pm
-  const string src_tx_id{
-      "ff1340557b325471f87873b8ec4a0cc84786b1496485b674145732e5d1b405e5"};
-  const int src_tx_output_index{0};
-  const string target_addr{"mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz"};
-  const uint64_t satoshis_to_transfer{75000};
-
-    construct_p2pkh_tx_from_funding_tx(priv_key_wif, src_tx_id, src_tx_output_index,
-                                target_addr, satoshis_to_transfer);
-  return 0;
+  cout << "==========================" << "\n";
+  std::cout << "Transaction:" << "\n";
+  std::cout << encode_base16(tx.to_data()) << "\n";
+  cout << "==========================" << "\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -151,7 +145,7 @@ int main(int argc, char* argv[]) {
                 "Ignore script type part of the key, like 'p2pkh', copy only the key part.\n\n" \
                 "This is an offline program, it produces transaction in a hex format that can be broadcast\n" \
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
-                "broadcast drop-off place.\n\n";
+                "broadcast drop-off place. This program works for both mainnet and testnet.\n\n";
 
         string priv_key_wif;
         string src_txid;
@@ -162,10 +156,10 @@ int main(int argc, char* argv[]) {
         desc.add_options()
                 ("help,h", "print usage message")
                 ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key (in WIF format)")
-                ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+                ("funding-txid,f", value<string>(&src_txid)->required(), "funding transaction id")
                 ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-                ("addr", value<string>(&target_addr)->required(), "target address")
+                ("dest,d", value<string>(&target_addr)->required(), "destination address")
                 ;
 
         variables_map vm;
@@ -174,7 +168,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--f=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --p=<private-key> --dest=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
             cout << help_text << "\n";
             return 1;
         }
