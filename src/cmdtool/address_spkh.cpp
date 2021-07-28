@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
     try {
         string addr_base58;
 
-        options_description desc("Converts address to epsmi key");
+        options_description desc("Converts address to EPS/EPSMI/Electrum Server address history key");
         desc.add_options()
                 ("help,h", "print usage message")
                 ("addr", value<string>(&addr_base58)->required(), "source address");
@@ -26,15 +26,15 @@ int main(int argc, char* argv[]){
         if (vm.count("help") || argc <= 1) {
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--a=mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE" << "\n\n";
+            cout << "--a=1FpeH5RojTMpaUS8oreYBRtMpCk1mfVxcf" << "\n\n";
             return 1;
         }
 
         // note: must be after help option check
         notify(vm);
 
-        string converted = AddressConverter::base58_to_spkh_hex("mpS14bFCZiHFRxfNNbnPT2FScJBrm96iLE");
-        cout << converted << "\n";
+        string converted = AddressConverter::base58_to_spkh_hex(addr_base58);
+        cout << addr_base58 << " ==> " << converted << "\n";
         return 0;
     }
     catch(exception& e) {

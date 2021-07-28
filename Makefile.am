@@ -1,33 +1,28 @@
 bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv lclient history balance
 
-lclient_SOURCES = src/config/bing_config.cpp \
-                  src/libbitcoinclient/lclient.cpp
+lclient_SOURCES = src/libbitcoinclient/lclient.cpp
 
 crtx_SOURCES = src/cmdtool/p2pkh_tx_pusher.cpp
 
-crtx2_SOURCES = src/config/bing_config.cpp \
-                src/cmdtool/p2pkh_tx_autopusher.cpp
+crtx2_SOURCES = src/cmdtool/p2pkh_tx_autopusher.cpp
 
 crlocktx_SOURCES = src/cmdtool/locked_tx_pusher.cpp
 
-crlocktx2_SOURCES = src/config/bing_config.cpp \
-                    src/cmdtool/locked_tx_autopusher.cpp
+crlocktx2_SOURCES = src/cmdtool/locked_tx_autopusher.cpp
 
-crlocktx3_SOURCES = src/config/bing_config.cpp \
-                    src/cmdtool/locked_tx_autopusher_seed.cpp
+crlocktx3_SOURCES = src/cmdtool/locked_tx_autopusher_seed.cpp
 
 crunlocktx_SOURCES = src/cmdtool/locked_tx_spender.cpp
 
-eclient_SOURCES = src/config/bing_config.cpp \
-                  src/electrumclient/eclient.cpp
+eclient_SOURCES = src/electrumclient/eclient.cpp
 
 aconv_SOURCES = src/cmdtool/address_spkh.cpp
 
-history_SOURCES = src/config/bing_config.cpp \
-                  src/cmdtool/history.cpp
+history_SOURCES = src/cmdtool/history.cpp
 
-balance_SOURCES = src/config/bing_config.cpp \
-                  src/cmdtool/balance.cpp
+balance_SOURCES = src/cmdtool/balance.cpp
+
+
 
 
 lclient_LDADD= @bitcoin_client_LIBS@
