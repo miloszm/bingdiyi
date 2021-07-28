@@ -29,9 +29,9 @@ int main(int argc, char* argv[]) {
     desc.add_options()
             ("help,h", "print usage message")
             ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
-            ("address,a", value<string>(&address), "optional address")
-            ("receiving addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
-            ("change addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
+            ("addr", value<string>(&address), "optional address")
+            ("receiving-addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
+            ("change-addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
             ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
     ;
 
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
         cout << "\n\n" << desc << "\n";
         cout << "example:" << "\n";
         cout
-                << "--r=50 --c=50 --s=""\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\""
+                << "--r=50 --c=50 --s=""\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\" --t=true"
                 << "\n";
         return 1;
     }

@@ -1,5 +1,4 @@
 #include "src/common/bing_common.hpp"
-#include "src/config/bing_config.hpp"
 #include <bitcoin/system.hpp>
 #include <boost/program_options.hpp>
 #include <binglib/online_p2pkh_tx_creator.hpp>
@@ -27,9 +26,7 @@ using namespace bc::machine;
 
 int main(int argc, char* argv[]) {
     try {
-        LibbClient libb_client;
-        libb_client.init(BingConfig::libbitcoin_server_url);
-
+        bool is_testnet {true};
         string help_text = "\nYou can find funding address by inspecting your wallet.\n" \
                 "Note that the amount to transfer plus fee must be smaller than or equal to the available amount for a given address.\n" \
                 "This program does give change, if any, it will be transferred back into the source address.\n" \
@@ -51,8 +48,9 @@ int main(int argc, char* argv[]) {
                 ("addr", value<string>(&src_addr)->required(), "funding address")
                 ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key for the funding address (in WIF format)")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-                ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
-                ("target,t", value<string>(&target_addr)->required(), "target address")
+                ("fee", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
+                ("dest,d", value<string>(&target_addr)->required(), "destination address")
+                ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
                 ;
 
         variables_map vm;
@@ -61,7 +59,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--amount=90000 --fee=5000 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq --target=morHRfjX3sQ4R2BRSyjij8yePAW2XKHWd3" << "\n";
+            cout << "--amount=90000 --fee=5000 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq --d=morHRfjX3sQ4R2BRSyjij8yePAW2XKHWd3 --t=true" << "\n";
             cout << help_text << "\n";
             return 1;
         }
@@ -69,13 +67,18 @@ int main(int argc, char* argv[]) {
         // note: must be after help option check
         notify(vm);
 
+        std::ifstream ifs("config.json");
+        json config_json = json::parse(ifs);
+        string blockchain = is_testnet ? "testnet" : "mainnet";
+        string libbitcoin_server_url = config_json[blockchain]["libbitcoin_connection"]["url"];
+        LibbClient libb_client;
+        libb_client.init(libbitcoin_server_url);
+
         string tx_hex = OnlineP2pkhTxCreator::construct_p2pkh_tx_from_address(libb_client, src_addr, priv_key_wif, amount_to_transfer, fee, target_addr);
 
         cout << "==========================" << "\n";
-        cout << "==========================" << "\n";
         std::cout << "Transaction:" << std::endl;
         std::cout << tx_hex << std::endl;
-        cout << "==========================" << "\n";
         cout << "==========================" << "\n";
 
         return 0;

@@ -75,7 +75,10 @@ void create_time_locking_transaction_from_seed(
                 electrum_api_client, source_address, private_key,
                 satoshis_to_transfer, satoshis_fee, lock_until);
         cout << lock_tx_info.unlocking_info << "\n";
+        cout << "==========================" << "\n";
+        std::cout << "Transaction:" << std::endl;
         cout << lock_tx_info.locking_tx << "\n";
+        cout << "==========================" << "\n";
     } catch (exception &e) {
         cerr << "exception in create_time_locking_transaction_from_seed: "
              << e.what() << "\n";
@@ -119,7 +122,7 @@ int main(int argc, char *argv[]) {
             ("help,h", "print usage message")
             ("seed,s", value<string>(&seed_phrase)->required(), "Electrum seed phrase")
             ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-            ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
+            ("fee", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
             ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
             ("receiving addresses,r", value<int>(&num_rcv_addresses)->default_value(DEFAULT_NUM_RCV_ADDRESSES), "number of receiving addresses")
             ("change addresses,c", value<int>(&num_chg_addresses)->default_value(DEFAULT_NUM_CHG_ADDRESSES),"number of change addresses")
@@ -133,7 +136,7 @@ int main(int argc, char *argv[]) {
             cout << "example:"
                  << "\n";
             cout
-                << "--amount=90000 --fee=5000 --l=1616255000 --s=\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\""
+                << "--amount=90000 --fee=5000 --l=1616255000 --s=\"effort canal zoo clown shoulder genuine penalty moral unit skate few quick\" --t=true"
                 << "\n";
             cout << help_text << "\n";
             return 1;

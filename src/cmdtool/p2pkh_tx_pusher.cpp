@@ -27,10 +27,6 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   const libbitcoin::config::base16 priv_key =
       libbitcoin::config::base16(priv_key_ec.secret());
 
-  cout << "priv WIF: " << priv_key_ec << endl;
-  cout << "public hex: " << pub_key << endl;
-  cout << "private hex: " << priv_key << endl;
-
   /**
    * make output
    * payment_address decodes base58 address and calculates hash for it
@@ -61,7 +57,7 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   script previous_locking_script =
       script().to_pay_key_hash_pattern(bitcoin_short_hash(pub_key_chunk));
   std::cout << "\nPrevious Locking Script: "
-            << previous_locking_script.to_string(0xffffffff) << std::endl;
+            << previous_locking_script.to_string(0xffffffff) << "\n";
 
   /**
    * make input
@@ -88,7 +84,7 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   endorsement sig;
   if (previous_locking_script.create_endorsement(
           sig, priv_key_ec.secret(), previous_locking_script, tx, 0u, all)) {
-    std::cout << "Signature: " << encode_base16(sig) << std::endl;
+    std::cout << "Signature: " << encode_base16(sig);
   }
 
   /**
@@ -101,15 +97,17 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   script script_unlocking_previous_locking_script(sig_script);
   std::cout << "\nUnlocking Script: "
             << script_unlocking_previous_locking_script.to_string(0xffffffff)
-            << std::endl;
+            << "\n";
 
   /**
    * make Signed TX
    * fill out input with unlocking script which was missing until this point
    */
   tx.inputs()[0].set_script(script_unlocking_previous_locking_script);
-  std::cout << "Raw Transaction: " << std::endl;
-  std::cout << encode_base16(tx.to_data()) << std::endl;
+  cout << "==========================" << "\n";
+  std::cout << "Transaction:" << "\n";
+  std::cout << encode_base16(tx.to_data()) << "\n";
+  cout << "==========================" << "\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -140,10 +138,10 @@ int main(int argc, char* argv[]) {
         desc.add_options()
                 ("help,h", "print usage message")
                 ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key (in WIF format)")
-                ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+                ("funding-txid,f", value<string>(&src_txid)->required(), "funding transaction id")
                 ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-                ("addr", value<string>(&target_addr)->required(), "target address")
+                ("dest,d", value<string>(&target_addr)->required(), "destination address")
                 ;
 
         variables_map vm;
@@ -152,7 +150,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--f=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --p=<private-key> --dest=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
             cout << help_text << "\n";
             return 1;
         }

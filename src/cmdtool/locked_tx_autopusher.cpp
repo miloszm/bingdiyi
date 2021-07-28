@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
                 ("addr", value<string>(&src_addr)->required(), "funding address")
                 ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key for the funding address (in WIF format)")
                 ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
-                ("fee,f", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
+                ("fee", value<uint64_t>(&fee)->required(), "fee (satoshis), note: amount+fee <= available funds")
                 ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
                 ("testnet,t", value<bool>(&is_testnet)->default_value(true),"use testnet blockchain");
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--amount=890000 --fee=5000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--amount=890000 --fee=5000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq --t=true" << "\n";
             cout << help_text << "\n";
             return 1;
         }
@@ -86,7 +86,10 @@ int main(int argc, char* argv[]) {
                 libb_client, src_addr, priv_key_wif, amount_to_transfer, fee,
                 lock_until);
         cout << lock_tx_info.unlocking_info << "\n";
+        cout << "==========================" << "\n";
+        std::cout << "Transaction:" << std::endl;
         cout << lock_tx_info.locking_tx << "\n";
+        cout << "==========================" << "\n";
 
         return 0;
     }

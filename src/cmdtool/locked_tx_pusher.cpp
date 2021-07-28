@@ -87,7 +87,7 @@ void construct_p2sh_time_locking_transaction_from_tx(
     cout << "3) available amount: " << amount_to_transfer << "\n";
     cout << "   from ^^ please subtract fee" << "\n";
     cout << "4) funding transaction id: " << tx_to_unlock << "\n";
-    cout << "5) desired target address to which the unlocked funds will be transferred" << "\n";
+    cout << "5) desired destination address to which the unlocked funds will be transferred" << "\n";
     cout << "==========================" << "\n";
     cout << "==========================" << "\n";
 }
@@ -114,7 +114,8 @@ int main(int argc, char* argv[]) {
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
                 "broadcast drop-off place.\n\n" \
                 "Remember that you need to store the unlocking data as printed out by this program,\n" \
-                "otherwise your funds will be lost.\n";
+                "otherwise your funds will be lost.\n\n" \
+                "This program works for both mainnet and testnet.\n";
 
         string src_addr;
         string priv_key_wif;
@@ -127,7 +128,7 @@ int main(int argc, char* argv[]) {
             ("help,h", "print usage message")
             ("addr", value<string>(&src_addr)->required(), "funding address")
             ("priv-key,p", value<string>(&priv_key_wif)->required(), "private key to unlock the funding transaction (in WIF format)")
-            ("txid,t", value<string>(&src_txid)->required(), "funding transaction id")
+            ("funding-txid,f", value<string>(&src_txid)->required(), "funding transaction id")
             ("vout,v", value<int>(&src_vout)->required(), "funding transaction output index (vout)")
             ("amount", value<uint64_t>(&amount_to_transfer)->required(), "amount to transfer (satoshis)")
             ("lock-until,l", value<uint32_t>(&lock_until)->required(), "lock until epoch time (seconds)")
@@ -139,7 +140,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("help") || argc <= 1){
             cout << "\n\n" << desc << "\n";
             cout << "example:" << "\n";
-            cout << "--t=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --amount=890000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
+            cout << "--f=d001bd68fc87f05ae3760b4f9c4b64e1000d9194d9c95e0b5a7c7efd933f43d1 --v=0 --a=890000 --l=1616255893 --p=<private-key> --addr=msWHhBL1vLycmZtQ5M1j7xWuUYvienydfq" << "\n";
             cout << help_text << "\n";
             return 1;
         }
