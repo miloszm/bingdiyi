@@ -423,7 +423,7 @@ Required options:
 
 ***
 
-##aconv
+## aconv
 
 Converts address to scripthash as used by EPS/EPSMI/Electrum Server address history key.
 
