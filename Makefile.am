@@ -1,7 +1,7 @@
-bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv main history balance
+bin_PROGRAMS = crlocktx crunlocktx crlocktx2 crlocktx3 crtx crtx2 eclient aconv lclient history balance
 
-main_SOURCES = src/config/bing_config.cpp \
-               src/main.cpp
+lclient_SOURCES = src/config/bing_config.cpp \
+                  src/libbitcoinclient/lclient.cpp
 
 crtx_SOURCES = src/cmdtool/p2pkh_tx_pusher.cpp
 
@@ -30,7 +30,7 @@ balance_SOURCES = src/config/bing_config.cpp \
                   src/cmdtool/balance.cpp
 
 
-main_LDADD= @bitcoin_client_LIBS@
+lclient_LDADD= @bitcoin_client_LIBS@
 
 crtx_LDADD= @bitcoin_client_LIBS@
 

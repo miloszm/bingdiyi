@@ -11,7 +11,6 @@ using namespace boost::program_options;
 int main(int argc, char *argv[]) {
     try {
         bool is_testnet{true};
-        string address{""};
 
         options_description desc(
             "Demonstrates examples of programmatic calls via Electrum client\n\nRequired options");
