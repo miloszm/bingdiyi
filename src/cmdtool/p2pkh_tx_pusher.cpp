@@ -112,28 +112,6 @@ void construct_p2pkh_tx_from_funding_tx(const string priv_key_wif,
   std::cout << encode_base16(tx.to_data()) << std::endl;
 }
 
-int main2() {
-  /**
-   * 1. private key for source_addr (note source address as SA)
-   * 2. source transaction id (as found out via bx fetch-utxo <satoshis> SA)
-   * 3. source transaction's output index (as found out via bx fetch-utxo
-   * <satoshis> SA)
-   * 4. main target address
-   * 5. amount to transfer in Satoshis
-   */
-  const string priv_key_wif{
-      "cSv9QafnL7UxFDdbRe7G9JtzWn3RoV1GCW9FfFzjDgLUNZgsBwsA"}; // SA = n2JZCSr8MeGuGtvRVjZTqgNNw9pyYW98Pm
-  const string src_tx_id{
-      "ff1340557b325471f87873b8ec4a0cc84786b1496485b674145732e5d1b405e5"};
-  const int src_tx_output_index{0};
-  const string target_addr{"mr4KnTn1ynJnX3BW4WaudRCgmYCqJjsPQz"};
-  const uint64_t satoshis_to_transfer{75000};
-
-    construct_p2pkh_tx_from_funding_tx(priv_key_wif, src_tx_id, src_tx_output_index,
-                                target_addr, satoshis_to_transfer);
-  return 0;
-}
-
 int main(int argc, char* argv[]) {
     try {
         string help_text = "\nYou can find funding transaction by: \n" \
@@ -151,7 +129,7 @@ int main(int argc, char* argv[]) {
                 "Ignore script type part of the key, like 'p2pkh', copy only the key part.\n\n" \
                 "This is an offline program, it produces transaction in a hex format that can be broadcast\n" \
                 "using any means, for example via 'bx send-tx <tx>' or any online transaction\n" \
-                "broadcast drop-off place.\n\n";
+                "broadcast drop-off place. This program works for both mainnet and testnet.\n\n";
 
         string priv_key_wif;
         string src_txid;
