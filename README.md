@@ -41,7 +41,7 @@ be polluted by legacy transactions too much.
 All utilities support mainnet and testnet, online commands require --t=false for mainnet
 and --t=true for testnet, which is the default.
 
-UI desktop wallet that uses this library can be seen in the demo film at: https://www.youtube.com/watch?v=eBqC2IIbnQA
+UI desktop wallet that uses this library can be seen in the demo at: https://www.youtube.com/watch?v=eBqC2IIbnQA
 
 
 ## servers
